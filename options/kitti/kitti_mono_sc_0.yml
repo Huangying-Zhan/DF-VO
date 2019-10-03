@@ -1,0 +1,41 @@
+# This configuration corresponds to Ours (Mono-SC Train.) in the paper.
+
+# ----------------------------------------------------------------------------
+# Basic setup
+# ----------------------------------------------------------------------------
+result_dir: result/mono_sc/0
+
+# ----------------------------------------------------------------------------
+# Deep single-view depth
+# ----------------------------------------------------------------------------
+depth:
+  depth_src:  # (blank: deep model inference; 0: GT depth)
+  max_depth: 200
+  min_depth: 0
+  pretrained_model: model_zoo/depth/kitti_odom/mono_sc/
+
+# ----------------------------------------------------------------------------
+# Visualization
+# ----------------------------------------------------------------------------
+visualization:
+  flow: 
+    vis_full_flow: False
+    vis_back_flow: False
+    vis_flow_diff: False
+  match:
+    kp_num: 50  # -1 for using all
+    vis_type: 0
+      # None: None
+      # 0: draw_match_2_side
+      # 1: draw_match_temporal
+      # 2: both
+  trajectory:
+    vis_traj: True
+    draw_scale: 0.8
+    mono_scale: 0.2 #5.4; 0.2
+    vis_gt_traj: True
+  depth:
+    use_tracking_depth: False
+    vis_full_depth: False
+    vis_full_disp: False
+  

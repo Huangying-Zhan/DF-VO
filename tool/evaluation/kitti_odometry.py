@@ -1,3 +1,9 @@
+# Copyright (C) Huangying Zhan 2019. All rights reserved.
+#
+# This software is licensed under the terms of the DF-VO licence
+# which allows for non-commercial use only, the full terms of which are made
+# available in the LICENSE file.
+
 import copy
 from matplotlib import pyplot as plt
 import numpy as np

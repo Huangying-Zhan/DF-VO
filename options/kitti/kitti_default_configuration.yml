@@ -6,7 +6,7 @@ seed: 4869
 image:
   height: 370
   width: 1226
-seq: "09"
+seq: "10"
 result_dir: result/tmp/0
 
 # ----------------------------------------------------------------------------
@@ -45,7 +45,6 @@ depth:
   depth_src:  # (blank: deep model inference; 0: GT depth)
   max_depth: 50
   min_depth: 0
-  num_kp: 1000
   pretrained_model: model_zoo/depth/kitti_odom/stereo/
 
 # ----------------------------------------------------------------------------
@@ -54,6 +53,7 @@ depth:
 deep_flow:
   forward_backward: True
   num_kp: 2000
+  kp_sel_method: uniform_bestN
   network: liteflow  
     # liteflow: LiteFlowNet
   flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
@@ -84,7 +84,7 @@ visualization:
       # 2: both
   trajectory:
     vis_traj: True
-    draw_scale: 1
+    draw_scale: 0.8
     mono_scale: 1 #5.4; 0.2
     vis_gt_traj: True
   depth:

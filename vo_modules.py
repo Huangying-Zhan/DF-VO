@@ -347,21 +347,13 @@ class VisualOdometry():
         self.img_path_dir, self.depth_seq_dir, self.depth_src = self.get_img_depth_dir()
 
         # generate keypoint sampling scheme
-        self.shuffle_list = None
+        self.uniform_kp_list = None
         if (self.cfg.deep_flow.num_kp is not None and self.feature_tracking_method == "deep_flow"):
-            self.shuffle_list = self.generate_kp_samples(
+            self.uniform_kp_list = self.generate_kp_samples(
                                         img_h=self.cfg.image.height,
                                         img_w=self.cfg.image.width,
                                         crop=self.cfg.crop.flow_crop,
                                         N=self.cfg.deep_flow.num_kp
-                                        )
-        self.depth_kp_list = None
-        if (self.cfg.depth.num_kp is not None):
-            self.depth_kp_list = self.generate_kp_samples(
-                                        img_h=self.cfg.image.height,
-                                        img_w=self.cfg.image.width,
-                                        crop=self.cfg.crop.flow_crop,
-                                        N=self.cfg.depth.num_kp
                                         )
 
         # Deep networks
@@ -644,7 +636,7 @@ class VisualOdometry():
             cur_imgs = [cur_data['timestamp'] for i in ref_data['timestamp']]
 
         # Regular sampling
-        kp_list_regular = self.depth_kp_list
+        kp_list_regular = self.uniform_kp_list
         kp_ref_regular = np.zeros((len(ref_data['id']), len(kp_list_regular), 2))
         num_kp_regular = len(kp_list_regular)
 
@@ -667,6 +659,7 @@ class VisualOdometry():
                                     flow_dir=self.cfg.deep_flow.precomputed_flow,
                                     N_list=num_kp_regular,
                                     N_best=num_kp_best,
+                                    kp_sel_method=self.cfg.deep_flow.kp_sel_method,
                                     forward_backward=forward_backward,
                                     dataset=self.cfg.dataset)
             
@@ -737,7 +730,7 @@ class VisualOdometry():
                 # translation scale from triangulation v.s. CNN-depth
                 if np.linalg.norm(E_pose.t) != 0:
                     scale = self.find_scale_from_depth(
-                        cur_data['kp_list'], ref_data['kp_list'][ref_id],
+                        cur_data['kp_best'], ref_data['kp_best'][ref_id],
                         E_pose.inv_pose, self.cur_data['depth']
                     )
                     if scale != -1:
@@ -747,8 +740,8 @@ class VisualOdometry():
                 if np.linalg.norm(E_pose.t) == 0 or scale == -1:
                     pnp_pose, _, _ \
                         = self.compute_pose_3d2d(
-                                    cur_data['kp_list'],
-                                    ref_data['kp_list'][ref_id],
+                                    cur_data['kp_best'],
+                                    ref_data['kp_best'][ref_id],
                                     ref_data['depth'][ref_id]
                                     ) # pose: from cur->ref
                     # use PnP pose instead of E-pose

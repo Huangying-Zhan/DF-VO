@@ -80,7 +80,7 @@ The original results, including related works, can be found [here](https://www.d
 python tool/evaluation/eval_odom.py --result result/tmp/0 --align 6dof
 ```
 
-For more information about the evaluation toolkit, please check the [wiki page](https://github.com/Huangying-Zhan/DF-VO/wiki).
+For more information about the evaluation toolkit, please check the [toolbox page](https://github.com/Huangying-Zhan/kitti_odom_eval) or the [wiki page](https://github.com/Huangying-Zhan/DF-VO/wiki).
 
 
 ### License

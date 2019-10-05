@@ -467,6 +467,25 @@ class KittiEvalOdom():
         for i in pred_updated:
             pred_updated[i][:3, 3] *= scale
         return pred_updated
+    
+    def write_result(self, f, seq, errs):
+        """Write result into a txt file
+        Args:
+            f (IOWrapper)
+            seq (int): sequence number
+            errs (list): [ave_t_err, ave_r_err, ate, rpe_trans, rpe_rot]
+        """
+        ave_t_err, ave_r_err, ate, rpe_trans, rpe_rot = errs
+        lines = []
+        lines.append("Sequence: \t {} \n".format(seq) )
+        lines.append("Trans. err. (%): \t {:.3f} \n".format(ave_t_err*100))
+        lines.append("Rot. err. (deg/100m): \t {:.3f} \n".format(ave_r_err/np.pi*180*100))
+        lines.append("ATE (m): \t {:.3f} \n".format(ate))
+        lines.append("RPE (m): \t {:.3f} \n".format(rpe_trans))
+        lines.append("RPE (deg): \t {:.3f} \n\n".format(rpe_rot * 180 /np.pi))
+        for line in lines:
+            f.writelines(line)
+
 
     def eval(self, gt_dir, result_dir, 
                 alignment=None,
@@ -484,6 +503,8 @@ class KittiEvalOdom():
                 - None: Evalute all available seqs in result_dir
                 - list: list of sequence indexs to be evaluated
         """
+        seq_list = ["{:02}".format(i) for i in range(0, 11)]
+
         # Initialization
         self.gt_dir = gt_dir
         ave_t_errs = []
@@ -496,6 +517,8 @@ class KittiEvalOdom():
         error_dir = result_dir + "/errors"
         self.plot_path_dir = result_dir + "/plot_path"
         self.plot_error_dir = result_dir + "/plot_error"
+        result_txt = os.path.join(result_dir, "result.txt")
+        f = open(result_txt, 'w')
 
         if not os.path.exists(error_dir):
             os.makedirs(error_dir)
@@ -507,7 +530,7 @@ class KittiEvalOdom():
         # Create evaluation list
         if seqs is None:
             available_seqs = sorted(glob(os.path.join(result_dir, "*.txt")))
-            self.eval_seqs = [int(i[-6:-4]) for i in available_seqs]
+            self.eval_seqs = [int(i[-6:-4]) for i in available_seqs if i[-6:-4] in seq_list]
         else:
             self.eval_seqs = seqs
 
@@ -563,8 +586,8 @@ class KittiEvalOdom():
             # compute overall error
             ave_t_err, ave_r_err = self.compute_overall_err(seq_err)
             print("Sequence: " + str(i))
-            print("Average translational RMSE (%): ", ave_t_err*100)
-            print("Average rotational error (deg/100m): ", ave_r_err/np.pi*180*100)
+            print("Translational error (%): ", ave_t_err*100)
+            print("Rotational error (deg/100m): ", ave_r_err/np.pi*180*100)
             ave_t_errs.append(ave_t_err)
             ave_r_errs.append(ave_r_err)
 
@@ -580,10 +603,14 @@ class KittiEvalOdom():
             print("RPE (m): ", rpe_trans)
             print("RPE (deg): ", rpe_rot * 180 /np.pi)
 
-            # Ploting
+            # Plotting
             self.plot_trajectory(poses_gt, poses_result, i)
-            # FIXME: complete plot_error
             self.plot_error(avg_segment_errs, i)
+
+            # Save result summary
+            self.write_result(f, i, [ave_t_err, ave_r_err, ate, rpe_trans, rpe_rot])
+            
+        f.close()    
 
         print("-------------------- For Copying ------------------------------")
         for i in range(len(ave_t_errs)):

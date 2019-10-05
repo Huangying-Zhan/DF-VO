@@ -1,0 +1,37 @@
+# This configuration corresponds to 
+# the Reference Model described in Sec.V-C in the paper.
+
+# ----------------------------------------------------------------------------
+# Basic setup
+# ----------------------------------------------------------------------------
+seq: "09"
+result_dir: result/tmp/0
+image:
+  height: 192
+  width: 640
+
+# ----------------------------------------------------------------------------
+# Visualization
+# ----------------------------------------------------------------------------
+visualization:
+  flow: 
+    vis_full_flow: False
+    vis_back_flow: False
+    vis_flow_diff: False
+  match:
+    kp_num: 50  # -1 for using all
+    vis_type: 
+      # None: None
+      # 0: draw_match_2_side
+      # 1: draw_match_temporal
+      # 2: both
+  trajectory:
+    vis_traj: True
+    draw_scale: 0.8
+    mono_scale: 1 #5.4; 0.2
+    vis_gt_traj: True
+  depth:
+    use_tracking_depth: False
+    vis_full_depth: False
+    vis_full_disp: False
+  

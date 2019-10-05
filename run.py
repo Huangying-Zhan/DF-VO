@@ -22,7 +22,7 @@ parser.add_argument("-c", "--configuration", type=str,
                     default=None,
                     help="custom configuration file")
 parser.add_argument("-d", "--default_configuration", type=str,
-                    default="options/kitti_default_configuration.yml",
+                    default="options/kitti/kitti_default_configuration.yml",
                     help="default configuration files")
 args = parser.parse_args()
 

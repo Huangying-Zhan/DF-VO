@@ -23,9 +23,14 @@ def read_yaml(filename):
     """Load yaml file as a dictionary item
     Args:
         filename (str): .yaml file path
+    Returns:
+        cfg (dict): configuration
     """
-    with open(filename, 'r') as f:
-        return yaml.load(f, Loader=yaml.FullLoader)
+    if filename is not None:
+        with open(filename, 'r') as f:
+            return yaml.load(f, Loader=yaml.FullLoader)
+    else:
+        return {}
 
 
 def copy_file(src_file, tgt_file):

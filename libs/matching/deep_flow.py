@@ -35,6 +35,42 @@ def resize_dense_vector(vec, des_height, des_width):
     return vec
 
 
+def uniform_bestN_selection(flow_diff, num_col, num_row, N):
+    """select best-N from uniform regions in the image
+    Args:
+        flow_diff (1xHxWx1)
+        num_col (int)
+        num_row (int)
+        N (int)
+    """
+    n, h, w, _ = flow_diff.shape
+    n_best = math.ceil(N/(num_col*num_row))
+    sel_kps = []
+
+    for row in range(num_row):
+        for col in range(num_col):
+            x0 = [int(h/num_row*row), int(w/num_col*col)] # top_left
+            x1 = [int(h/num_row*(row+1))-1, int(w/num_col*(col+1))-1] # bottom right
+
+            tmp_flow_diff = flow_diff[:, x0[0]:x1[0], x0[1]:x1[1]].copy()
+            tmp_kp_list = np.where(tmp_flow_diff[:] > 0)
+            sel_list = np.argpartition(tmp_flow_diff[tmp_kp_list], n_best)[:n_best]
+            sel_kps.append(convert_idx_to_global_coord(sel_list, tmp_kp_list, x0))
+
+    sel_kps = np.asarray(sel_kps)
+    sel_kps = np.transpose(sel_kps, (1, 0, 2))
+    sel_kps = np.reshape(sel_kps, (4, -1))
+    return sel_kps
+
+
+def convert_idx_to_global_coord(local_idx, local_kp_list, x0):
+    coord = [local_kp_list[0][local_idx], local_kp_list[1][local_idx], local_kp_list[2][local_idx], local_kp_list[3][local_idx]]
+    coord = np.asarray(coord)
+    coord[1] += x0[0] # h
+    coord[2] += x0[1] # w
+    return coord
+
+
 class LiteFlow():
     def __init__(self, h=None, w=None):
         self.height = h
@@ -189,6 +225,7 @@ class LiteFlow():
                     kp_list, 
                     forward_backward=False, 
                     N_list=None, N_best=None,
+                    kp_sel_method=None,
                     dataset="kitti"):
         """Estimate flow (1->2) and form keypoints
         Args:
@@ -203,6 +240,10 @@ class LiteFlow():
             foward_backward (bool): forward-backward flow consistency is used if True
             N_list (int): number of keypoint in regular list
             N_best (int): number of keypoint in best-N list
+            kp_sel_method (str): method for selecting best-N keypoint
+                - bestN: best-N kp over the whole image
+                - uniform_bestN: uniformly divide the whole images into 100 pieces 
+                                 and select best-N/100 from each piece
             dataset (str): dataset type
         Returns:
             kp1_best (BxNx2 array): best-N keypoints in img1
@@ -276,10 +317,18 @@ class LiteFlow():
                                 px_coord_2=kp2)
 
             # get best-N keypoints
-            tmp_kp_list = np.where(flow_diff > 0)
-            selection_list = np.argpartition(flow_diff[tmp_kp_list], N_best)[:N_best]
-            kp1_best = kp1[:, tmp_kp_list[1][selection_list], tmp_kp_list[2][selection_list]]
-            kp2_best = kp2[:, tmp_kp_list[1][selection_list], tmp_kp_list[2][selection_list]]
+            if kp_sel_method == "bestN":
+                tmp_kp_list = np.where(flow_diff > 0)
+                sel_list = np.argpartition(flow_diff[tmp_kp_list], N_best)[:N_best]
+                sel_kps = convert_idx_to_global_coord(sel_list, tmp_kp_list, [0, 0])
+            elif kp_sel_method == "uniform_bestN":
+                sel_kps = uniform_bestN_selection(
+                                flow_diff=flow_diff, 
+                                num_col=10,
+                                num_row=10,
+                                N=N_best)
+            kp1_best = kp1[:, sel_kps[1], sel_kps[2]]
+            kp2_best = kp2[:, sel_kps[1], sel_kps[2]]
 
         # Get uniform sampled keypoints
         y0, y1 = 0, h

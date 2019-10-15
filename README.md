@@ -40,7 +40,7 @@ This code was tested with Python 3.6, CUDA 9.0, Ubuntu 16.04, and [PyTorch](http
 We suggest use [Anaconda](https://www.anaconda.com/distribution/) for installing the prerequisites.
 
 ```
-conda create env -f requirement.yml -p dfvo # install prerequisites
+conda env create -f requirement.yml -p dfvo # install prerequisites
 conda activate dfvo  # activate the environment [dfvo]
 ```
 

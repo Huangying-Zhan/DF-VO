@@ -187,6 +187,7 @@ class LiteFlow():
         else:
             return flow_data
 
+    @torch.no_grad()
     def inference(self, img1, img2):
         """Predict optical flow for the given pairs
         Args:

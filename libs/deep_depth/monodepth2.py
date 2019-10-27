@@ -71,6 +71,7 @@ class Monodepth2DepthNet(DeepDepth):
             self.max_depth = 10
             self.stereo_baseline = 1
 
+    @torch.no_grad()
     def inference(self, img):
         """Depth prediction
         Args:

@@ -70,7 +70,12 @@ The result (trajectory pose file) is saved in `result_dir` defined in the config
 Please check the `kitti_default_configuration.yml` for more possible configuration.
 
 ### Part 4. Result evaluation
+<img src='misc/dfvo_result.png' width=320 height=480>
+
 Note that, we have cleaned and optimized the code for better readability and it changes the randomness such that the quantitative result is slightly different from the result reported in the paper. 
+
+<img src='misc/dfvo_result2.png' width=400 height=100>
+
 The original results, including related works, can be found [here](https://www.dropbox.com/sh/u7x3rt4lz6zx8br/AADshjd33Q3TLCy2stKt6qpJa?dl=0).
 
 #### KITTI

@@ -53,7 +53,7 @@ depth:
 deep_flow:
   forward_backward: True
   num_kp: 2000
-  kp_sel_method: uniform_bestN
+  kp_sel_method: bestN
   network: liteflow  
     # liteflow: LiteFlowNet
   flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch

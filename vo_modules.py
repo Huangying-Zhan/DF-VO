@@ -436,7 +436,7 @@ class VisualOdometry():
         if valid_cfg.method == "flow+chei":
             # check flow magnitude
             avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
-            min_flow = self.cfg.compute_2d2d_pose.min_flow
+            min_flow = valid_cfg.min_flow
             valid_case = avg_flow > min_flow
         if valid_case:
             for i in range(max_ransac_iter): # repeat ransac for several times for stable result

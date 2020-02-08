@@ -63,7 +63,7 @@ python run.py -d options/kitti_default_configuration.yml
 
 # Example 2: Run custom kitti setup
 # kitti_default_configuration.yml and kitti_stereo_0.yml are merged
-python run.py -c options/kitti_stereo_0.yml  
+python run.py -c options/kitti/kitti_stereo_0.yml  
 ```
 
 The result (trajectory pose file) is saved in `result_dir` defined in the configuration file.

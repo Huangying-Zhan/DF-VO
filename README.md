@@ -10,6 +10,8 @@ Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ian Reid
 The demo video can be found [here](https://www.youtube.com/watch?v=Nl8mFU4SJKY).
 
 ```
+# The paper is accepted to ICRA-2020. Updated bibtex will be provided in the future.
+
 @article{zhan2019dfvo,
   title={Visual Odometry Revisited: What Should Be Learnt?},
   author={Zhan, Huangying and Weerasekera, Chamara Saroj and Bian, Jiawang and Reid, Ian},

@@ -42,9 +42,11 @@ def uniform_bestN_selection(flow_diff, num_col, num_row, N):
         num_col (int)
         num_row (int)
         N (int)
+    Returns:
+        sel_kps (4xN): keypoint locations
     """
     n, h, w, _ = flow_diff.shape
-    n_best = math.ceil(N/(num_col*num_row))
+    n_best = math.floor(N/(num_col*num_row))
     sel_kps = []
 
     for row in range(num_row):
@@ -58,6 +60,45 @@ def uniform_bestN_selection(flow_diff, num_col, num_row, N):
             sel_kps.append(convert_idx_to_global_coord(sel_list, tmp_kp_list, x0))
 
     sel_kps = np.asarray(sel_kps)
+    sel_kps = np.transpose(sel_kps, (1, 0, 2))
+    sel_kps = np.reshape(sel_kps, (4, -1))
+    return sel_kps
+
+
+def uniform_filtered_bestN_selection(flow_diff, num_col, num_row, N, thre):
+    """select best-N kp from uniform regions in the image. bad kps are filtered by thre
+    Args:
+        flow_diff (1xHxWx1)
+        num_col (int)
+        num_row (int)
+        N (int)
+        thre (float)
+    Returns:
+        sel_kps (4xK): keypoint locations
+    """
+    n, h, w, _ = flow_diff.shape
+    n_best = math.floor(N/(num_col*num_row))
+    sel_kps = []
+
+    for row in range(num_row):
+        for col in range(num_col):
+            x0 = [int(h/num_row*row), int(w/num_col*col)] # top_left
+            x1 = [int(h/num_row*(row+1))-1, int(w/num_col*(col+1))-1] # bottom right
+
+            tmp_flow_diff = flow_diff[:, x0[0]:x1[0], x0[1]:x1[1]].copy()
+            tmp_kp_list = np.where(tmp_flow_diff[:] < thre)
+            num_to_pick = min(n_best, len(tmp_kp_list[0]))
+            if num_to_pick <= n_best:
+                sel_list = np.argpartition(tmp_flow_diff[tmp_kp_list], num_to_pick-1)[:num_to_pick]
+            else:
+                sel_list = np.argpartition(tmp_flow_diff[tmp_kp_list], num_to_pick)[:num_to_pick]
+            
+            sel_global_coords = convert_idx_to_global_coord(sel_list, tmp_kp_list, x0)
+            for i in range(sel_global_coords.shape[1]):
+                sel_kps.append(sel_global_coords[:, i:i+1])
+
+    sel_kps = np.asarray(sel_kps)
+    assert sel_kps.shape[0]!=0, "sampling threshold is too small."
     sel_kps = np.transpose(sel_kps, (1, 0, 2))
     sel_kps = np.reshape(sel_kps, (4, -1))
     return sel_kps
@@ -304,8 +345,8 @@ class LiteFlow():
         kp2 = kp1 + tmp_flow_data
 
         # initialize output keypoint data
-        kp1_best = np.zeros((n, N_best, 2))
-        kp2_best = np.zeros((n, N_best, 2))
+        kp1_best = np.zeros((n, N_best, 2)) - 1 # initialize as -1
+        kp2_best = np.zeros((n, N_best, 2)) - 1 # initialize as -1
         kp1_list = np.zeros((n, N_list, 2))
         kp2_list = np.zeros((n, N_list, 2))
 
@@ -328,8 +369,15 @@ class LiteFlow():
                                 num_col=10,
                                 num_row=10,
                                 N=N_best)
-            kp1_best = kp1[:, sel_kps[1], sel_kps[2]]
-            kp2_best = kp2[:, sel_kps[1], sel_kps[2]]
+            elif kp_sel_method == "uniform_filtered_bestN":
+                sel_kps = uniform_filtered_bestN_selection(
+                                flow_diff=flow_diff,
+                                num_col=10,
+                                num_row=10,
+                                N=N_best,
+                                thre=0.1)
+            kp1_best[:,:sel_kps.shape[1]] = kp1[:, sel_kps[1], sel_kps[2]]
+            kp2_best[:,:sel_kps.shape[1]] = kp2[:, sel_kps[1], sel_kps[2]]
 
         # Get uniform sampled keypoints
         y0, y1 = 0, h

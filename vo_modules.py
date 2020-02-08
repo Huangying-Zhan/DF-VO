@@ -423,16 +423,22 @@ class VisualOdometry():
         """
         principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
 
+        # validity check
+        valid_cfg = self.cfg.compute_2d2d_pose.validity
+        valid_case = True
+
         # initialize ransac setup
         best_Rt = []
         best_inlier_cnt = 0
         max_ransac_iter = self.cfg.compute_2d2d_pose.ransac.repeat
         best_inliers = np.ones((kp_ref.shape[0])) == 1
 
-        # check flow magnitude
-        avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
-        min_flow = self.cfg.compute_2d2d_pose.min_flow
-        if avg_flow > min_flow:
+        if valid_cfg.method == "flow+chei":
+            # check flow magnitude
+            avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
+            min_flow = valid_cfg.min_flow
+            valid_case = avg_flow > min_flow
+        if valid_case:
             for i in range(max_ransac_iter): # repeat ransac for several times for stable result
                 # shuffle kp_cur and kp_ref (only useful when random seed is fixed)
                 new_list = np.random.randint(0, kp_cur.shape[0], (kp_cur.shape[0]))
@@ -449,17 +455,41 @@ class VisualOdometry():
                             prob=0.99,
                             threshold=self.cfg.compute_2d2d_pose.ransac.reproj_thre,
                             )
-                cheirality_cnt, R, t, _ = cv2.recoverPose(E, new_kp_cur, new_kp_ref,
+                
+                # check homography inlier ratio
+                if valid_cfg.method == "homo_ratio":
+                    # Find homography
+                    H, H_inliers = cv2.findHomography(
+                                new_kp_cur,
+                                new_kp_ref,
+                                method=cv2.RANSAC,
+                                confidence=0.99,
+                                ransacReprojThreshold=0.2,
+                                )
+                    H_inliers_ratio = H_inliers.sum()/(H_inliers.sum()+inliers.sum())
+                    valid_case = H_inliers_ratio < 0.25
+                
+                if valid_case:
+                    cheirality_cnt, R, t, _ = cv2.recoverPose(E, new_kp_cur, new_kp_ref,
                                             focal=self.cam_intrinsics.fx,
                                             pp=principal_points,)
-                self.timers.timers["Ess. Mat."].append(time()-start_time)
-                if inliers.sum() > best_inlier_cnt and cheirality_cnt > 50:
-                    best_Rt = [R, t]
-                    best_inlier_cnt = inliers.sum()
-                    best_inliers = inliers
+                    self.timers.timers["Ess. Mat."].append(time()-start_time)
+                    
+                    # check best inlier cnt
+                    if valid_cfg.method == "flow+chei":
+                        inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > 50
+                    elif valid_cfg.method == "homo_ratio":
+                        inlier_check = inliers.sum() > best_inlier_cnt
+                    else:
+                        assert False, "wrong cfg for compute_2d2d_pose.validity.method"
+                    
+                    if inlier_check:
+                        best_Rt = [R, t]
+                        best_inlier_cnt = inliers.sum()
+                        best_inliers = inliers
             if len(best_Rt) == 0:
                 R = np.eye(3)
-                t = np.zeros((3,1))
+                t = np.zeros((3, 1))
                 best_Rt = [R, t]
         else:
             R = np.eye(3)
@@ -679,10 +709,12 @@ class VisualOdometry():
         # Store kp
         cur_data['kp_best'] = batch_kp_ref_best[0].copy() # cur_data save each kp at ref-view (i.e. regular grid)
         cur_data['kp_list'] = batch_kp_ref_regular[0].copy() # cur_data save each kp at ref-view (i.e. regular grid)
+        cur_data['kp_best'] = cur_data['kp_best'][cur_data['kp_best'][:,0]!=-1] # remove invalid kp
 
         for i, ref_id in enumerate(ref_data['id']):
             ref_data['kp_best'][ref_id] = kp_ref_best[i].copy()
             ref_data['kp_list'][ref_id] = kp_ref_regular[i].copy()
+            ref_data['kp_best'][ref_id] = ref_data['kp_best'][ref_id][ref_data['kp_best'][ref_id][:,0]!=-1] # remove invalid kp
 
             # Store flow
             ref_data['flow'][ref_id] = flows[(ref_data['id'][i], cur_data['id'])].copy()
@@ -730,7 +762,7 @@ class VisualOdometry():
                 # translation scale from triangulation v.s. CNN-depth
                 if np.linalg.norm(E_pose.t) != 0:
                     scale = self.find_scale_from_depth(
-                        cur_data['kp_best'], ref_data['kp_best'][ref_id],
+                        cur_data[self.cfg.translation_scale.kp_src], ref_data[self.cfg.translation_scale.kp_src][ref_id],
                         E_pose.inv_pose, self.cur_data['depth']
                     )
                     if scale != -1:
@@ -740,8 +772,8 @@ class VisualOdometry():
                 if np.linalg.norm(E_pose.t) == 0 or scale == -1:
                     pnp_pose, _, _ \
                         = self.compute_pose_3d2d(
-                                    cur_data['kp_best'],
-                                    ref_data['kp_best'][ref_id],
+                                    cur_data[self.cfg.PnP.kp_src],
+                                    ref_data[self.cfg.PnP.kp_src][ref_id],
                                     ref_data['depth'][ref_id]
                                     ) # pose: from cur->ref
                     # use PnP pose instead of E-pose
@@ -926,10 +958,10 @@ class VisualOdometry():
             
             # Reading image
             if self.cfg.dataset == "kitti":
-                img = read_image(self.img_path_dir+"/{:06d}.png".format(img_id), 
+                img = read_image(self.img_path_dir+"/{:06d}.{}".format(img_id, self.cfg.image.ext), 
                                     self.cfg.image.height, self.cfg.image.width)
             elif "tum" in self.cfg.dataset:
-                img = read_image(self.img_path_dir+"/{:.6f}.png".format(self.cur_data['timestamp']),
+                img = read_image(self.img_path_dir+"/{:.6f}.{}".format(self.cur_data['timestamp'], self.cfg.image.ext),
                                     self.cfg.image.height, self.cfg.image.width)
             img_h, img_w, _ = image_shape(img)
             self.cur_data['img'] = img

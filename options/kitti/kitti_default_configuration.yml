@@ -6,6 +6,7 @@ seed: 4869
 image:
   height: 370
   width: 1226
+  ext: jpg
 seq: "10"
 result_dir: result/tmp/0
 
@@ -22,13 +23,16 @@ compute_2d2d_pose:
   ransac:
     reproj_thre: 0.2
     repeat: 5
-  min_flow: 5 
+  validity:
+    method: flow+chei
+    min_flow: 5 
 
 PnP:
   ransac:
     iter: 1000
     reproj_thre: 1
     repeat: 5
+  kp_src: kp_list # [kp_list, kp_best]
 
 # translation scale
 translation_scale:
@@ -37,6 +41,7 @@ translation_scale:
     max_trials: 100
     stop_prob: 0.99
     thre: 1
+  kp_src: kp_list # [kp_list, kp_best]
 
 # ----------------------------------------------------------------------------
 # Deep single-view depth

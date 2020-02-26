@@ -440,8 +440,9 @@ class VisualOdometry():
             valid_case = avg_flow > min_flow
         if valid_case:
             for i in range(max_ransac_iter): # repeat ransac for several times for stable result
-                # shuffle kp_cur and kp_ref (only useful when random seed is fixed)
-                new_list = np.random.randint(0, kp_cur.shape[0], (kp_cur.shape[0]))
+                # shuffle kp_cur and kp_ref (only useful when random seed is fixed)	
+                new_list = np.arange(0, kp_cur.shape[0], 1)	
+                np.random.shuffle(new_list)
                 new_kp_cur = kp_cur.copy()[new_list]
                 new_kp_ref = kp_ref.copy()[new_list]
 
@@ -541,8 +542,9 @@ class VisualOdometry():
         max_ransac_iter = self.cfg.PnP.ransac.repeat
         
         for i in range(max_ransac_iter):
-            # shuffle kp_cur and kp_ref (only useful when random seed is fixed)
-            new_list = np.random.randint(0, kp2.shape[0], (kp2.shape[0]))
+            # shuffle kp (only useful when random seed is fixed)	
+            new_list = np.arange(0, kp2.shape[0], 1)	
+            np.random.shuffle(new_list)
             new_XYZ = XYZ_kp1.copy()[new_list]
             new_kp2 = kp2.copy()[new_list]
 

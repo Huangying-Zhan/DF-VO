@@ -7,18 +7,28 @@
 import cv2
 import copy
 from glob import glob
+import math
 from matplotlib import pyplot as plt
+import multiprocessing as mp
+# import torch.multiprocessing as mp
 import numpy as np
 import os
 from sklearn import linear_model
 from time import time
+import torch
+import torch.nn.functional as nnFunc
 from tqdm import tqdm
 
 from libs.deep_depth.monodepth2 import Monodepth2DepthNet
+from libs.deep_pose.monodepth2 import Monodepth2PoseNet
 from libs.geometry.ops_3d import *
+from libs.geometry.backprojection import Backprojection
+from libs.geometry.reprojection import Reprojection
+from libs.geometry.find_Ess_mat import find_Ess_mat
 from libs.general.frame_drawer import FrameDrawer
 from libs.general.timer import Timers
 from libs.matching.deep_flow import LiteFlow
+from libs.matching.kp_selection import uniform_filtered_bestN, bestN, sampled_kp, good_depth_kp
 from libs.camera_modules import SE3, Intrinsics
 from libs.utils import *
 from tool.evaluation.tum_tool.associate import associate, read_file_list
@@ -62,6 +72,7 @@ class VisualOdometry():
                          "visualization_match",
                          "visualization_flow",
                          "visualization_depth",
+                         "visualization_masks",
                          "visualization_save_img", ])
 
         # reference data and current data
@@ -79,6 +90,7 @@ class VisualOdometry():
                         'kp_back': {},
                         'flow': {},  # from ref->cur
                         'flow_diff': {},  # flow-consistency-error of ref->cur
+                        'inliers': {}
                         }
         self.cur_data = {
                         'id': 0,
@@ -93,6 +105,9 @@ class VisualOdometry():
                         'kp_back': np.zeros(1),
                         'flow': {},  # from cur->ref
                         }
+        
+        if self.cfg.use_multiprocessing:
+            self.p = mp.Pool(5)
 
     def initialize_visualization_drawer(self):
         visual_h = self.cfg.visualization.window_h
@@ -107,39 +122,64 @@ class VisualOdometry():
 
         self.drawer.assign_data(
                     item="match_temp",
-                    top_left=[int(visual_h/4*0), int(visual_w/4*2)], 
-                    bottom_right=[int(visual_h/4*1), int(visual_w/4*4)],
+                    top_left=[int(visual_h/4*0), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*1), int(visual_w/5*5)],
                     )
         
         self.drawer.assign_data(
                     item="match_side",
-                    top_left=[int(visual_h/4*1), int(visual_w/4*2)], 
-                    bottom_right=[int(visual_h/4*2), int(visual_w/4*4)],
+                    top_left=[int(visual_h/4*1), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*2), int(visual_w/5*5)],
                     )
         
         self.drawer.assign_data(
                     item="depth",
-                    top_left=[int(visual_h/4*2), int(visual_w/4*2)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/4*3)],
+                    top_left=[int(visual_h/4*2), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*3)],
                     )
         
         self.drawer.assign_data(
                     item="flow1",
-                    top_left=[int(visual_h/4*2), int(visual_w/4*3)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/4*4)],
+                    top_left=[int(visual_h/4*2), int(visual_w/5*3)], 
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*4)],
                     )
         
         self.drawer.assign_data(
                     item="flow2",
-                    top_left=[int(visual_h/4*3), int(visual_w/4*2)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/4*3)],
+                    top_left=[int(visual_h/4*2), int(visual_w/5*4)], 
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*5)],
+                    )
+        
+        # self.drawer.assign_data(
+        #             item="flow_diff",
+        #             top_left=[int(visual_h/4*3), int(visual_w/5*3)], 
+        #             bottom_right=[int(visual_h/4*4), int(visual_w/5*4)],
+        #             )
+        
+        self.drawer.assign_data(
+                    item="depth_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3)],
                     )
         
         self.drawer.assign_data(
-                    item="flow_diff",
-                    top_left=[int(visual_h/4*3), int(visual_w/4*3)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/4*4)],
+                    item="rigid_flow_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3)],
                     )
+
+        self.drawer.assign_data(
+                    item="flow_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*3)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*4)],
+                    )
+
+        self.drawer.assign_data(
+                    item="valid_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*4)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*5)],
+                    )
+        
 
     def get_intrinsics_param(self, dataset):
         """Read intrinsics parameters for each dataset
@@ -151,13 +191,22 @@ class VisualOdometry():
             intrinsics_param (float list): [cx, cy, fx, fy]
         """
         # Kitti
-        if dataset == "kitti":
+        if dataset == "kitti_odom":
             img_seq_dir = os.path.join(
                             self.cfg.directory.img_seq_dir,
                             self.cfg.seq
                             )
             intrinsics_param = load_kitti_odom_intrinsics(
                             os.path.join(img_seq_dir, "calib.txt"),
+                            self.cfg.image.height, self.cfg.image.width
+                            )[2]
+        elif dataset == "kitti_raw":
+            img_seq_dir = os.path.join(
+                            self.cfg.directory.img_seq_dir,
+                            self.cfg.seq[:10],
+                            )
+            intrinsics_param = load_kitti_raw_intrinsics(
+                            os.path.join(img_seq_dir, "calib_cam_to_cam.txt"),
                             self.cfg.image.height, self.cfg.image.width
                             )[2]
         # TUM
@@ -217,8 +266,15 @@ class VisualOdometry():
                             self.cfg.directory.img_seq_dir,
                             self.cfg.seq
                             )
-        if self.cfg.dataset == "kitti":
+        if self.cfg.dataset == "kitti_odom":
             img_data_dir = os.path.join(img_seq_dir, "image_2")
+        elif self.cfg.dataset == "kitti_raw":
+            img_seq_dir = os.path.join(
+                            self.cfg.directory.img_seq_dir,
+                            self.cfg.seq[:10],
+                            self.cfg.seq
+                            )
+            img_data_dir = os.path.join(img_seq_dir, "image_02/data")
         elif "tum" in self.cfg.dataset:
             img_data_dir = os.path.join(img_seq_dir, "rgb")
         else:
@@ -229,15 +285,25 @@ class VisualOdometry():
         # get depth data directory
         depth_src_cases = {
             0: "gt",
+            1: "pred",
             None: None
             }
         depth_src = depth_src_cases[self.cfg.depth.depth_src]
 
-        if self.cfg.dataset == "kitti":
+        if self.cfg.dataset == "kitti_odom":
             if depth_src == "gt":
                 depth_data_dir = "{}/gt/{}/".format(
                                     self.cfg.directory.depth_dir, self.cfg.seq
                                 )
+            elif depth_src == "pred":
+                depth_data_dir = "{}/{}/".format(
+                                    self.cfg.directory.depth_dir, self.cfg.seq
+                                )
+            elif depth_src is None:
+                depth_data_dir = None
+        elif self.cfg.dataset == "kitti_raw":
+            if depth_src == "gt":
+                depth_data_dir = os.path.join(self.cfg.directory.depth_dir, self.cfg.seq)
             elif depth_src is None:
                 depth_data_dir = None
         elif "tum" in self.cfg.dataset:
@@ -298,6 +364,20 @@ class VisualOdometry():
                 weight_path=self.cfg.depth.pretrained_model,
                 dataset=self.cfg.dataset)
         return depth_net
+    
+    def initialize_deep_pose_model(self):
+        """Initialize two-view pose model
+        Returns:
+            pose_net: two-view pose network
+        """
+        pose_net = Monodepth2PoseNet()
+        pose_net.initialize_network_model(
+            weight_path=self.cfg.pose_net.pretrained_model,
+            height=self.cfg.image.height,
+            width=self.cfg.image.width,
+            dataset=self.cfg.dataset
+            )
+        return pose_net
 
     def get_gt_poses(self):
         """load ground-truth poses
@@ -305,7 +385,19 @@ class VisualOdometry():
             gt_poses (dict): each pose is 4x4 array
         """
         if self.cfg.directory.gt_pose_dir is not None:
-            if self.cfg.dataset == "kitti":
+            if self.cfg.dataset == "kitti_odom":
+                annotations = os.path.join(
+                                    self.cfg.directory.gt_pose_dir,
+                                    "{}.txt".format(self.cfg.seq)
+                                    )
+                gt_poses = load_poses_from_txt(annotations)
+            elif self.cfg.dataset == "kitti_raw":
+                # gps_info_dir =  os.path.join(
+                #             self.cfg.directory.gt_pose_dir,
+                #             self.cfg.seq,
+                #             "oxts/data"
+                #             )
+                # gt_poses = load_poses_from_oxts(gps_info_dir)
                 annotations = os.path.join(
                                     self.cfg.directory.gt_pose_dir,
                                     "{}.txt".format(self.cfg.seq)
@@ -318,7 +410,9 @@ class VisualOdometry():
                                     "groundtruth.txt"
                                     )
                 gt_poses = load_poses_from_txt_tum(annotations)
-        return gt_poses
+            return gt_poses
+        else:
+            return {0: np.eye(4)}
 
     def setup(self):
         """Reading configuration and setup, including
@@ -328,6 +422,7 @@ class VisualOdometry():
         - Get image & (optional depth) data
         - Generate keypoint sampling scheme
         - Deep networks
+        - Deep layers
         - Load GT poses
         - Set drawer
         """
@@ -373,6 +468,17 @@ class VisualOdometry():
                 self.deep_models['depth'] = self.initialize_deep_depth_model()
             else:
                 assert False, "No precomputed depths nor pretrained depth model"
+        
+        # two-view pose
+        if self.cfg.pose_net.enable:
+            if self.cfg.pose_net.pretrained_model is not None:
+                self.deep_models['pose'] = self.initialize_deep_pose_model()
+            else:
+                assert False, "No pretrained pose model"
+
+        # Deep layers
+        self.backproj = Backprojection(self.cfg.image.height, self.cfg.image.width).cuda()
+        self.reproj = Reprojection(self.cfg.image.height, self.cfg.image.width).cuda()
 
         # Load GT pose
         self.gt_poses = self.get_gt_poses()
@@ -380,11 +486,11 @@ class VisualOdometry():
         # Set drawer
         self.drawer.get_traj_init_xy(
                         vis_h=self.drawer.h,
-                        vis_w=self.drawer.h,
+                        vis_w=self.drawer.w/5*2,
                         gt_poses=self.gt_poses)
 
     def load_depth(self, depth_seq_dir, img_id, depth_src,
-                   resize=None, dataset="kitti"):
+                   resize=None, dataset="kitti_odom"):
         """Load depth map for different source
         Args:
             depth_seq_dir (str): depth sequence dir
@@ -393,12 +499,20 @@ class VisualOdometry():
                 - gt
             resize (int list): [target_height, target_width]
             dataset (str):
-                - kitti
+                - kitti_odom
+                - kitti_raw
                 - tum
         Returns:
             depth (HxW array): depth map
         """
-        if dataset == "kitti":
+        if dataset == "kitti_odom":
+            if depth_src == "gt":
+                img_id = "{:010d}.png".format(img_id)
+                scale_factor = 500
+            elif depth_src == "pred":
+                img_id = "depth/{:06d}.png".format(img_id)
+                scale_factor = 1000
+        elif dataset == "kitti_raw":
             if depth_src == "gt":
                 img_id = "{:010d}.png".format(img_id)
                 scale_factor = 500
@@ -418,8 +532,9 @@ class VisualOdometry():
             kp_ref (Nx2 array): keypoints for reference view
             kp_cur (Nx2 array): keypoints for current view
         Returns:
-            pose (SE3): relative pose from current to reference view
-            best_inliers (N boolean array): inlier mask
+            outputs (dict):
+                - pose (SE3): relative pose from current to reference view
+                - best_inliers (N boolean array): inlier mask
         """
         principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
 
@@ -428,20 +543,34 @@ class VisualOdometry():
         valid_case = True
 
         # initialize ransac setup
-        best_Rt = []
+        R = np.eye(3)
+        t = np.zeros((3,1))
+        best_Rt = [R, t]
         best_inlier_cnt = 0
         max_ransac_iter = self.cfg.compute_2d2d_pose.ransac.repeat
-        best_inliers = np.ones((kp_ref.shape[0])) == 1
+        best_inliers = np.ones((kp_ref.shape[0], 1)) == 1
 
-        if valid_cfg.method == "flow+chei":
+        if valid_cfg.method == "flow":
             # check flow magnitude
             avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
-            min_flow = valid_cfg.min_flow
-            valid_case = avg_flow > min_flow
+            valid_case = avg_flow > valid_cfg.thre
+        
+        elif valid_cfg.method == "homo_ratio":
+            # Find homography
+            H, H_inliers = cv2.findHomography(
+                        kp_cur,
+                        kp_ref,
+                        method=cv2.RANSAC,
+                        confidence=0.99,
+                        ransacReprojThreshold=0.2,
+                        )
+        
         if valid_case:
+            num_valid_case = 0
             for i in range(max_ransac_iter): # repeat ransac for several times for stable result
-                # shuffle kp_cur and kp_ref (only useful when random seed is fixed)
-                new_list = np.random.randint(0, kp_cur.shape[0], (kp_cur.shape[0]))
+                # shuffle kp_cur and kp_ref (only useful when random seed is fixed)	
+                new_list = np.arange(0, kp_cur.shape[0], 1)	
+                np.random.shuffle(new_list)
                 new_kp_cur = kp_cur.copy()[new_list]
                 new_kp_ref = kp_ref.copy()[new_list]
 
@@ -458,48 +587,138 @@ class VisualOdometry():
                 
                 # check homography inlier ratio
                 if valid_cfg.method == "homo_ratio":
-                    # Find homography
-                    H, H_inliers = cv2.findHomography(
-                                new_kp_cur,
-                                new_kp_ref,
-                                method=cv2.RANSAC,
-                                confidence=0.99,
-                                ransacReprojThreshold=0.2,
-                                )
                     H_inliers_ratio = H_inliers.sum()/(H_inliers.sum()+inliers.sum())
-                    valid_case = H_inliers_ratio < 0.25
-                
-                if valid_case:
+                    valid_case = H_inliers_ratio < valid_cfg.thre
+                    # print("valid: {}; ratio: {}".format(valid_case, H_inliers_ratio))
+
+                    # inlier check
+                    inlier_check = inliers.sum() > best_inlier_cnt
+                elif valid_cfg.method == "flow":
                     cheirality_cnt, R, t, _ = cv2.recoverPose(E, new_kp_cur, new_kp_ref,
                                             focal=self.cam_intrinsics.fx,
-                                            pp=principal_points,)
-                    self.timers.timers["Ess. Mat."].append(time()-start_time)
+                                            pp=principal_points)
+                    valid_case = cheirality_cnt > kp_cur.shape[0]*0.1
                     
-                    # check best inlier cnt
-                    if valid_cfg.method == "flow+chei":
-                        inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > 50
-                    elif valid_cfg.method == "homo_ratio":
-                        inlier_check = inliers.sum() > best_inlier_cnt
-                    else:
-                        assert False, "wrong cfg for compute_2d2d_pose.validity.method"
-                    
-                    if inlier_check:
-                        best_Rt = [R, t]
-                        best_inlier_cnt = inliers.sum()
-                        best_inliers = inliers
-            if len(best_Rt) == 0:
-                R = np.eye(3)
-                t = np.zeros((3, 1))
-                best_Rt = [R, t]
-        else:
-            R = np.eye(3)
-            t = np.zeros((3,1))
-            best_Rt = [R, t]
+                    # inlier check
+                    inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > kp_cur.shape[0]*0.05
+
+                # save best_E
+                if inlier_check:
+                    best_E = E
+                    best_inlier_cnt = inliers.sum()
+
+                    revert_new_list = np.zeros_like(new_list)
+                    for cnt, i in enumerate(new_list):
+                        revert_new_list[i] = cnt
+                    best_inliers = inliers[list(revert_new_list)]
+                num_valid_case += (valid_case * 1)
+
+            major_valid = num_valid_case > (max_ransac_iter/2)
+            if major_valid:
+                cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, kp_cur, kp_ref,
+                                        focal=self.cam_intrinsics.fx,
+                                        pp=principal_points,
+                                        )
+                self.timers.timers["Ess. Mat."].append(time()-start_time)
+
+                # cheirality_check
+                if cheirality_cnt > kp_cur.shape[0]*0.1:
+                    best_Rt = [R, t]
+
         R, t = best_Rt
         pose = SE3()
         pose.R = R
         pose.t = t
-        return pose, best_inliers
+        outputs = {"pose": pose, "inliers": best_inliers[:,0]==1}
+        return outputs
+
+    def compute_pose_2d2d_mp(self, kp_ref, kp_cur):
+        """Compute the pose from view2 to view1 (multiprocessing ver)
+        Args:
+            kp_ref (Nx2 array): keypoints for reference view
+            kp_cur (Nx2 array): keypoints for current view
+        Returns:
+            outputs (dict):
+                - pose (SE3): relative pose from current to reference view
+                - best_inliers (N boolean array): inlier mask
+        """
+        start_time = time()
+        principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
+
+        # validity check
+        valid_cfg = self.cfg.compute_2d2d_pose.validity
+        valid_case = True
+
+        # initialize ransac setup
+        R = np.eye(3)
+        t = np.zeros((3,1))
+        best_Rt = [R, t]
+        max_ransac_iter = self.cfg.compute_2d2d_pose.ransac.repeat
+
+        if valid_cfg.method == "flow":
+            # check flow magnitude
+            avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
+            valid_case = avg_flow > valid_cfg.thre
+        
+        elif valid_cfg.method == "homo_ratio":
+            # Find homography
+            H, H_inliers = cv2.findHomography(
+                        kp_cur,
+                        kp_ref,
+                        method=cv2.RANSAC,
+                        confidence=0.99,
+                        ransacReprojThreshold=0.2,
+                        )
+        
+        if valid_case:
+            inputs_mp = []
+            outputs_mp = []
+            for i in range(max_ransac_iter):
+                # shuffle kp_cur and kp_ref
+                new_list = np.arange(0, kp_cur.shape[0], 1)
+                np.random.shuffle(new_list)
+                new_kp_cur = kp_cur.copy()[new_list]
+                new_kp_ref = kp_ref.copy()[new_list]
+
+                inputs = {}
+                inputs['kp_cur'] = new_kp_cur
+                inputs['kp_ref'] = new_kp_ref
+                inputs['H_inliers'] = H_inliers
+                inputs['cfg'] = self.cfg
+                inputs['cam_intrinsics'] = self.cam_intrinsics
+                inputs_mp.append(inputs)
+            outputs_mp = self.p.map(find_Ess_mat, inputs_mp)
+
+            # Gather result
+            num_valid_case = 0
+            best_inlier_cnt = 0
+            best_inliers = np.ones((kp_ref.shape[0])) == 1
+            for outputs in outputs_mp:
+                num_valid_case += outputs['valid_case']
+                if outputs['inlier_cnt'] > best_inlier_cnt:
+                    best_E = outputs['E']
+                    best_inlier_cnt = outputs['inlier_cnt']
+                    best_inliers = outputs['inlier']
+
+            # Recover pose
+            major_valid = num_valid_case > (max_ransac_iter/2)
+            if major_valid:
+                cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, new_kp_cur, new_kp_ref,
+                                        focal=self.cam_intrinsics.fx,
+                                        pp=principal_points,)
+
+                # cheirality_check
+                if cheirality_cnt > kp_cur.shape[0]*0.1:
+                    best_Rt = [R, t]
+
+        R, t = best_Rt
+        pose = SE3()
+        pose.R = R
+        pose.t = t
+        self.timers.timers["Ess. Mat."].append(time()-start_time)
+
+        outputs = {"pose": pose, "inliers": best_inliers}
+        return outputs
 
     def compute_pose_3d2d(self, kp1, kp2, depth_1):
         """Compute pose from 3d-2d correspondences
@@ -541,8 +760,9 @@ class VisualOdometry():
         max_ransac_iter = self.cfg.PnP.ransac.repeat
         
         for i in range(max_ransac_iter):
-            # shuffle kp_cur and kp_ref (only useful when random seed is fixed)
-            new_list = np.random.randint(0, kp2.shape[0], (kp2.shape[0]))
+            # shuffle kp (only useful when random seed is fixed)	
+            new_list = np.arange(0, kp2.shape[0], 1)	
+            np.random.shuffle(new_list)
             new_XYZ = XYZ_kp1.copy()[new_list]
             new_kp2 = kp2.copy()[new_list]
 
@@ -577,6 +797,84 @@ class VisualOdometry():
         self.cur_data['pose'].R = self.cur_data['pose'].R @ new_pose.R
         self.global_poses[self.cur_data['id']] = copy.deepcopy(self.cur_data['pose'])
 
+    def scale_recovery_single(self, cur_data, ref_data, E_pose, ref_id):
+        """recover depth scale by comparing triangulated depths and CNN depths
+        
+        Args:
+            cur_data (dict)
+            ref_data (dict)
+            E_pose (SE3)
+        Returns:
+            scale (float)
+        """
+        if self.cfg.translation_scale.kp_src == "kp_best":
+            ref_kp = cur_data[self.cfg.translation_scale.kp_src]
+            cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+        elif self.cfg.translation_scale.kp_src == "kp_depth":
+            ref_kp = cur_data[self.cfg.translation_scale.kp_src]
+            cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+
+        scale = self.find_scale_from_depth(
+            ref_kp,
+            cur_kp,
+            E_pose.inv_pose, 
+            self.cur_data['depth']
+        )
+        return scale
+
+    def scale_recovery_iterative(self, cur_data, ref_data, E_pose, ref_id):
+        """recover depth scale by comparing triangulated depths and CNN depths
+        Iterative scale recovery is applied
+        
+        Args:
+            cur_data (dict)
+            ref_data (dict)
+            E_pose (SE3)
+        Returns:
+            scale (float)
+        """
+        # Initialization
+        scale = self.prev_scale
+        delta = 0.001
+        ref_data['rigid_flow_pose'] = {}
+
+        for _ in range(5):    
+            rigid_flow_pose = copy.deepcopy(E_pose)
+            rigid_flow_pose.t *= scale
+
+            ref_data['rigid_flow_pose'][ref_id] = SE3(rigid_flow_pose.inv_pose)
+
+            # kp selection
+            kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data)
+            ref_data['kp_depth'] = {}
+            cur_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
+            for ref_id in ref_data['id']:
+                ref_data['kp_depth'][ref_id] = kp_sel_outputs['kp2_depth'][ref_id][0]
+            
+            cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
+            
+            # translation scale from triangulation v.s. CNN-depth
+            if self.cfg.translation_scale.kp_src == "kp_best":
+                ref_kp = cur_data[self.cfg.translation_scale.kp_src][ref_data['inliers'][ref_id]]
+                cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id][ref_data['inliers'][ref_id]]
+            elif self.cfg.translation_scale.kp_src == "kp_depth":
+                ref_kp = cur_data[self.cfg.translation_scale.kp_src]
+                cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+            new_scale = self.find_scale_from_depth(
+                ref_kp,
+                cur_kp,
+                E_pose.inv_pose, 
+                self.cur_data['depth']
+            )
+
+            delta_scale = np.abs(new_scale-scale)
+            scale = new_scale
+            self.prev_scale = new_scale
+            
+            if delta_scale < delta:
+                return scale
+        return scale
+
     def find_scale_from_depth(self, kp1, kp2, T_21, depth2):
         """Compute VO scaling factor for T_21
         Args:
@@ -601,22 +899,37 @@ class VisualOdometry():
         kp2_norm[:, 1] = \
             (kp2[:, 1] - self.cam_intrinsics.cy) / self.cam_intrinsics.fy
 
-        _, _, X2_tri = triangulation(kp1_norm, kp2_norm, np.eye(4), T_21)
+        _, X1_tri, X2_tri = triangulation(kp1_norm, kp2_norm, np.eye(4), T_21)
 
         # Triangulation outlier removal
         depth2_tri = convert_sparse3D_to_depth(kp2, X2_tri, img_h, img_w)
         depth2_tri[depth2_tri < 0] = 0
 
         # common mask filtering
-        non_zero_mask_pred = (depth2 > 0)
-        non_zero_mask_tri = (depth2_tri > 0)
-        valid_mask = non_zero_mask_pred * non_zero_mask_tri
+        non_zero_mask_pred2 = (depth2 > 0)
+        non_zero_mask_tri2 = (depth2_tri > 0)
+        valid_mask2 = non_zero_mask_pred2 * non_zero_mask_tri2
 
-        depth_pred_non_zero = depth2[valid_mask]
-        depth_tri_non_zero = depth2_tri[valid_mask]
+        # if self.cfg.debug and False:
+        #     # print("max: ", depth2_tri.max())
+        #     # print("median: ", np.median(depth2_tri))
+        #     f = plt.figure("depth2_tri")
+        #     plt.imshow(depth2_tri, vmin=0, vmax=200)
+        #     f,ax = plt.subplots(3,1, num="mask;depth2_tri, depth2")
+        #     ax[0].imshow(valid_mask2*1.)
+        #     ax[1].imshow(depth2_tri)
+        #     ax[2].imshow(depth2)
+        #     plt.show()
+
+        # depth_pred_non_zero = np.concatenate([depth2[valid_mask2], depth1[valid_mask1]])
+        # depth_tri_non_zero = np.concatenate([depth2_tri[valid_mask2], depth1_tri[valid_mask1]])
+        depth_pred_non_zero = np.concatenate([depth2[valid_mask2]])
+        depth_tri_non_zero = np.concatenate([depth2_tri[valid_mask2]])
+        depth_ratio = depth_tri_non_zero / depth_pred_non_zero
         
         # Estimate scale (ransac)
-        if valid_mask.sum() > 50: #self.cfg.translation_scale.ransac.min_samples:
+        # if (valid_mask1.sum() + valid_mask2.sum()) > 10:
+        if valid_mask2.sum() > 10:
             # RANSAC scaling solver
             ransac = linear_model.RANSACRegressor(
                         base_estimator=linear_model.LinearRegression(
@@ -626,11 +939,21 @@ class VisualOdometry():
                         stop_probability=self.cfg.translation_scale.ransac.stop_prob,
                         residual_threshold=self.cfg.translation_scale.ransac.thre
                         )
-            ransac.fit(
-                    depth_tri_non_zero.reshape(-1, 1),
-                    depth_pred_non_zero.reshape(-1, 1)
+            if self.cfg.translation_scale.ransac.method == "depth_ratio":
+                ransac.fit(
+                    depth_ratio.reshape(-1, 1),
+                    np.ones((depth_ratio.shape[0],1))
                     )
+            elif self.cfg.translation_scale.ransac.method == "abs_diff":
+                ransac.fit(
+                    depth_tri_non_zero.reshape(-1, 1),
+                    depth_pred_non_zero.reshape(-1, 1),
+                )
             scale = ransac.estimator_.coef_[0, 0]
+
+            # # scale outlier
+            # if ransac.inlier_mask_.sum() / depth_ratio.shape[0] < 0.2:
+            #     scale = -1
         else:
             scale = -1
 
@@ -665,15 +988,6 @@ class VisualOdometry():
             ref_imgs = [ref_data['timestamp'][idx] for idx in ref_data['id']]
             cur_imgs = [cur_data['timestamp'] for i in ref_data['timestamp']]
 
-        # Regular sampling
-        kp_list_regular = self.uniform_kp_list
-        kp_ref_regular = np.zeros((len(ref_data['id']), len(kp_list_regular), 2))
-        num_kp_regular = len(kp_list_regular)
-
-        # Best-N sampling
-        kp_ref_best = np.zeros((len(ref_data['id']), self.cfg.deep_flow.num_kp, 2))
-        num_kp_best = self.cfg.deep_flow.num_kp
-        
         # Forward pass
         flows = {}
         flow_net_tracking = self.deep_models['flow'].inference_kp
@@ -681,23 +995,14 @@ class VisualOdometry():
         num_forward = int(np.ceil(len(ref_data['id']) / batch_size))
         for i in range(num_forward):
             # Read precomputed flow / real-time flow
-            batch_kp_ref_best, batch_kp_cur_best, batch_kp_ref_regular, batch_kp_cur_regular, batch_flows = flow_net_tracking(
+            batch_flows = flow_net_tracking(
                                     img1=ref_imgs[i*batch_size: (i+1)*batch_size],
                                     img2=cur_imgs[i*batch_size: (i+1)*batch_size],
-                                    kp_list=kp_list_regular,
-                                    img_crop=self.cfg.crop.flow_crop,
                                     flow_dir=self.cfg.deep_flow.precomputed_flow,
-                                    N_list=num_kp_regular,
-                                    N_best=num_kp_best,
-                                    kp_sel_method=self.cfg.deep_flow.kp_sel_method,
                                     forward_backward=forward_backward,
                                     dataset=self.cfg.dataset)
             
-            # Save keypoints at current view
-            kp_ref_best[i*batch_size:(i+1)*batch_size] = batch_kp_cur_best.copy() # each kp_ref_best saves best-N kp at cur-view
-            kp_ref_regular[i*batch_size:(i+1)*batch_size] = batch_kp_cur_regular.copy() # each kp_ref_list saves regular kp at cur-view
-
-            # Save keypoints at reference view
+            # Save flows at current view
             for j in range(batch_size):
                 src_id = ref_data['id'][i*batch_size: (i+1)*batch_size][j]
                 tgt_id = cur_data['id']
@@ -706,22 +1011,418 @@ class VisualOdometry():
                     flows[(tgt_id, src_id)] = batch_flows['backward'][j].copy()
                     flows[(src_id, tgt_id, "diff")] = batch_flows['flow_diff'][j].copy()
 
-        # Store kp
-        cur_data['kp_best'] = batch_kp_ref_best[0].copy() # cur_data save each kp at ref-view (i.e. regular grid)
-        cur_data['kp_list'] = batch_kp_ref_regular[0].copy() # cur_data save each kp at ref-view (i.e. regular grid)
-        cur_data['kp_best'] = cur_data['kp_best'][cur_data['kp_best'][:,0]!=-1] # remove invalid kp
-
-        for i, ref_id in enumerate(ref_data['id']):
-            ref_data['kp_best'][ref_id] = kp_ref_best[i].copy()
-            ref_data['kp_list'][ref_id] = kp_ref_regular[i].copy()
-            ref_data['kp_best'][ref_id] = ref_data['kp_best'][ref_id][ref_data['kp_best'][ref_id][:,0]!=-1] # remove invalid kp
-
             # Store flow
-            ref_data['flow'][ref_id] = flows[(ref_data['id'][i], cur_data['id'])].copy()
-            if forward_backward:
-                cur_data['flow'][ref_id] = flows[(cur_data['id'], ref_data['id'][i])].copy()
-                ref_data['flow_diff'][ref_id] = flows[(ref_data['id'][i], cur_data['id'], "diff")].copy()
+            for ref_id in ref_data['id']:
+                ref_data['flow'][ref_id] = flows[(ref_data['id'][i], cur_data['id'])].copy()
+                if forward_backward:
+                    cur_data['flow'][ref_id] = flows[(cur_data['id'], ref_data['id'][i])].copy()
+                    ref_data['flow_diff'][ref_id] = flows[(ref_data['id'][i], cur_data['id'], "diff")].copy()
         return cur_data, ref_data
+
+    def unprojection(self, depth, cam_intrinsics):
+        """Convert a depth map to XYZ
+        Args:
+            depth (HxW array): depth map
+            cam_intrinsics (Intrinsics): camera intrinsics
+        Returns:
+            XYZ (HxWx3): 3D coordinates
+        """
+        height, width = depth.shape
+
+        depth_mask = (depth != 0)
+        depth_mask = np.repeat(np.expand_dims(depth_mask, 2), 3, axis=2)
+
+        # initialize regular grid
+        XYZ = np.ones((height, width, 3, 1))
+        XYZ[:, :, 0, 0] = np.repeat(
+                            np.expand_dims(np.arange(0, width), 0),
+                            height, axis=0
+                            )
+        XYZ[:, :, 1, 0] = np.repeat(
+                            np.expand_dims(np.arange(0, height), 1),
+                            width, axis=1)
+
+        inv_K = np.ones((1, 1, 3, 3))
+        inv_K[0, 0] = cam_intrinsics.inv_mat
+        inv_K = np.repeat(inv_K, height, axis=0)
+        inv_K = np.repeat(inv_K, width, axis=1)
+
+        XYZ = np.matmul(inv_K, XYZ)[:, :, :, 0]
+        XYZ[:, :, 0] = XYZ[:, :, 0] * depth
+        XYZ[:, :, 1] = XYZ[:, :, 1] * depth
+        XYZ[:, :, 2] = XYZ[:, :, 2] * depth
+        return XYZ
+
+    def projection(self, XYZ, proj_mat):
+        """Convert XYZ to [u,v,d]
+        Args:
+            XYZ (HxWx3): 3D coordinates
+            proj_mat (3x3 array): camera intrinsics / projection matrix
+        Returns:
+            xy (HxWx2 array): projected image coordinates
+        """
+        if len(XYZ.shape) == 3:
+            h, w, _ = XYZ.shape
+            tmp_XYZ = XYZ.copy()
+            tmp_XYZ[:, :, 0] /= tmp_XYZ[:, :, 2]
+            tmp_XYZ[:, :, 1] /= tmp_XYZ[:, :, 2]
+            tmp_XYZ[:, :, 2] /= tmp_XYZ[:, :, 2]
+            tmp_XYZ = np.expand_dims(tmp_XYZ, axis=3)
+            K = np.ones((1, 1, 3, 3))
+            K[0, 0] = proj_mat
+            K = np.repeat(K, h, axis=0)
+            K = np.repeat(K, w, axis=1)
+
+            xy = np.matmul(K, tmp_XYZ)[:, :, :2, 0]
+        elif len(XYZ.shape) == 2:
+            n, _ = XYZ.shape
+            tmp_XYZ = XYZ.copy()
+            tmp_XYZ[:, 0] /= tmp_XYZ[:, 2]
+            tmp_XYZ[:, 1] /= tmp_XYZ[:, 2]
+            tmp_XYZ[:, 2] /= tmp_XYZ[:, 2]
+            tmp_XYZ = np.expand_dims(tmp_XYZ, axis=2)
+            K = np.ones((1, 3, 3))
+            K[0] = proj_mat
+            K = np.repeat(K, n, axis=0)
+
+            xy = np.matmul(K, tmp_XYZ)[:, :2, 0]
+        return xy
+
+    def transform_XYZ(self, XYZ, transformation):
+        """Transform point cloud
+        Args:
+            XYZ (HxWx3 / Nx3): 3D coordinates
+            pose (4x4 array): tranformation matrix
+        Returns:
+            new_XYZ (HxWx3 / Nx3): 3D coordinates
+        """
+        if len(XYZ.shape) == 3:
+            h, w, _ = XYZ.shape
+            new_XYZ = np.ones((h, w, 4, 1))
+            new_XYZ[:, :, :3, 0] = XYZ
+
+            T = np.ones((1, 1, 4, 4))
+            T[0, 0] = transformation
+            T = np.repeat(T, h, axis=0)
+            T = np.repeat(T, w, axis=1)
+
+            new_XYZ = np.matmul(T, new_XYZ)[:, :, :3, 0]
+        elif len(XYZ.shape) == 2:
+            n, _ = XYZ.shape
+            new_XYZ = np.ones((n, 4, 1))
+            new_XYZ[:, :3, 0] = XYZ
+
+            T = np.ones((1, 4, 4))
+            T[0] = transformation
+            T = np.repeat(T, n, axis=0)
+
+            new_XYZ = np.matmul(T, new_XYZ)[:, :3, 0]
+
+        return new_XYZ
+
+    def xy_to_uv(self, xy):
+        """Convert image coordinates to optical flow
+        Args:
+            xy (HxWx2 array): image coordinates
+        Returns:
+            uv (HxWx2 array): x-flow and y-flow
+        """
+        h, w, _ = xy.shape
+        img_grid = image_grid(h, w)
+        uv = xy - img_grid
+        return uv
+
+    def compute_rigid_flow(self, depth, pose):
+        """Compute rigid flow 
+        Args:
+            depth (HxW array): depth map of reference view
+            pose (4x4 array): from reference to current
+        Returns:
+            rigid_flow (HxWx2): rigid flow [x-flow, y-flow]
+        """
+        XYZ_ref = self.unprojection(depth, self.cam_intrinsics)
+        XYZ_cur = self.transform_XYZ(XYZ_ref, pose)
+        xy = self.projection(XYZ_cur, self.cam_intrinsics.mat)
+        rigid_flow = self.xy_to_uv(xy)
+        return rigid_flow
+
+    def kp_selection(self, cur_data, ref_data):
+        """Choose valid kp from a series of operations
+        """
+        outputs = {}
+
+        # initialization
+        h, w = cur_data['depth'].shape
+        ref_id = ref_data['id'][0]
+
+        kp1 = image_grid(h, w)
+        kp1 = np.expand_dims(kp1, 0)
+        tmp_flow_data = np.transpose(np.expand_dims(ref_data['flow'][ref_id], 0), (0, 2, 3, 1))
+        kp2 = kp1 + tmp_flow_data
+
+        """ best-N selection """
+        if self.cfg.kp_selection.uniform_filtered_bestN.enable:
+            kp_sel_method = uniform_filtered_bestN
+        elif self.cfg.kp_selection.bestN.enable:
+            kp_sel_method = bestN
+        
+        outputs.update(
+            kp_sel_method(
+                kp1=kp1,
+                kp2=kp2,
+                ref_data=ref_data,
+                cfg=self.cfg,
+                outputs=outputs
+                )
+        )
+
+        """ sampled kp selection """
+        if self.cfg.kp_selection.sampled_kp.enable:
+            sampled_kp_list = self.uniform_kp_list
+            outputs.update(
+                sampled_kp(
+                    kp1=kp1,
+                    kp2=kp2,
+                    ref_data=ref_data,
+                    kp_list=sampled_kp_list,
+                    cfg=self.cfg,
+                    outputs=outputs
+                    )
+        )
+
+        # """ depth consistent kp selection """
+        # if self.cfg.kp_selection.good_depth_kp.enable:
+        #     ref_data['rigid_flow_pose'] = {}
+        #     # compute rigid flow
+        #     # gt_pose = np.linalg.inv(self.gt_poses[cur_data['id']]) @ self.gt_poses[ref_id] 
+        #     rigid_flow_pose = ref_data['rigid_flow_pose'][ref_id]
+        #     rigid_flow = self.compute_rigid_flow(
+        #                                 ref_data['raw_depth'][ref_id],
+        #                                 # np.linalg.inv(ref_data['deep_pose'][ref_id])
+        #                                 rigid_flow_pose
+        #                                 )
+        #     rigid_flow_diff = np.linalg.norm(
+        #                         rigid_flow - ref_data['flow'][ref_id].transpose(1,2,0),
+        #                         axis=2)
+        #     rigid_flow_diff = np.expand_dims(rigid_flow_diff, 2)
+            
+        #     # print("pose: ", np.linalg.inv(ref_data['deep_pose'][ref_id]))
+        #     # print("gt_pose: ", gt_pose)
+        #     # plt.figure("depth")
+        #     # plt.imshow(self.ref_data['raw_depth'][ref_id])
+        #     # plt.figure("rigid_flow x")
+        #     # plt.imshow(rigid_flow[:,:,0])
+        #     # plt.figure("rigid_flow y")
+        #     # plt.imshow(rigid_flow[:,:,1])
+        #     # plt.figure("ref_flow")
+        #     # plt.imshow(ref_data['flow'][ref_id][0, :,:])
+        #     # plt.figure("flow_diff")
+        #     # plt.imshow(rigid_flow_diff, vmin=0, vmax=3)
+        #     # plt.show()
+
+        #     ref_data['rigid_flow_diff'][ref_id] = rigid_flow_diff
+
+        #     # get depth-flow consistent kp
+        #     outputs.update(
+        #         good_depth_kp(
+        #             kp1=kp1,
+        #             kp2=kp2,
+        #             ref_data=ref_data,
+        #             cfg=self.cfg,
+        #             outputs=outputs
+        #             )
+        #     )
+
+        return outputs
+
+    def kp_selection_good_depth(self, cur_data, ref_data):
+        """Choose valid kp from a series of operations
+        """
+        outputs = {}
+
+        # initialization
+        h, w = cur_data['depth'].shape
+        ref_id = ref_data['id'][0]
+
+        kp1 = image_grid(h, w)
+        kp1 = np.expand_dims(kp1, 0)
+        tmp_flow_data = np.transpose(np.expand_dims(ref_data['flow'][ref_id], 0), (0, 2, 3, 1))
+        kp2 = kp1 + tmp_flow_data
+
+        """ depth consistent kp selection """
+        if self.cfg.kp_selection.good_depth_kp.enable:
+            ref_data['rigid_flow_diff'] = {}
+            # compute rigid flow
+            rigid_flow_pose = ref_data['rigid_flow_pose'][ref_id].pose
+            rigid_flow = self.compute_rigid_flow(
+                                        ref_data['raw_depth'][ref_id],  
+                                        # cur_data['raw_depth'],
+                                        # np.linalg.inv(ref_data['deep_pose'][ref_id])
+                                        rigid_flow_pose
+                                        )
+            rigid_flow_diff = np.linalg.norm(
+                                rigid_flow - ref_data['flow'][ref_id].transpose(1,2,0),
+                                axis=2)
+            rigid_flow_diff = np.expand_dims(rigid_flow_diff, 2)
+            
+            # print("pose: ", np.linalg.inv(ref_data['deep_pose'][ref_id]))
+            # print("gt_pose: ", gt_pose)
+            # plt.figure("depth")
+            # plt.imshow(self.ref_data['raw_depth'][ref_id])
+            # plt.figure("rigid_flow x")
+            # plt.imshow(rigid_flow[:,:,0])
+            # plt.figure("rigid_flow y")
+            # plt.imshow(rigid_flow[:,:,1])
+            # plt.figure("ref_flow")
+            # plt.imshow(ref_data['flow'][ref_id][0, :,:])
+            # plt.figure("flow_diff")
+            # plt.imshow(rigid_flow_diff, vmin=0, vmax=3)
+            # plt.show()
+
+            ref_data['rigid_flow_diff'][ref_id] = rigid_flow_diff
+
+            # get depth-flow consistent kp
+            outputs.update(
+                good_depth_kp(
+                    kp1=kp1,
+                    kp2=kp2,
+                    ref_data=ref_data,
+                    cfg=self.cfg,
+                    outputs=outputs
+                    )
+            )
+
+        return outputs
+
+    def prepare_depth_consistency_data(self, cur_data, ref_data):
+        """Prepare data for computing depth consistency
+        Returns
+            - data (dict): 
+                - inv_K
+                - K
+                - depth
+                - pose_T
+        """
+        data = {}
+
+        # camera intrinsics
+        data[('inv_K')] = np.eye(4)
+        data[('inv_K')][:3, :3] = self.cam_intrinsics.inv_mat
+        data[('inv_K')] = torch.from_numpy(data[('inv_K')]).unsqueeze(0).float().cuda()
+
+        data[('K')] = np.eye(4)
+        data[('K')][:3, :3] = self.cam_intrinsics.mat
+        data[('K')] = torch.from_numpy(data[('K')]).unsqueeze(0).float().cuda()
+
+        # current depth
+        data[('depth', cur_data['id'])] = torch.from_numpy(cur_data['raw_depth']).unsqueeze(0).unsqueeze(0).float().cuda()
+
+        for ref_id in ref_data['id']:
+            # reference depth
+            data[('depth', ref_id)] = torch.from_numpy(ref_data['raw_depth'][ref_id]).unsqueeze(0).unsqueeze(0).float().cuda()
+
+            # pose
+            data[('pose_T', cur_data['id'], ref_id)] = torch.from_numpy(ref_data['deep_pose'][ref_id]).unsqueeze(0).float().cuda()
+        
+        return data
+
+    def warp_and_reproj_depth(self, inputs):
+        """Get reprojected depths and warp depths
+        - reproj_depth: the reference depths in source view 
+        - warp_depth: the warped reference depths in source view
+
+        Args:
+            inputs:
+                - (inv_K) (Nx4x4)
+                - (K) (Nx4x4)
+                - (depth, 0) (Nx1xHxW): current depth
+                - (depth, ref_id) (Nx1xHxW): reference inv.depth
+                - (pose_T, 0, ref_id) (Nx4x4): rel. pose from 0 to ref_id
+        Returns:
+            outputs:
+                - ('warp_depth', 0, frame_id)
+                - ('reproj_depth', 0, frame_id)
+        """
+        outputs = {}
+        K = inputs['K']
+        inv_K = inputs['inv_K']
+
+        # Get depth and 3D points of frame_0
+        cur_depth = inputs[('depth', self.cur_data['id'])]
+        cam_points = self.backproj(cur_depth, inv_K)
+
+
+        n, _, h, w = cur_depth.shape
+
+        for frame_id in self.ref_data['id']:
+            T = inputs[("pose_T", self.cur_data['id'], frame_id)]
+
+            # reprojection
+            reproj_xy = self.reproj(cur_depth, T, K, inv_K)
+
+            # Warp src depth to tgt ref view
+            outputs[('warp_depth', self.cur_data['id'], frame_id)] = nnFunc.grid_sample(
+                inputs[("depth",  frame_id)],
+                reproj_xy,
+                padding_mode="border")
+                
+            # Reproject cur_depth
+            transformed_cam_points = torch.matmul(T[:, :3, :], cam_points)
+            transformed_cam_points = transformed_cam_points.view(n, 3, h, w)
+            proj_depth = transformed_cam_points[:, 2:, :, :]
+            outputs[('reproj_depth', self.cur_data['id'], frame_id)] = proj_depth
+        return outputs
+
+    def compute_depth_diff(self, depth_data):
+        """
+        inputs:
+            depth_data:
+                - ('warp_depth', cur_id, ref_id)
+                - ('reproj_depth', cur_id, ref_id)
+        """
+        outputs = {}
+        for ref_id in self.ref_data['id']:
+            warp_depth = depth_data[('warp_depth', self.cur_data['id'], ref_id)]#.cpu().numpy()[0,0]
+            reproj_depth = depth_data[('reproj_depth', self.cur_data['id'], ref_id)]#.cpu().numpy()[0,0]
+            depth_diff = (warp_depth - reproj_depth).abs()
+
+            method = "depth_ratio"
+            if method == "sc":
+                depth_sum = (warp_depth + reproj_depth).abs()
+                depth_diff = (depth_diff / depth_sum).clamp(0, 1).cpu().numpy()[0,0]
+            elif method == "depth_ratio":
+                depth_diff = (depth_diff / reproj_depth).clamp(0, 1).cpu().numpy()[0,0]
+            else:
+                depth_diff = depth_diff.cpu().numpy()[0,0]
+
+            outputs[('depth_diff', self.cur_data['id'], ref_id)] = depth_diff
+        return outputs
+
+    def compute_depth_consistency(self):
+        """Compute depth consistency using CNN pose and CNN depths
+        New data added to ref_data
+            - deep_pose
+            - depth_diff
+        """
+        self.ref_data['deep_pose'] = {}
+
+        # Deep pose prediction
+        for ref_id in self.ref_data['id']:
+            # pose prediction
+            pose = self.deep_models['pose'].inference(
+                            self.ref_data['img'][ref_id],
+                            self.cur_data['img'], 
+                            )
+            self.ref_data['deep_pose'][ref_id] = pose[0] # from cur->ref
+
+        # compute depth consistency
+        inputs = self.prepare_depth_consistency_data(self.cur_data, self.ref_data)
+        depth_outputs = self.warp_and_reproj_depth(inputs)
+        depth_consistency = self.compute_depth_diff(depth_outputs)
+
+        self.ref_data['depth_diff'] = {}
+        for ref_id in self.ref_data['id']:
+            self.ref_data['depth_diff'][ref_id] = depth_consistency[('depth_diff', self.cur_data['id'], ref_id)]
 
     def tracking_hybrid(self):
         """Tracking using both Essential matrix and PnP
@@ -746,28 +1447,61 @@ class VisualOdometry():
                                         forward_backward=self.cfg.deep_flow.forward_backward)
             self.timers.timers['Flow-CNN'].append(time()-start_time)
 
-            for ref_id in self.ref_data['id']:
-                # Compose hybrid pose
+            # Depth consistency (CNN depths + CNN pose)
+            if self.cfg.kp_selection.depth_consistency.enable:
+                self.compute_depth_consistency()
+
+            # kp_selection
+            kp_sel_outputs = self.kp_selection(cur_data, ref_data)
+
+            # save selected kp
+            ref_data['kp_best'] = {}
+            cur_data['kp_best'] = kp_sel_outputs['kp1_best'][0]
+            for ref_id in ref_data['id']:
+                ref_data['kp_best'][ref_id] = kp_sel_outputs['kp2_best'][ref_id][0]
+            
+            if self.cfg.kp_selection.sampled_kp.enable:
+                ref_data['kp_list'] = {}
+                cur_data['kp_list'] = kp_sel_outputs['kp1_list'][0]
+                for ref_id in ref_data['id']:
+                    ref_data['kp_list'][ref_id] = kp_sel_outputs['kp2_list'][ref_id][0]
+            
+            # save mask
+            cur_data['flow_mask'] = kp_sel_outputs['flow_mask']
+            if self.cfg.kp_selection.uniform_filtered_bestN.enable:
+                cur_data['valid_mask'] = kp_sel_outputs['valid_mask']
+            
+            if self.cfg.kp_selection.depth_consistency.enable:
+                cur_data['depth_mask'] = kp_sel_outputs['depth_mask']
+            
+            # Pose estimation
+            for ref_id in ref_data['id']:
+                # Initialize hybrid pose
                 hybrid_pose = SE3()
 
-                # FIXME: add if statement for deciding which kp to use
                 # Essential matrix pose
-                E_pose, _ = self.compute_pose_2d2d(
-                                cur_data['kp_best'],
-                                ref_data['kp_best'][ref_id]) # pose: from cur->ref
+                outputs_2d2d = self.compute_pose_2d2d(
+                                cur_data[self.cfg.compute_2d2d_pose.kp_src],
+                                ref_data[self.cfg.compute_2d2d_pose.kp_src][ref_id]) # pose: from cur->ref
+                E_pose = outputs_2d2d['pose']
 
                 # Rotation
                 hybrid_pose.R = E_pose.R
 
-                # translation scale from triangulation v.s. CNN-depth
+                # save inliers
+                ref_data['inliers'][ref_id] = outputs_2d2d['inliers']
+
+                # scale recovery
                 if np.linalg.norm(E_pose.t) != 0:
-                    scale = self.find_scale_from_depth(
-                        cur_data[self.cfg.translation_scale.kp_src], ref_data[self.cfg.translation_scale.kp_src][ref_id],
-                        E_pose.inv_pose, self.cur_data['depth']
-                    )
+                    if self.cfg.translation_scale.method == "single":
+                        scale = self.scale_recovery_single(cur_data, ref_data, E_pose, ref_id)
+                    
+                    elif self.cfg.translation_scale.method == "iterative":
+                        scale = self.scale_recovery_iterative(cur_data, ref_data, E_pose, ref_id)
+                    
                     if scale != -1:
                         hybrid_pose.t = E_pose.t * scale
-
+                    
                 # PnP if Essential matrix fail
                 if np.linalg.norm(E_pose.t) == 0 or scale == -1:
                     pnp_pose, _, _ \
@@ -780,15 +1514,10 @@ class VisualOdometry():
                     hybrid_pose = pnp_pose
                     self.tracking_mode = "PnP"
                 ref_data['pose'][ref_id] = copy.deepcopy(hybrid_pose)
-                # ref_data['pose'][ref_id] = hybrid_pose
 
             self.ref_data = copy.deepcopy(ref_data)
             self.cur_data = copy.deepcopy(cur_data)
 
-            # copy keypoint for visualization
-            self.ref_data['kp'] = copy.deepcopy(ref_data['kp_best'])
-            self.cur_data['kp'] = copy.deepcopy(cur_data['kp_best'])
-            
             # update global poses
             pose = self.ref_data['pose'][self.ref_data['id'][-1]]
             self.update_global_pose(pose, 1)
@@ -827,6 +1556,8 @@ class VisualOdometry():
                 if len(ref_data['id']) > window_size - 1:
                     del(ref_data['id'][0])
             else:
+                if ref_data.get(key, -1) == -1:
+                    ref_data[key] = {}
                 ref_data[key][cur_data['id']] = cur_data[key]
                 if len(ref_data[key]) > window_size - 1:
                     drop_id = np.min(list(ref_data[key].keys()))
@@ -846,8 +1577,9 @@ class VisualOdometry():
         """
         rgb_d_pose_pair = {}
         # KITTI 
-        if self.cfg.dataset == "kitti":
-            len_seq = len(self.gt_poses)
+        # if self.cfg.dataset == "kitti_odom":
+        if "kitti" in self.cfg.dataset:
+            len_seq = len(glob(os.path.join(self.img_path_dir, "*.{}".format(self.cfg.image.ext))))
             for i in range(len_seq):
                 rgb_d_pose_pair[i] = {}
                 rgb_d_pose_pair[i]['depth'] = i
@@ -936,13 +1668,19 @@ class VisualOdometry():
         # Synchronize rgb-d-pose pair
         self.rgb_d_pose_pair = self.synchronize_rgbd_pose_pairs()
         len_seq = len(self.rgb_d_pose_pair)
+        self.prev_scale = 1
 
         # Main
         print("==> Start VO")
         main_start_time = time()
-        start_frame = int(input("Start with frame: "))
+        if self.cfg.no_confirm:
+            start_frame = 0
+        else:
+            start_frame = int(input("Start with frame: "))
 
         for img_id in tqdm(range(start_frame, len_seq)):
+        # for img_id in range(start_frame, len_seq):
+        #     print("cur frame: ", img_id)
             self.tracking_mode = "Ess. Mat."
 
             """ Data reading """
@@ -951,14 +1689,18 @@ class VisualOdometry():
             # Initialize ids and timestamps
             self.cur_data['id'] = img_id
 
-            if self.cfg.dataset == "kitti":
+            # if self.cfg.dataset == "kitti_odom":
+            if "kitti" in self.cfg.dataset:
                 self.cur_data['timestamp'] = img_id
             elif "tum" in self.cfg.dataset:
                 self.cur_data['timestamp'] = sorted(list(self.rgb_d_pose_pair.keys()))[img_id]
             
             # Reading image
-            if self.cfg.dataset == "kitti":
+            if self.cfg.dataset == "kitti_odom":
                 img = read_image(self.img_path_dir+"/{:06d}.{}".format(img_id, self.cfg.image.ext), 
+                                    self.cfg.image.height, self.cfg.image.width)
+            elif self.cfg.dataset == "kitti_raw":
+                img = read_image(self.img_path_dir+"/{:010d}.{}".format(img_id, self.cfg.image.ext), 
                                     self.cfg.image.height, self.cfg.image.width)
             elif "tum" in self.cfg.dataset:
                 img = read_image(self.img_path_dir+"/{:.6f}.{}".format(self.cur_data['timestamp'], self.cfg.image.ext),
@@ -1024,7 +1766,7 @@ class VisualOdometry():
 
         # Save trajectory txt
         traj_txt = "{}/{}.txt".format(self.cfg.result_dir, self.cfg.seq)
-        if self.cfg.dataset == "kitti":
+        if "kitti" in self.cfg.dataset:
             global_poses_arr = convert_SE3_to_arr(self.global_poses)
             save_traj(traj_txt, global_poses_arr, format="kitti")
         elif "tum" in self.cfg.dataset:

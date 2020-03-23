@@ -62,7 +62,7 @@ class Monodepth2DepthNet(DeepDepth):
         self.feed_width = loaded_dict_enc['width']
 
         # dataset parameters
-        if dataset == "kitti":
+        if "kitti" in dataset:
             self.min_depth = 0.1
             self.max_depth = 100
             self.stereo_baseline = 5.4

@@ -28,17 +28,11 @@ def draw_match_temporal(img1, kp1, img2, kp2, N):
     r1, g1, b1 = img1[:,:,0], img1[:,:,1], img1[:,:,2]
     r2, g2, b2 = img2[:,:,0], img2[:,:,1], img2[:,:,2]
     out_img = img2.copy()
-    # out_img[:,:,0] = r1
-    # out_img = cv2.addWeighted(img1, 0.5, img2, 0.5, 0, out_img)
 
-    # kp_list = np.random.randint(0, min(kp1.shape[0], kp2.shape[0]), N)
     kp_list = np.linspace(0, min(kp1.shape[0], kp2.shape[0])-1, N,
                                             dtype=np.int
                                             )
     for i in kp_list:
-        # print(kp1[i])
-        # print(kp2[i])
-        # input("debug")
         center1 = (kp1[i][0].astype(np.int), kp1[i][1].astype(np.int))
         center2 = (kp2[i][0].astype(np.int), kp2[i][1].astype(np.int))
 
@@ -49,7 +43,33 @@ def draw_match_temporal(img1, kp1, img2, kp2, N):
     return out_img
 
 
-def draw_match_2_side(img1, kp1, img2, kp2, N):
+# def draw_match_2_side(img1, kp1, img2, kp2, N, inliers):
+#     """Draw matches on 2 sides
+#     Args:
+#         img1 (HxW(xC) array): image 1
+#         kp1 (Nx2 array): keypoint for image 1
+#         img2 (HxW(xC) array): image 2
+#         kp2 (Nx2 array): keypoint for image 2
+#         N (int): number of matches to draw
+#         inliers (Nx1 array): boolean mask for inlier (not used)
+#     Returns:
+#         out_img (Hx2W(xC) array): output image with drawn matches
+#     """
+#     kp_list = np.linspace(0, min(kp1.shape[0], kp2.shape[0])-1, N,
+#                                             dtype=np.int
+#                                             )
+
+#     # Convert keypoints to cv2.Keypoint object
+#     cv_kp1 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp1[kp_list]]
+#     cv_kp2 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp2[kp_list]]
+
+#     out_img = np.array([])
+#     good_matches = [cv2.DMatch(_imgIdx=0, _queryIdx=idx, _trainIdx=idx,_distance=0) for idx in range(N)]
+#     out_img = cv2.drawMatches(img1, cv_kp1, img2, cv_kp2, matches1to2=good_matches, outImg=out_img)
+
+#     return out_img
+
+def draw_match_side(img1, kp1, img2, kp2, N, inliers):
     """Draw matches on 2 sides
     Args:
         img1 (HxW(xC) array): image 1
@@ -57,23 +77,42 @@ def draw_match_2_side(img1, kp1, img2, kp2, N):
         img2 (HxW(xC) array): image 2
         kp2 (Nx2 array): keypoint for image 2
         N (int): number of matches to draw
+        inliers (Nx1 array): boolean mask for inlier (not used)
     Returns:
         out_img (Hx2W(xC) array): output image with drawn matches
     """
     kp_list = np.linspace(0, min(kp1.shape[0], kp2.shape[0])-1, N,
-                                            dtype=np.int
-                                            )
-
+                            dtype=np.int
+                            )
+    
     # Convert keypoints to cv2.Keypoint object
     cv_kp1 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp1[kp_list]]
     cv_kp2 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp2[kp_list]]
 
     out_img = np.array([])
-    good_matches = [cv2.DMatch(_imgIdx=0, _queryIdx=idx, _trainIdx=idx,_distance=0) for idx in range(N)]
-    out_img = cv2.drawMatches(img1, cv_kp1, img2, cv_kp2, matches1to2=good_matches, outImg=out_img)
+    good_matches = [cv2.DMatch(_imgIdx=0, _queryIdx=idx, _trainIdx=idx,_distance=0) for idx in range(len(cv_kp1))]
+
+    # inlier/outlier plot option
+    if inliers is not None:
+        inlier_mask = inliers[kp_list].ravel().tolist()
+        inlier_draw_params = dict(matchColor = (0,255,0), # draw matches in green color
+                    singlePointColor = None,
+                    matchesMask = inlier_mask, # draw only inliers
+                    flags = 2)
+        
+        outlier_mask = (inliers==0)[kp_list].ravel().tolist()
+        outlier_draw_params = dict(matchColor = (255,0,0), # draw matches in red color
+                    singlePointColor = None,
+                    matchesMask = outlier_mask, # draw only inliers
+                    flags = 2)
+        out_img1 = cv2.drawMatches(img1, cv_kp1, img2, cv_kp2, good_matches, outImg=out_img, **inlier_draw_params)
+        out_img2 = cv2.drawMatches(img1, cv_kp1, img2, cv_kp2, good_matches, outImg=out_img, **outlier_draw_params)
+        out_img = cv2.addWeighted(out_img1, 0.5, out_img2, 0.5, 0)
+    else:
+        out_img = cv2.drawMatches(img1, cv_kp1, img2, cv_kp2, matches1to2=good_matches, outImg=out_img)
+
 
     return out_img
-
 
 class FrameDrawer():
     """
@@ -135,28 +174,31 @@ class FrameDrawer():
         Returns:
             [x_off, y_off] (int): x,y offset of initial pose
         """
-        # Get max and min X,Z; [x,y] of
-        gt_Xs = []
-        gt_Zs = []
-        for cnt, i in enumerate(gt_poses):
-            trueX, trueY, trueZ = gt_poses[i][:3, 3]
-            gt_Xs.append(trueX)
-            gt_Zs.append(trueZ)
-            if cnt == 0:
-                x0 = trueX
-                z0 = trueZ
-        min_x, max_x = np.min(gt_Xs), np.max(gt_Xs)
-        min_z, max_z = np.min(gt_Zs), np.max(gt_Zs)
+        if len(gt_poses) != 1:
+            # Get max and min X,Z; [x,y] of
+            gt_Xs = []
+            gt_Zs = []
+            for cnt, i in enumerate(gt_poses):
+                trueX, trueY, trueZ = gt_poses[i][:3, 3]
+                gt_Xs.append(trueX)
+                gt_Zs.append(trueZ)
+                if cnt == 0:
+                    x0 = trueX
+                    z0 = trueZ
+            min_x, max_x = np.min(gt_Xs), np.max(gt_Xs)
+            min_z, max_z = np.min(gt_Zs), np.max(gt_Zs)
 
-        # Get ratio
-        ratio_x = (x0 - min_x)/(max_x-min_x)
-        ratio_z = (z0 - min_z)/(max_z-min_z)
+            # Get ratio
+            ratio_x = (x0 - min_x)/(max_x-min_x)
+            ratio_z = (z0 - min_z)/(max_z-min_z)
 
-        # Get offset (only using [0.2:0.8])
-        crop = [0.2, 0.8]
-        x_off = int(vis_w * (crop[1]-crop[0]) * ratio_x + vis_w * crop[0])
-        y_off = int(vis_h * crop[1] - vis_h * (crop[1]-crop[0]) * (ratio_z))
-        self.traj_x0, self.traj_y0 = x_off, y_off
+            # Get offset (only using [0.2:0.8])
+            crop = [0.2, 0.8]
+            x_off = int(vis_w * (crop[1]-crop[0]) * ratio_x + vis_w * crop[0])
+            y_off = int(vis_h * crop[1] - vis_h * (crop[1]-crop[0]) * (ratio_z))
+            self.traj_x0, self.traj_y0 = x_off, y_off
+        else:
+            self.traj_x0, self.traj_y0 = int(vis_w * 0.5), int(vis_h * 0.5)
         # return x_off, y_off
 
     def interface(self):
@@ -271,30 +313,34 @@ class FrameDrawer():
 
         # Draw correspondence
         tmp_start_time = time()
-        if vo.cfg.visualization.match.vis_type is not None and vo.tracking_stage > 1:
+        if vo.tracking_stage > 1:
             ref_id = vo.ref_data['id'][-1]
 
             # Set number of kp to be visualized
-            if (vo.cur_data['kp'].shape[0] < vo.cfg.visualization.match.kp_num or \
-                    vo.ref_data['kp'][ref_id].shape[0] < vo.cfg.visualization.match.kp_num or\
+            if (vo.cur_data[vo.cfg.visualization.kp_src].shape[0] < vo.cfg.visualization.match.kp_num or \
+                    vo.ref_data[vo.cfg.visualization.kp_src][ref_id].shape[0] < vo.cfg.visualization.match.kp_num or\
                         vo.cfg.visualization.match.kp_num == -1):
-                vis_kp_num = min(vo.cur_data['kp'].shape[0], vo.ref_data['kp'][ref_id].shape[0])
+                vis_kp_num = min(vo.cur_data[vo.cfg.visualization.kp_src].shape[0], vo.ref_data[vo.cfg.visualization.kp_src][ref_id].shape[0])
             else:
                 vis_kp_num = vo.cfg.visualization.match.kp_num
 
             if vo.drawer.display['match_side'] and\
-                (vo.cfg.visualization.match.vis_type == 0 or\
-                 vo.cfg.visualization.match.vis_type == 2):
+                vo.cfg.visualization.match.vis_side.enable:
                 # Set keypoints
                 if vo.feature_tracking_method == "deep_flow":
-                    vis_kp_ref = vo.ref_data['kp'][ref_id][0:-1:1]
-                    vis_kp_cur = vo.cur_data['kp'][0:-1:1]
-                vis_match_side = draw_match_2_side(
+                    vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
+                    vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
+                if vo.cfg.visualization.match.vis_side.inlier_plot:
+                    inliers=vo.ref_data['inliers'][ref_id]
+                else:
+                    inliers=None
+                vis_match_side = draw_match_side(
                     img2=vo.ref_data['img'][ref_id],
                     kp2=vis_kp_cur,
                     img1=vo.cur_data['img'],
                     kp1=vis_kp_ref,
-                    N=vis_kp_num
+                    N=vis_kp_num,
+                    inliers=inliers
                     )
                 vo.drawer.update_data("match_side", vis_match_side)
             else:
@@ -303,13 +349,12 @@ class FrameDrawer():
 
             # Draw temporal flow
             if vo.drawer.display['match_temp'] and \
-                (vo.cfg.visualization.match.vis_type == 1 or \
-                  vo.cfg.visualization.match.vis_type == 2):
+                vo.cfg.visualization.match.vis_temp.enable:
                 
                 # Set keypoints
                 if vo.feature_tracking_method == "deep_flow":
-                    vis_kp_ref = vo.ref_data['kp'][ref_id]
-                    vis_kp_cur = vo.cur_data['kp']
+                    vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
+                    vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
                 vis_match_temp = draw_match_temporal(
                         img1=vo.ref_data['img'][ref_id],
                         kp1=vis_kp_ref,
@@ -342,15 +387,15 @@ class FrameDrawer():
             h, w, c = vo.drawer.data["flow2"][...].shape
             vo.drawer.data["flow2"][...] = np.zeros((h,w,c))
         
-        if vo.drawer.display['flow_diff'] and vo.cfg.visualization.flow.vis_flow_diff and vo.tracking_stage > 1:
-            vis_flow = vo.ref_data['flow_diff'][vo.ref_data['id'][0]][:,:,0]
-            normalizer = mpl.colors.Normalize(vmin=0, vmax=0.5)
-            mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
-            colormapped_im = (mapper.to_rgba(vis_flow)[:, :, :3] * 255).astype(np.uint8)
-            vo.drawer.update_data("flow_diff", colormapped_im)
-        else:
-            h, w, c = vo.drawer.data["flow_diff"][...].shape
-            vo.drawer.data["flow_diff"][...] = np.zeros((h,w,c))
+        # if vo.drawer.display['flow_diff'] and vo.cfg.visualization.flow.vis_flow_diff and vo.tracking_stage > 1:
+        #     vis_flow = vo.ref_data['flow_diff'][vo.ref_data['id'][0]][:,:,0]
+        #     normalizer = mpl.colors.Normalize(vmin=0, vmax=0.5)
+        #     mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
+        #     colormapped_im = (mapper.to_rgba(vis_flow)[:, :, :3] * 255).astype(np.uint8)
+        #     vo.drawer.update_data("flow_diff", colormapped_im)
+        # else:
+        #     h, w, c = vo.drawer.data["flow_diff"][...].shape
+        #     vo.drawer.data["flow_diff"][...] = np.zeros((h,w,c))
 
         vo.timers.timers["visualization_flow"].append(time()-tmp_start_time)
 
@@ -373,7 +418,8 @@ class FrameDrawer():
             # Visualize full inverse depth
             if vo.cfg.visualization.depth.vis_full_disp:
                 vis_depth = 1/(tmp_vis_depth+1e-3)
-                if vo.cfg.dataset == "kitti":
+                vis_depth[tmp_vis_depth==0] = 0
+                if "kitti" in vo.cfg.dataset:
                     vmax = 0.3
                 elif "tum" in vo.cfg.dataset:
                     vmax = 5
@@ -385,6 +431,42 @@ class FrameDrawer():
             h, w, c = vo.drawer.data["depth"][...].shape
             vo.drawer.data["depth"][...] = np.zeros((h,w,c))
         vo.timers.timers["visualization_depth"].append(time()-tmp_start_time)
+
+        # visualize masks
+        if vo.tracking_stage > 1 and vo.cfg.visualization.mask.vis_masks:
+            tmp_start_time = time()
+
+            if vo.cfg.kp_selection.flow_consistency.enable:
+                # normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)
+                normalizer = mpl.colors.Normalize(vmin=0, vmax=1)
+                mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
+                mask = vo.cur_data['flow_mask']
+                colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
+                vo.drawer.update_data("flow_mask", colormapped_im)
+                
+                if vo.cfg.kp_selection.uniform_filtered_bestN.enable:
+                    normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)
+                    mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='gray_r')
+                    mask = vo.cur_data['valid_mask']
+                    colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
+                    vo.drawer.update_data("valid_mask", colormapped_im)
+
+            if vo.cfg.kp_selection.depth_consistency.enable:
+                normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.depth_consistency.thre)
+                mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
+                mask = vo.cur_data['depth_mask']
+                colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
+                vo.drawer.update_data("depth_mask", colormapped_im)
+            
+            # DEBUG
+            if vo.cur_data.get('rigid_flow_mask', -1) is not -1:
+                normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.rigid_flow_consistency.thre)
+                mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
+                mask = vo.cur_data['rigid_flow_mask']
+                colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
+                vo.drawer.update_data("rigid_flow_mask", colormapped_im)
+
+            vo.timers.timers["visualization_masks"].append(time()-tmp_start_time)
 
         # Save visualization result
         if vo.cfg.visualization.save_img:

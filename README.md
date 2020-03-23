@@ -91,7 +91,7 @@ For more information about the evaluation toolkit, please check the [toolbox pag
 
 
 ### License
-For academic usage, the code is released under the permissive MIT license. For any commercial purpose, please contact the authors.
+For academic usage, the code is released under the permissive MIT license. Our intension of sharing the project is for research/personal purpose. For any commercial purpose, please contact the authors. 
 
 
 ### Acknowledgement

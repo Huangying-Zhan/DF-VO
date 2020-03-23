@@ -1,14 +1,19 @@
+# This configuration corresponds to 
+
 # ----------------------------------------------------------------------------
 # Basic setup
 # ----------------------------------------------------------------------------
-dataset: kitti_odom
+debug: False
+use_multiprocessing: False
+seq: 2011_10_03_drive_0047_sync
+dataset: kitti_raw
 seed: 4869
+# result_dir: result/dfvo2/3/1
+result_dir: result/tmp/2
 image:
   height: 370
   width: 1226
   ext: jpg
-seq: "10"
-result_dir: result/tmp/0
 
 # ----------------------------------------------------------------------------
 # tracking options
@@ -24,8 +29,8 @@ compute_2d2d_pose:
     reproj_thre: 0.2
     repeat: 5
   validity:
-    method: flow+chei
-    min_flow: 5 
+    method: flow # [flow+chei, homo_ratio]
+    thre: 5
   kp_src: kp_best # [kp_best, kp_list]
 
 PnP:
@@ -33,7 +38,7 @@ PnP:
     iter: 1000
     reproj_thre: 1
     repeat: 5
-  kp_src: kp_list # [kp_list, kp_best]
+  kp_src: kp_list # [kp_best, kp_list]
 
 # translation scale
 translation_scale:
@@ -43,35 +48,37 @@ translation_scale:
     max_trials: 100
     stop_prob: 0.99
     thre: 0.1
-  kp_src: kp_list # [kp_list, kp_best]
-
-# ----------------------------------------------------------------------------
-# Deep single-view depth
-# ----------------------------------------------------------------------------
-depth:
-  depth_src:  # (blank: deep model inference; 0: GT depth)
-  max_depth: 50
-  min_depth: 0
-  pretrained_model: model_zoo/depth/kitti_odom/stereo/
+  kp_src: kp_list # [kp_best, kp_list]
 
 # ----------------------------------------------------------------------------
 # Deep Optical Flow
 # ----------------------------------------------------------------------------
 deep_flow:
   forward_backward: True
-  num_kp: 2000
+  # num_kp: 2000
+  # kp_sel_method: uniform_filtered_bestN # uniform_filtered_bestN # uniform_bestN
   network: liteflow  
     # liteflow: LiteFlowNet
   flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
   batch_size: 1
-  precomputed_flow: 
+  precomputed_flow: #tmp/result/flow/kitti_odom/liteflow_default/{}/npy
 
 crop:
   depth_crop: [[0.3, 1], [0, 1]]
   flow_crop: [[0, 1], [0, 1]]
 
 # ----------------------------------------------------------------------------
-# Deep two-view pose 
+# Deep single-view depth
+# ----------------------------------------------------------------------------
+depth:
+  depth_src: # (blank: deep model inference; 0: GT depth)
+  max_depth: 50 # [50/200]
+  min_depth: 0
+  pretrained_model: model_zoo/depth/kitti_odom/stereo/
+  # pretrained_model: model_zoo/depth/kitti_odom/mono_sc/
+
+# ----------------------------------------------------------------------------
+# Deep two-view pose
 # ----------------------------------------------------------------------------
 pose_net:
   enable: False
@@ -98,15 +105,13 @@ kp_selection:
     thre: 0.05
   flow_consistency:
     enable: True
-    thre: 0.1
-  
+    thre: 1
+
 # ----------------------------------------------------------------------------
 # Visualization
 # ----------------------------------------------------------------------------
 visualization:
-  window_h: 900
-  window_w: 1500
-  save_img: False
+  save_img: True
   kp_src: kp_best
   flow: 
     vis_full_flow: True
@@ -114,25 +119,25 @@ visualization:
     vis_flow_diff: True
   match:
     kp_num: 50  # -1 for using all
-    vis_type: 2
-      # None: None
-      # 0: draw_match_2_side
-      # 1: draw_match_temporal
-      # 2: both
+    vis_temp: 
+      enable: True
+    vis_side: 
+      enable: True
+      inlier_plot: True
+  depth:
+    use_tracking_depth: False
+    vis_full_depth: False
+    vis_full_disp: True
+  mask:
+    vis_masks: True
   trajectory:
     vis_traj: True
     draw_scale: 0.8
     mono_scale: 1 #5.4; 0.2
     vis_gt_traj: True
-  depth:
-    use_tracking_depth: False
-    vis_full_depth: False
-    vis_full_disp: True
 
-# ----------------------------------------------------------------------------
-# Directories
-# ----------------------------------------------------------------------------
 directory:
-  gt_pose_dir: dataset/kitti_odom/gt_poses/
-  img_seq_dir: dataset/kitti_odom/odom_data/
-  depth_dir: dataset/kitti_odom/depth/
+  # img_seq_dir: dataset/kitti_odom/odom_data_jpg/
+  img_seq_dir: dataset/kitti_raw
+  gt_pose_dir: dataset/kitti_raw_pose
+  # depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

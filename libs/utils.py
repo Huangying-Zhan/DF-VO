@@ -5,6 +5,7 @@
 # available in the LICENSE file.
 
 import cv2
+from glob import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,6 +13,7 @@ import os
 import sys
 sys.path.append(os.getcwd())
 from tool.evaluation.tum_tool.pose_evaluation_utils import quat2mat
+from .kitti_raw_utils import generate_pose
 
 
 def read_image(path, h, w):
@@ -125,6 +127,21 @@ def load_poses_from_txt(file_name):
     return poses
 
 
+def load_poses_from_oxts(oxts_dir):
+    """ Load absolute camera poses from oxts files
+    
+    Args:
+        oxts_dir: directory stores oxts data
+    Returns:
+        poses: dictionary of poses, each pose is 4x4 array
+    """
+    poses = {}
+    len_seq = len(glob(os.path.join(oxts_dir, "*.txt")))
+    for i in range(len_seq):
+        poses[i] = generate_pose(oxts_dir, i, do_flip=False)
+    return poses
+
+
 def load_poses_from_txt_tum(file_name):
     """ Load absolute camera poses from text file (tum format)
     Each line in the file should follow the following structure
@@ -186,6 +203,34 @@ def load_kitti_odom_intrinsics(file_name, new_h, new_w):
                             line_split[0]/raw_img_w*new_w,
                             line_split[5]/raw_img_h*new_h,
                             ]
+    return intrinsics
+
+
+def load_kitti_raw_intrinsics(file_name, new_h, new_w):
+    """Load kitti raw data intrinscis
+    Args:
+        file_name (str): txt file path
+    Returns:
+        params (dict): each element contains [cx, cy, fx, fy]
+            - 0: [cx, cy, fx, fy]_cam0
+            - 1: [cx, cy, fx, fy]_cam1
+            - ...
+    """
+    raw_img_h = 370.0
+    raw_img_w = 1226.0
+    intrinsics = {}
+    with open(file_name, 'r') as f:
+        s = f.readlines()
+        for line in s:
+            if "P_rect" in line:
+                line_split = [float(i) for i in line.split(" ")[1:]]
+                cnt = int(line.split(":")[0][-2:])
+                intrinsics[cnt] = [
+                                line_split[2]/raw_img_w*new_w,
+                                line_split[6]/raw_img_h*new_h,
+                                line_split[0]/raw_img_w*new_w,
+                                line_split[5]/raw_img_h*new_h,
+                                ]
     return intrinsics
 
 

@@ -16,7 +16,7 @@ from libs.utils import load_kitti_odom_intrinsics
 
 """ Argument Parsing """
 parser = argparse.ArgumentParser(description='VO system')
-parser.add_argument("-s", "--seq", type=str,
+parser.add_argument("-s", "--seq", 
                     default=None, help="sequence")
 parser.add_argument("-c", "--configuration", type=str,
                     default=None,
@@ -24,6 +24,8 @@ parser.add_argument("-c", "--configuration", type=str,
 parser.add_argument("-d", "--default_configuration", type=str,
                     default="options/kitti/kitti_default_configuration.yml",
                     help="default configuration files")
+parser.add_argument("--no_confirm", action="store_true",
+                    help="no confirmation questions")
 args = parser.parse_args()
 
 """ Read configuration """
@@ -32,15 +34,23 @@ default_config_file = args.default_configuration
 config_files = [default_config_file, args.configuration]
 cfg = merge_cfg(config_files)
 if args.seq is not None:
-    cfg.seq = args.seq
+    if cfg.dataset == "kitti_odom":
+        cfg.seq = "{:02}".format(int(args.seq))
+    else:
+        cfg.seq = args.seq
 cfg.seq = str(cfg.seq)
 
 # Double check result directory
-continue_flag = input("Save result in {}? [y/n]".format(cfg.result_dir))
-if continue_flag == "y":
+if args.no_confirm:
     mkdir_if_not_exists(cfg.result_dir)
+    cfg.no_confirm = True
 else:
-    exit()
+    cfg.no_confirm = False
+    continue_flag = input("Save result in {}? [y/n]".format(cfg.result_dir))
+    if continue_flag == "y":
+        mkdir_if_not_exists(cfg.result_dir)
+    else:
+        exit()
 
 """ basic setup """
 # Random seed

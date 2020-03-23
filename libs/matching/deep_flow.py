@@ -35,83 +35,6 @@ def resize_dense_vector(vec, des_height, des_width):
     return vec
 
 
-def uniform_bestN_selection(flow_diff, num_col, num_row, N):
-    """select best-N from uniform regions in the image
-    Args:
-        flow_diff (1xHxWx1)
-        num_col (int)
-        num_row (int)
-        N (int)
-    Returns:
-        sel_kps (4xN): keypoint locations
-    """
-    n, h, w, _ = flow_diff.shape
-    n_best = math.floor(N/(num_col*num_row))
-    sel_kps = []
-
-    for row in range(num_row):
-        for col in range(num_col):
-            x0 = [int(h/num_row*row), int(w/num_col*col)] # top_left
-            x1 = [int(h/num_row*(row+1))-1, int(w/num_col*(col+1))-1] # bottom right
-
-            tmp_flow_diff = flow_diff[:, x0[0]:x1[0], x0[1]:x1[1]].copy()
-            tmp_kp_list = np.where(tmp_flow_diff[:] > 0)
-            sel_list = np.argpartition(tmp_flow_diff[tmp_kp_list], n_best)[:n_best]
-            sel_kps.append(convert_idx_to_global_coord(sel_list, tmp_kp_list, x0))
-
-    sel_kps = np.asarray(sel_kps)
-    sel_kps = np.transpose(sel_kps, (1, 0, 2))
-    sel_kps = np.reshape(sel_kps, (4, -1))
-    return sel_kps
-
-
-def uniform_filtered_bestN_selection(flow_diff, num_col, num_row, N, thre):
-    """select best-N kp from uniform regions in the image. bad kps are filtered by thre
-    Args:
-        flow_diff (1xHxWx1)
-        num_col (int)
-        num_row (int)
-        N (int)
-        thre (float)
-    Returns:
-        sel_kps (4xK): keypoint locations
-    """
-    n, h, w, _ = flow_diff.shape
-    n_best = math.floor(N/(num_col*num_row))
-    sel_kps = []
-
-    for row in range(num_row):
-        for col in range(num_col):
-            x0 = [int(h/num_row*row), int(w/num_col*col)] # top_left
-            x1 = [int(h/num_row*(row+1))-1, int(w/num_col*(col+1))-1] # bottom right
-
-            tmp_flow_diff = flow_diff[:, x0[0]:x1[0], x0[1]:x1[1]].copy()
-            tmp_kp_list = np.where(tmp_flow_diff[:] < thre)
-            num_to_pick = min(n_best, len(tmp_kp_list[0]))
-            if num_to_pick <= n_best:
-                sel_list = np.argpartition(tmp_flow_diff[tmp_kp_list], num_to_pick-1)[:num_to_pick]
-            else:
-                sel_list = np.argpartition(tmp_flow_diff[tmp_kp_list], num_to_pick)[:num_to_pick]
-            
-            sel_global_coords = convert_idx_to_global_coord(sel_list, tmp_kp_list, x0)
-            for i in range(sel_global_coords.shape[1]):
-                sel_kps.append(sel_global_coords[:, i:i+1])
-
-    sel_kps = np.asarray(sel_kps)
-    assert sel_kps.shape[0]!=0, "sampling threshold is too small."
-    sel_kps = np.transpose(sel_kps, (1, 0, 2))
-    sel_kps = np.reshape(sel_kps, (4, -1))
-    return sel_kps
-
-
-def convert_idx_to_global_coord(local_idx, local_kp_list, x0):
-    coord = [local_kp_list[0][local_idx], local_kp_list[1][local_idx], local_kp_list[2][local_idx], local_kp_list[3][local_idx]]
-    coord = np.asarray(coord)
-    coord[1] += x0[0] # h
-    coord[2] += x0[1] # w
-    return coord
-
-
 class LiteFlow():
     def __init__(self, h=None, w=None):
         self.height = h
@@ -133,7 +56,7 @@ class LiteFlow():
             self.model.eval()
 
         # FIXME: hardcode for network-default.pytorch
-        if "network-default.pytorch" in weight_path:
+        if "network-default.pytorch" in weight_path or "network-sintel.pytorch" in weight_path:
             self.half_flow = True
         else:
             self.half_flow = False
@@ -182,7 +105,7 @@ class LiteFlow():
         flow_data = []
         for i in range(len(img1)):
             # Get flow npy file
-            if dataset == "kitti":
+            if "kitti" in dataset:
                 flow_path = os.path.join(
                             flow_dir,
                             "{:06d}".format(img2[i]),
@@ -206,7 +129,7 @@ class LiteFlow():
         if forward_backward:
             back_flow_data = []
             for i in range(len(img1)):
-                if dataset == "kitti":
+                if "kitti" in dataset:
                     flow_path = os.path.join(
                                     flow_dir,
                                     "{:06d}".format(img1[i]),
@@ -261,13 +184,9 @@ class LiteFlow():
         return flow.detach().cpu().numpy()
 
     def inference_kp(self, 
-                    img1, img2, 
-                    flow_dir, 
-                    img_crop, 
-                    kp_list, 
-                    forward_backward=False, 
-                    N_list=None, N_best=None,
-                    kp_sel_method=None,
+                    img1, img2,
+                    flow_dir,
+                    forward_backward=False,
                     dataset="kitti"):
         """Estimate flow (1->2) and form keypoints
         Args:
@@ -277,21 +196,13 @@ class LiteFlow():
                 - img1: list of img1 id
                 - img2: list of img2 id
                 - flow_dir: directory to read flow
-            img_crop (float list): [[y0, y1],[x0, x1]] in normalized range
-            kp_list (int list): list of keypoint index
             foward_backward (bool): forward-backward flow consistency is used if True
-            N_list (int): number of keypoint in regular list
-            N_best (int): number of keypoint in best-N list
-            kp_sel_method (str): method for selecting best-N keypoint
-                - bestN: best-N kp over the whole image
-                - uniform_bestN: uniformly divide the whole images into 100 pieces 
-                                 and select best-N/100 from each piece
             dataset (str): dataset type
         Returns:
-            kp1_best (BxNx2 array): best-N keypoints in img1
-            kp2_best (BxNx2 array): best-N keypoints in img2
-            kp1_list (BxNx2 array): N keypoints in kp_list in img1
-            kp2_list (BxNx2 array): N keypoints in kp_list in img2
+            flows (dict):
+                - forward (Nx2xHxW)
+                - backward (Nx2xHxW)
+                - flow_diff (NxHxWx1)
         """
         # Get flow data
         # if precomputed flow is provided, load precomputed flow
@@ -328,10 +239,6 @@ class LiteFlow():
             if forward_backward:
                 back_flow_data = combined_flow_data[1:2]
 
-            # flow_data = self.inference(img1, img2)
-            # if forward_backward:
-            #     back_flow_data = self.inference(img2, img1)
-
         if self.half_flow:
             flow_data /= 2.
             if forward_backward:
@@ -344,12 +251,6 @@ class LiteFlow():
         kp1 = np.repeat(np.expand_dims(kp1, 0), n, axis=0)
         kp2 = kp1 + tmp_flow_data
 
-        # initialize output keypoint data
-        kp1_best = np.zeros((n, N_best, 2)) - 1 # initialize as -1
-        kp2_best = np.zeros((n, N_best, 2)) - 1 # initialize as -1
-        kp1_list = np.zeros((n, N_list, 2))
-        kp2_list = np.zeros((n, N_list, 2))
-
         # Forward-Backward flow consistency check
         if forward_backward:
             # get flow-consistency error map
@@ -358,47 +259,6 @@ class LiteFlow():
                                 flow2=back_flow_data,
                                 px_coord_2=kp2)
 
-            # get best-N keypoints
-            if kp_sel_method == "bestN":
-                tmp_kp_list = np.where(flow_diff > 0)
-                sel_list = np.argpartition(flow_diff[tmp_kp_list], N_best)[:N_best]
-                sel_kps = convert_idx_to_global_coord(sel_list, tmp_kp_list, [0, 0])
-            elif kp_sel_method == "uniform_bestN":
-                sel_kps = uniform_bestN_selection(
-                                flow_diff=flow_diff, 
-                                num_col=10,
-                                num_row=10,
-                                N=N_best)
-            elif kp_sel_method == "uniform_filtered_bestN":
-                sel_kps = uniform_filtered_bestN_selection(
-                                flow_diff=flow_diff,
-                                num_col=10,
-                                num_row=10,
-                                N=N_best,
-                                thre=0.1)
-            kp1_best[:,:sel_kps.shape[1]] = kp1[:, sel_kps[1], sel_kps[2]]
-            kp2_best[:,:sel_kps.shape[1]] = kp2[:, sel_kps[1], sel_kps[2]]
-
-        # Get uniform sampled keypoints
-        y0, y1 = 0, h
-        x0, x1 = 0, w
-        if img_crop is not None:
-            y0, y1 = int(h*img_crop[0][0]), int(h*img_crop[0][1])
-            x0, x1 = int(w*img_crop[1][0]), int(w*img_crop[1][1])
-
-            kp1 = kp1[:, y0:y1, x0:x1]
-            kp2 = kp2[:, y0:y1, x0:x1]
-
-        kp1_list = kp1.reshape(n, -1, 2)
-        kp2_list = kp2.reshape(n, -1, 2)
-
-        if kp_list is not None:
-            kp1_list = np.transpose(kp1_list, (1,0,2))
-            kp2_list = np.transpose(kp2_list, (1,0,2))
-            kp1_list = kp1_list[kp_list]
-            kp2_list = kp2_list[kp_list]
-            kp1_list = np.transpose(kp1_list, (1,0,2))
-            kp2_list = np.transpose(kp2_list, (1,0,2))
 
         # summarize flow data and flow difference
         flows = {}
@@ -406,8 +266,7 @@ class LiteFlow():
         if forward_backward:
             flows['backward'] = back_flow_data
             flows['flow_diff'] = flow_diff
-        # return kp1, kp2, flows
-        return kp1_best, kp2_best, kp1_list, kp2_list, flows
+        return flows
 
     def forward_backward_consistency(self, flow1, flow2, px_coord_2):
         """Compute flow consistency map

@@ -1,8 +1,6 @@
 # Copyright (C) Huangying Zhan 2019. All rights reserved.
-#
-# This software is licensed under the terms of the DF-VO licence
-# which allows for non-commercial use only, the full terms of which are made
-# available in the LICENSE file.
+# This software is licensed under the terms in the LICENSE file 
+# which allows for non-commercial use only.
 
 import cv2
 import matplotlib as mpl
@@ -42,32 +40,6 @@ def draw_match_temporal(img1, kp1, img2, kp2, N):
         cv2.line(out_img, center1, center2, color, 2)
     return out_img
 
-
-# def draw_match_2_side(img1, kp1, img2, kp2, N, inliers):
-#     """Draw matches on 2 sides
-#     Args:
-#         img1 (HxW(xC) array): image 1
-#         kp1 (Nx2 array): keypoint for image 1
-#         img2 (HxW(xC) array): image 2
-#         kp2 (Nx2 array): keypoint for image 2
-#         N (int): number of matches to draw
-#         inliers (Nx1 array): boolean mask for inlier (not used)
-#     Returns:
-#         out_img (Hx2W(xC) array): output image with drawn matches
-#     """
-#     kp_list = np.linspace(0, min(kp1.shape[0], kp2.shape[0])-1, N,
-#                                             dtype=np.int
-#                                             )
-
-#     # Convert keypoints to cv2.Keypoint object
-#     cv_kp1 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp1[kp_list]]
-#     cv_kp2 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp2[kp_list]]
-
-#     out_img = np.array([])
-#     good_matches = [cv2.DMatch(_imgIdx=0, _queryIdx=idx, _trainIdx=idx,_distance=0) for idx in range(N)]
-#     out_img = cv2.drawMatches(img1, cv_kp1, img2, cv_kp2, matches1to2=good_matches, outImg=out_img)
-
-#     return out_img
 
 def draw_match_side(img1, kp1, img2, kp2, N, inliers):
     """Draw matches on 2 sides
@@ -110,9 +82,8 @@ def draw_match_side(img1, kp1, img2, kp2, N, inliers):
         out_img = cv2.addWeighted(out_img1, 0.5, out_img2, 0.5, 0)
     else:
         out_img = cv2.drawMatches(img1, cv_kp1, img2, cv_kp2, matches1to2=good_matches, outImg=out_img)
-
-
     return out_img
+
 
 class FrameDrawer():
     """
@@ -123,17 +94,87 @@ class FrameDrawer():
         data (dict): linking between item and img
         display (dict): options to display items
     """
-    def __init__(self, h, w):
+    def __init__(self, cfg):
         """
         Args:
-            h (int): drawer height
-            w (int): drawer width
+            cfg (edict): visualization configuration
         """
-        self.h = h
-        self.w = w
-        self.img = np.zeros((h, w, 3), dtype=np.uint8)
+        # intialize drawer size
+        self.cfg = cfg
+        self.h = cfg.window_h
+        self.w = cfg.window_w
+        self.img = np.zeros((self.h, self.w, 3), dtype=np.uint8)
+
+        # initialize data and data assignment
         self.data = {}
         self.display = {}
+        self.initialize_drawer()
+    
+    def initialize_drawer(self):
+        """Initialize drawer by assigning items to the drawer
+        """
+        visual_h = self.h
+        visual_w = self.w
+
+        self.assign_data(
+                    item="traj",
+                    top_left=[0, 0], 
+                    bottom_right=[int(visual_h), int(visual_w)],
+                    )
+
+        self.assign_data(
+                    item="match_temp",
+                    top_left=[int(visual_h/4*0), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*1), int(visual_w/5*5)],
+                    )
+        
+        self.assign_data(
+                    item="match_side",
+                    top_left=[int(visual_h/4*1), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*2), int(visual_w/5*5)],
+                    )
+        
+        self.assign_data(
+                    item="depth",
+                    top_left=[int(visual_h/4*2), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*3)],
+                    )
+        
+        self.assign_data(
+                    item="flow1",
+                    top_left=[int(visual_h/4*2), int(visual_w/5*3)], 
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*4)],
+                    )
+        
+        self.assign_data(
+                    item="flow2",
+                    top_left=[int(visual_h/4*2), int(visual_w/5*4)], 
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*5)],
+                    )
+        
+        self.assign_data(
+                    item="depth_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3)],
+                    )
+        
+        self.assign_data(
+                    item="rigid_flow_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3)],
+                    )
+
+        self.assign_data(
+                    item="flow_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*3)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*4)],
+                    )
+
+        self.assign_data(
+                    item="valid_mask",
+                    top_left=[int(visual_h/4*3), int(visual_w/5*4)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*5)],
+                    )
 
     def assign_data(self, item, top_left, bottom_right):
         """assign data to the drawer image
@@ -386,16 +427,6 @@ class FrameDrawer():
         else:
             h, w, c = vo.drawer.data["flow2"][...].shape
             vo.drawer.data["flow2"][...] = np.zeros((h,w,c))
-        
-        # if vo.drawer.display['flow_diff'] and vo.cfg.visualization.flow.vis_flow_diff and vo.tracking_stage > 1:
-        #     vis_flow = vo.ref_data['flow_diff'][vo.ref_data['id'][0]][:,:,0]
-        #     normalizer = mpl.colors.Normalize(vmin=0, vmax=0.5)
-        #     mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
-        #     colormapped_im = (mapper.to_rgba(vis_flow)[:, :, :3] * 255).astype(np.uint8)
-        #     vo.drawer.update_data("flow_diff", colormapped_im)
-        # else:
-        #     h, w, c = vo.drawer.data["flow_diff"][...].shape
-        #     vo.drawer.data["flow_diff"][...] = np.zeros((h,w,c))
 
         vo.timers.timers["visualization_flow"].append(time()-tmp_start_time)
 
@@ -458,7 +489,6 @@ class FrameDrawer():
                 colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
                 vo.drawer.update_data("depth_mask", colormapped_im)
             
-            # DEBUG
             if vo.cur_data.get('rigid_flow_mask', -1) is not -1:
                 normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.rigid_flow_consistency.thre)
                 mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')

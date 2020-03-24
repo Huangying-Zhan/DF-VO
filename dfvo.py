@@ -1,8 +1,6 @@
 # Copyright (C) Huangying Zhan 2019. All rights reserved.
-#
-# This software is licensed under the terms of the DF-VO licence
-# which allows for non-commercial use only, the full terms of which are made
-# available in the LICENSE file.
+# This software is licensed under the terms in the LICENSE file 
+# which allows for non-commercial use only.
 
 import cv2
 import copy
@@ -19,6 +17,7 @@ import torch
 import torch.nn.functional as nnFunc
 from tqdm import tqdm
 
+import libs.datasets as Dataset
 from libs.deep_depth.monodepth2 import Monodepth2DepthNet
 from libs.deep_pose.monodepth2 import Monodepth2PoseNet
 from libs.geometry.ops_3d import *
@@ -31,36 +30,43 @@ from libs.matching.deep_flow import LiteFlow
 from libs.matching.kp_selection import uniform_filtered_bestN, bestN, sampled_kp, good_depth_kp
 from libs.camera_modules import SE3, Intrinsics
 from libs.utils import *
-from tool.evaluation.tum_tool.associate import associate, read_file_list
+
 from tool.evaluation.tum_tool.pose_evaluation_utils import rot2quat
 
 
-class VisualOdometry():
+class DFVO():
     def __init__(self, cfg):
         """
         Args:
             cfg (edict): configuration reading from yaml file
         """
-        # camera intrinsics
-        self.cam_intrinsics = Intrinsics()
-
-        # predicted global poses
-        self.global_poses = {0: SE3()}
+        # configuration
+        self.cfg = cfg
 
         # tracking stage
         self.tracking_stage = 0
 
-        # configuration
-        self.cfg = cfg
+        # predicted global poses
+        self.global_poses = {0: SE3()}
 
         # window size and keyframe step
         self.window_size = 2
         self.keyframe_step = 1
 
         # visualization interface
-        self.initialize_visualization_drawer()
+        self.drawer = FrameDrawer(self.cfg.visualization)
 
         # timer
+        self.initialize_timer()
+        
+        # reference data and current data
+        self.initialize_data()
+        
+        # multiprocessing
+        if self.cfg.use_multiprocessing:
+            self.p = mp.Pool(5)
+
+    def initialize_timer(self):
         self.timers = Timers()
         self.timers.add(["img_reading",
                          "Depth-CNN",
@@ -75,7 +81,7 @@ class VisualOdometry():
                          "visualization_masks",
                          "visualization_save_img", ])
 
-        # reference data and current data
+    def initialize_data(self):
         self.ref_data = {
                         'id': [],
                         'timestamp': {},
@@ -105,119 +111,6 @@ class VisualOdometry():
                         'kp_back': np.zeros(1),
                         'flow': {},  # from cur->ref
                         }
-        
-        if self.cfg.use_multiprocessing:
-            self.p = mp.Pool(5)
-
-    def initialize_visualization_drawer(self):
-        visual_h = self.cfg.visualization.window_h
-        visual_w = self.cfg.visualization.window_w
-        self.drawer = FrameDrawer(visual_h, visual_w)
-
-        self.drawer.assign_data(
-                    item="traj",
-                    top_left=[0, 0], 
-                    bottom_right=[int(visual_h), int(visual_w)],
-                    )
-
-        self.drawer.assign_data(
-                    item="match_temp",
-                    top_left=[int(visual_h/4*0), int(visual_w/5*2)], 
-                    bottom_right=[int(visual_h/4*1), int(visual_w/5*5)],
-                    )
-        
-        self.drawer.assign_data(
-                    item="match_side",
-                    top_left=[int(visual_h/4*1), int(visual_w/5*2)], 
-                    bottom_right=[int(visual_h/4*2), int(visual_w/5*5)],
-                    )
-        
-        self.drawer.assign_data(
-                    item="depth",
-                    top_left=[int(visual_h/4*2), int(visual_w/5*2)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/5*3)],
-                    )
-        
-        self.drawer.assign_data(
-                    item="flow1",
-                    top_left=[int(visual_h/4*2), int(visual_w/5*3)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/5*4)],
-                    )
-        
-        self.drawer.assign_data(
-                    item="flow2",
-                    top_left=[int(visual_h/4*2), int(visual_w/5*4)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/5*5)],
-                    )
-        
-        # self.drawer.assign_data(
-        #             item="flow_diff",
-        #             top_left=[int(visual_h/4*3), int(visual_w/5*3)], 
-        #             bottom_right=[int(visual_h/4*4), int(visual_w/5*4)],
-        #             )
-        
-        self.drawer.assign_data(
-                    item="depth_mask",
-                    top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3)],
-                    )
-        
-        self.drawer.assign_data(
-                    item="rigid_flow_mask",
-                    top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3)],
-                    )
-
-        self.drawer.assign_data(
-                    item="flow_mask",
-                    top_left=[int(visual_h/4*3), int(visual_w/5*3)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/5*4)],
-                    )
-
-        self.drawer.assign_data(
-                    item="valid_mask",
-                    top_left=[int(visual_h/4*3), int(visual_w/5*4)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/5*5)],
-                    )
-        
-
-    def get_intrinsics_param(self, dataset):
-        """Read intrinsics parameters for each dataset
-        Args:
-            dataset (str): dataset
-                - kitti
-                - tum-1/2/3
-        Returns:
-            intrinsics_param (float list): [cx, cy, fx, fy]
-        """
-        # Kitti
-        if dataset == "kitti_odom":
-            img_seq_dir = os.path.join(
-                            self.cfg.directory.img_seq_dir,
-                            self.cfg.seq
-                            )
-            intrinsics_param = load_kitti_odom_intrinsics(
-                            os.path.join(img_seq_dir, "calib.txt"),
-                            self.cfg.image.height, self.cfg.image.width
-                            )[2]
-        elif dataset == "kitti_raw":
-            img_seq_dir = os.path.join(
-                            self.cfg.directory.img_seq_dir,
-                            self.cfg.seq[:10],
-                            )
-            intrinsics_param = load_kitti_raw_intrinsics(
-                            os.path.join(img_seq_dir, "calib_cam_to_cam.txt"),
-                            self.cfg.image.height, self.cfg.image.width
-                            )[2]
-        # TUM
-        elif "tum" in dataset:
-            tum_intrinsics = {
-                "tum-1": [318.6, 255.3, 517.3, 516.5],  # fr1
-                "tum-2": [325.1, 249.7, 520.9, 521.0],  # fr2
-                "tum-3": [320.1, 247.6, 535.4, 539.2],  # fr3
-            }
-            intrinsics_param = tum_intrinsics[dataset]
-        return intrinsics_param
 
     def get_tracking_method(self, method_idx):
         """Get tracking method
@@ -416,20 +309,14 @@ class VisualOdometry():
 
     def setup(self):
         """Reading configuration and setup, including
-        - Get camera intrinsics
         - Get tracking method
         - Get feature tracking method
-        - Get image & (optional depth) data
         - Generate keypoint sampling scheme
         - Deep networks
         - Deep layers
         - Load GT poses
         - Set drawer
         """
-        # read camera intrinsics
-        intrinsics_param = self.get_intrinsics_param(self.cfg.dataset)
-        self.cam_intrinsics = Intrinsics(intrinsics_param)
-
         # get tracking method
         self.tracking_method = self.get_tracking_method(self.cfg.tracking_method)
 
@@ -438,8 +325,13 @@ class VisualOdometry():
                                             self.cfg.feature_tracking_method
                                             )
 
-        # get image and depth data directory
-        self.img_path_dir, self.depth_seq_dir, self.depth_src = self.get_img_depth_dir()
+        # intialize dataset
+        datasets = {
+            "kitti_odom": Dataset.KittiOdom,
+            "kitti_raw": Dataset.KittiRaw,
+            "tum": Dataset.TUM
+        }
+        self.dataset = datasets[self.cfg.dataset](self.cfg)
 
         # generate keypoint sampling scheme
         self.uniform_kp_list = None
@@ -463,7 +355,7 @@ class VisualOdometry():
                 self.cfg.deep_flow.precomputed_flow = self.cfg.deep_flow.precomputed_flow.replace("{}", self.cfg.seq)
 
         # single-view depth
-        if self.depth_src is None:
+        if self.dataset.data_dir['depth_src'] is None:
             if self.cfg.depth.pretrained_model is not None:
                 self.deep_models['depth'] = self.initialize_deep_depth_model()
             else:
@@ -536,7 +428,7 @@ class VisualOdometry():
                 - pose (SE3): relative pose from current to reference view
                 - best_inliers (N boolean array): inlier mask
         """
-        principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
+        principal_points = (self.dataset.cam_intrinsics.cx, self.dataset.cam_intrinsics.cy)
 
         # validity check
         valid_cfg = self.cfg.compute_2d2d_pose.validity
@@ -578,7 +470,7 @@ class VisualOdometry():
                 E, inliers = cv2.findEssentialMat(
                             new_kp_cur,
                             new_kp_ref,
-                            focal=self.cam_intrinsics.fx,
+                            focal=self.dataset.cam_intrinsics.fx,
                             pp=principal_points,
                             method=cv2.RANSAC,
                             prob=0.99,
@@ -595,7 +487,7 @@ class VisualOdometry():
                     inlier_check = inliers.sum() > best_inlier_cnt
                 elif valid_cfg.method == "flow":
                     cheirality_cnt, R, t, _ = cv2.recoverPose(E, new_kp_cur, new_kp_ref,
-                                            focal=self.cam_intrinsics.fx,
+                                            focal=self.dataset.cam_intrinsics.fx,
                                             pp=principal_points)
                     valid_case = cheirality_cnt > kp_cur.shape[0]*0.1
                     
@@ -616,7 +508,7 @@ class VisualOdometry():
             major_valid = num_valid_case > (max_ransac_iter/2)
             if major_valid:
                 cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, kp_cur, kp_ref,
-                                        focal=self.cam_intrinsics.fx,
+                                        focal=self.dataset.cam_intrinsics.fx,
                                         pp=principal_points,
                                         )
                 self.timers.timers["Ess. Mat."].append(time()-start_time)
@@ -643,7 +535,7 @@ class VisualOdometry():
                 - best_inliers (N boolean array): inlier mask
         """
         start_time = time()
-        principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
+        principal_points = (self.dataset.cam_intrinsics.cx, self.dataset.cam_intrinsics.cy)
 
         # validity check
         valid_cfg = self.cfg.compute_2d2d_pose.validity
@@ -685,7 +577,7 @@ class VisualOdometry():
                 inputs['kp_ref'] = new_kp_ref
                 inputs['H_inliers'] = H_inliers
                 inputs['cfg'] = self.cfg
-                inputs['cam_intrinsics'] = self.cam_intrinsics
+                inputs['cam_intrinsics'] = self.dataset.cam_intrinsics
                 inputs_mp.append(inputs)
             outputs_mp = self.p.map(find_Ess_mat, inputs_mp)
 
@@ -704,7 +596,7 @@ class VisualOdometry():
             major_valid = num_valid_case > (max_ransac_iter/2)
             if major_valid:
                 cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, new_kp_cur, new_kp_ref,
-                                        focal=self.cam_intrinsics.fx,
+                                        focal=self.dataset.cam_intrinsics.fx,
                                         pp=principal_points,)
 
                 # cheirality_check
@@ -752,7 +644,7 @@ class VisualOdometry():
         kp2 = kp2[valid_kp_mask]
 
         # Get 3D coordinates for kp1
-        XYZ_kp1 = unprojection_kp(kp1, kp_depths[valid_kp_mask], self.cam_intrinsics)
+        XYZ_kp1 = unprojection_kp(kp1, kp_depths[valid_kp_mask], self.dataset.cam_intrinsics)
 
         # initialize ransac setup
         best_rt = []
@@ -770,7 +662,7 @@ class VisualOdometry():
                 flag, r, t, inlier = cv2.solvePnPRansac(
                     objectPoints=new_XYZ,
                     imagePoints=new_kp2,
-                    cameraMatrix=self.cam_intrinsics.mat,
+                    cameraMatrix=self.dataset.cam_intrinsics.mat,
                     distCoeffs=None,
                     iterationsCount=self.cfg.PnP.ransac.iter,
                     reprojectionError=self.cfg.PnP.ransac.reproj_thre,
@@ -891,13 +783,13 @@ class VisualOdometry():
         kp2_norm = kp2.copy()
 
         kp1_norm[:, 0] = \
-            (kp1[:, 0] - self.cam_intrinsics.cx) / self.cam_intrinsics.fx
+            (kp1[:, 0] - self.dataset.cam_intrinsics.cx) / self.dataset.cam_intrinsics.fx
         kp1_norm[:, 1] = \
-            (kp1[:, 1] - self.cam_intrinsics.cy) / self.cam_intrinsics.fy
+            (kp1[:, 1] - self.dataset.cam_intrinsics.cy) / self.dataset.cam_intrinsics.fy
         kp2_norm[:, 0] = \
-            (kp2[:, 0] - self.cam_intrinsics.cx) / self.cam_intrinsics.fx
+            (kp2[:, 0] - self.dataset.cam_intrinsics.cx) / self.dataset.cam_intrinsics.fx
         kp2_norm[:, 1] = \
-            (kp2[:, 1] - self.cam_intrinsics.cy) / self.cam_intrinsics.fy
+            (kp2[:, 1] - self.dataset.cam_intrinsics.cy) / self.dataset.cam_intrinsics.fy
 
         _, X1_tri, X2_tri = triangulation(kp1_norm, kp2_norm, np.eye(4), T_21)
 
@@ -1140,9 +1032,9 @@ class VisualOdometry():
         Returns:
             rigid_flow (HxWx2): rigid flow [x-flow, y-flow]
         """
-        XYZ_ref = self.unprojection(depth, self.cam_intrinsics)
+        XYZ_ref = self.unprojection(depth, self.dataset.cam_intrinsics)
         XYZ_cur = self.transform_XYZ(XYZ_ref, pose)
-        xy = self.projection(XYZ_cur, self.cam_intrinsics.mat)
+        xy = self.projection(XYZ_cur, self.dataset.cam_intrinsics.mat)
         rigid_flow = self.xy_to_uv(xy)
         return rigid_flow
 
@@ -1307,11 +1199,11 @@ class VisualOdometry():
 
         # camera intrinsics
         data[('inv_K')] = np.eye(4)
-        data[('inv_K')][:3, :3] = self.cam_intrinsics.inv_mat
+        data[('inv_K')][:3, :3] = self.dataset.cam_intrinsics.inv_mat
         data[('inv_K')] = torch.from_numpy(data[('inv_K')]).unsqueeze(0).float().cuda()
 
         data[('K')] = np.eye(4)
-        data[('K')][:3, :3] = self.cam_intrinsics.mat
+        data[('K')][:3, :3] = self.dataset.cam_intrinsics.mat
         data[('K')] = torch.from_numpy(data[('K')]).unsqueeze(0).float().cuda()
 
         # current depth
@@ -1568,106 +1460,9 @@ class VisualOdometry():
         ref_data['flow_diff'] = {}
         return ref_data, cur_data
 
-    def synchronize_rgbd_pose_pairs(self):
-        """Synchronize RGB, Depth, and Pose timestamps to form pairs
-        mainly for TUM-RGBD dataset
-        Returns:
-            rgb_d_pose_pair (dict):
-                - rgb_timestamp: {depth: depth_timestamp, pose: pose_timestamp}
-        """
-        rgb_d_pose_pair = {}
-        # KITTI 
-        # if self.cfg.dataset == "kitti_odom":
-        if "kitti" in self.cfg.dataset:
-            len_seq = len(glob(os.path.join(self.img_path_dir, "*.{}".format(self.cfg.image.ext))))
-            for i in range(len_seq):
-                rgb_d_pose_pair[i] = {}
-                rgb_d_pose_pair[i]['depth'] = i
-                rgb_d_pose_pair[i]['pose'] = i
-
-        # TUM
-        elif "tum" in self.cfg.dataset:        
-            # associate rgb-depth-pose timestamp pair
-            rgb_list = read_file_list(self.img_path_dir +"/../rgb.txt")
-            depth_list = read_file_list(self.img_path_dir +"/../depth.txt")
-            pose_list = read_file_list(self.img_path_dir +"/../groundtruth.txt")
-
-            for i in rgb_list:
-                rgb_d_pose_pair[i] = {}
-
-            # associate rgb-d
-            matches = associate(
-                first_list=rgb_list,
-                second_list=depth_list,
-                offset=0,
-                max_difference=0.02
-            )
-            for match in matches:
-                rgb_stamp = match[0]
-                depth_stamp = match[1]
-                rgb_d_pose_pair[rgb_stamp]['depth'] = depth_stamp
-            
-            # associate rgb-pose
-            matches = associate(
-                first_list=rgb_list,
-                second_list=pose_list,
-                offset=0,
-                max_difference=0.02
-            )
-            
-            for match in matches:
-                rgb_stamp = match[0]
-                pose_stamp = match[1]
-                rgb_d_pose_pair[rgb_stamp]['pose'] = pose_stamp
-            
-            # Clear pairs without depth
-            to_del_pair = []
-            for rgb_stamp in rgb_d_pose_pair:
-                if rgb_d_pose_pair[rgb_stamp].get("depth", -1) == -1:
-                    to_del_pair.append(rgb_stamp)
-            for rgb_stamp in to_del_pair:
-                del(rgb_d_pose_pair[rgb_stamp])
-            
-            # # Clear pairs without pose
-            to_del_pair = []
-            tmp_rgb_d_pose_pair = copy.deepcopy(rgb_d_pose_pair)
-            for rgb_stamp in tmp_rgb_d_pose_pair:
-                if rgb_d_pose_pair[rgb_stamp].get("pose", -1) == -1:
-                    to_del_pair.append(rgb_stamp)
-            for rgb_stamp in to_del_pair:
-                del(tmp_rgb_d_pose_pair[rgb_stamp])
-            
-            # timestep
-            timestep = 5
-            to_del_pair = []
-            for cnt, rgb_stamp in enumerate(rgb_d_pose_pair):
-                if cnt % timestep != 0:
-                    to_del_pair.append(rgb_stamp)
-            for rgb_stamp in to_del_pair:
-                del(rgb_d_pose_pair[rgb_stamp])
-            
-            len_seq = len(rgb_d_pose_pair)
-            
-            # Update gt pose
-            self.tmp_gt_poses = {}
-            gt_pose_0_time = tmp_rgb_d_pose_pair[sorted(list(tmp_rgb_d_pose_pair.keys()))[0]]['pose']
-            gt_pose_0 = self.gt_poses[gt_pose_0_time]
-            
-            i = 0
-            for rgb_stamp in sorted(list(rgb_d_pose_pair.keys())):
-                if rgb_d_pose_pair[rgb_stamp].get("pose", -1) != -1:
-                    self.tmp_gt_poses[i] = np.linalg.inv(gt_pose_0) @ self.gt_poses[rgb_d_pose_pair[rgb_stamp]['pose']]
-                else:
-                    self.tmp_gt_poses[i] = np.eye(4)
-                i += 1
-            self.gt_poses = copy.deepcopy(self.tmp_gt_poses)
-        return rgb_d_pose_pair
-
     def main(self):
         """ Initialization """
-        # Synchronize rgb-d-pose pair
-        self.rgb_d_pose_pair = self.synchronize_rgbd_pose_pairs()
-        len_seq = len(self.rgb_d_pose_pair)
+        len_seq = len(self.dataset.rgb_d_pose_pair)
         self.prev_scale = 1
 
         # Main
@@ -1693,28 +1488,28 @@ class VisualOdometry():
             if "kitti" in self.cfg.dataset:
                 self.cur_data['timestamp'] = img_id
             elif "tum" in self.cfg.dataset:
-                self.cur_data['timestamp'] = sorted(list(self.rgb_d_pose_pair.keys()))[img_id]
+                self.cur_data['timestamp'] = sorted(list(self.dataset.rgb_d_pose_pair.keys()))[img_id]
             
             # Reading image
             if self.cfg.dataset == "kitti_odom":
-                img = read_image(self.img_path_dir+"/{:06d}.{}".format(img_id, self.cfg.image.ext), 
+                img = read_image(self.dataset.data_dir['img']+"/{:06d}.{}".format(img_id, self.cfg.image.ext), 
                                     self.cfg.image.height, self.cfg.image.width)
             elif self.cfg.dataset == "kitti_raw":
-                img = read_image(self.img_path_dir+"/{:010d}.{}".format(img_id, self.cfg.image.ext), 
+                img = read_image(self.dataset.data_dir['img']+"/{:010d}.{}".format(img_id, self.cfg.image.ext), 
                                     self.cfg.image.height, self.cfg.image.width)
             elif "tum" in self.cfg.dataset:
-                img = read_image(self.img_path_dir+"/{:.6f}.{}".format(self.cur_data['timestamp'], self.cfg.image.ext),
+                img = read_image(self.dataset.data_dir['img']+"/{:.6f}.{}".format(self.cur_data['timestamp'], self.cfg.image.ext),
                                     self.cfg.image.height, self.cfg.image.width)
             img_h, img_w, _ = image_shape(img)
             self.cur_data['img'] = img
             self.timers.timers["img_reading"].append(time()-start_time)
 
             # Reading/Predicting depth
-            if self.depth_src is not None:
+            if self.dataset.data_dir['depth_src'] is not None:
                 self.cur_data['raw_depth'] = self.load_depth(
-                                self.depth_seq_dir, 
-                                self.rgb_d_pose_pair[self.cur_data['timestamp']]['depth'], 
-                                self.depth_src, 
+                                self.dataset.data_dir['depth'], 
+                                self.dataset.rgb_d_pose_pair[self.cur_data['timestamp']]['depth'], 
+                                self.dataset.data_dir['depth_src'], 
                                 [img_h, img_w], 
                                 dataset=self.cfg.dataset,
                                 )
@@ -1770,6 +1565,6 @@ class VisualOdometry():
             global_poses_arr = convert_SE3_to_arr(self.global_poses)
             save_traj(traj_txt, global_poses_arr, format="kitti")
         elif "tum" in self.cfg.dataset:
-            timestamps = sorted(list(self.rgb_d_pose_pair.keys()))
+            timestamps = sorted(list(self.dataset.rgb_d_pose_pair.keys()))
             global_poses_arr = convert_SE3_to_arr(self.global_poses, timestamps)
             save_traj(traj_txt, global_poses_arr, format="tum")

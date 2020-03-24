@@ -368,9 +368,9 @@ class FrameDrawer():
             if vo.drawer.display['match_side'] and\
                 vo.cfg.visualization.match.vis_side.enable:
                 # Set keypoints
-                if vo.feature_tracking_method == "deep_flow":
-                    vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
-                    vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
+                vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
+                vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
+
                 if vo.cfg.visualization.match.vis_side.inlier_plot:
                     inliers=vo.ref_data['inliers'][ref_id]
                 else:
@@ -393,9 +393,9 @@ class FrameDrawer():
                 vo.cfg.visualization.match.vis_temp.enable:
                 
                 # Set keypoints
-                if vo.feature_tracking_method == "deep_flow":
-                    vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
-                    vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
+                vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
+                vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
+                
                 vis_match_temp = draw_match_temporal(
                         img1=vo.ref_data['img'][ref_id],
                         kp1=vis_kp_ref,

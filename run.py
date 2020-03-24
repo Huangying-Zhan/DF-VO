@@ -1,8 +1,6 @@
 # Copyright (C) Huangying Zhan 2019. All rights reserved.
-#
-# This software is licensed under the terms of the DF-VO licence
-# which allows for non-commercial use only, the full terms of which are made
-# available in the LICENSE file.
+# This software is licensed under the terms in the LICENSE file 
+# which allows for non-commercial use only.
 
 import argparse
 import cv2
@@ -10,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from vo_modules import VisualOdometry as VO
+from dfvo import DFVO
 from libs.general.utils import *
 from libs.utils import load_kitti_odom_intrinsics
 
@@ -58,7 +56,7 @@ SEED = cfg.seed
 np.random.seed(SEED)
 
 """ Main """
-vo = VO(cfg)
+vo = DFVO(cfg)
 vo.setup()
 vo.main()
 

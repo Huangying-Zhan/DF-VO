@@ -1,3 +1,7 @@
+# Copyright (C) Huangying Zhan 2019. All rights reserved.
+# This software is licensed under the terms in the LICENSE file 
+# which allows for non-commercial use only.
+
 import math
 import numpy as np
 

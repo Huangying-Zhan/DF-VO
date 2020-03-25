@@ -13,9 +13,6 @@ result_dir: result/tmp/0
 # ----------------------------------------------------------------------------
 # tracking options
 # ----------------------------------------------------------------------------
-feature_tracking_method: 1
-  # 1: deep optical flow
-
 tracking_method: 3 
   # 3: hybrid
 
@@ -81,6 +78,7 @@ pose_net:
 # Keypoint selection
 # ----------------------------------------------------------------------------
 kp_selection: 
+  feature_tracking_method: 1
   uniform_filtered_bestN:
     enable: False
     num_row: 10
@@ -123,7 +121,7 @@ visualization:
     vis_traj: True
     draw_scale: 0.8
     mono_scale: 1 #5.4; 0.2
-    vis_gt_traj: True
+    vis_gt_traj: False
   depth:
     use_tracking_depth: False
     vis_full_depth: False
@@ -133,6 +131,6 @@ visualization:
 # Directories
 # ----------------------------------------------------------------------------
 directory:
-  gt_pose_dir: dataset/kitti_odom/gt_poses/
+  gt_pose_dir: 
   img_seq_dir: dataset/kitti_odom/odom_data/
-  depth_dir: dataset/kitti_odom/depth/
+  depth_dir: 

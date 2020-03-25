@@ -18,9 +18,6 @@ image:
 # ----------------------------------------------------------------------------
 # tracking options
 # ----------------------------------------------------------------------------
-feature_tracking_method: 1
-  # 1: deep optical flow
-
 tracking_method: 3 
   # 3: hybrid
 
@@ -82,7 +79,7 @@ depth:
 # Deep two-view pose
 # ----------------------------------------------------------------------------
 pose_net:
-  enable: False
+  enable: True
   pretrained_model: model_zoo/pose/kitti_odom/stereo/
   # pretrained_model: model_zoo/pose/kitti_odom/mono_sc/
 
@@ -100,7 +97,7 @@ kp_selection:
     enable: False
     num_bestN: 2000
   sampled_kp:
-    enable: False
+    enable: True
   good_depth_kp: 
     enable: True
     num_row: 10
@@ -113,7 +110,7 @@ kp_selection:
 
     
   depth_consistency:
-    enable: False
+    enable: True
     thre: 0.05
   flow_consistency:
     enable: True
@@ -126,21 +123,21 @@ visualization:
   save_img: False
   kp_src: kp_best
   flow: 
-    vis_full_flow: False
-    vis_back_flow: False
-    vis_flow_diff: False
+    vis_full_flow: True
+    vis_back_flow: True
+    vis_flow_diff: True
   match:
     kp_num: 100  # -1 for using all
     vis_temp: 
-      enable: False
+      enable: True
     vis_side: 
-      enable: False
-      inlier_plot: False
+      enable: True
+      inlier_plot: True
 
   depth:
-    vis_full_disp: False
+    vis_full_disp: True
   mask:
-    vis_masks: False
+    vis_masks: True
   trajectory:
     vis_traj: True
     draw_scale: 0.8
@@ -149,6 +146,8 @@ visualization:
 
 directory:
   img_seq_dir: dataset/kitti_odom/odom_data_jpg/
+  gt_pose_dir: dataset/kitti_odom/gt_poses/
+  depth_dir: ../robust-vo/dataset/kitti_odom/depth/
   # img_seq_dir: dataset/kitti_raw
   # gt_pose_dir: dataset/kitti_raw_pose
   # depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

@@ -240,7 +240,6 @@ class FrameDrawer():
             self.traj_x0, self.traj_y0 = x_off, y_off
         else:
             self.traj_x0, self.traj_y0 = int(vis_w * 0.5), int(vis_h * 0.5)
-        # return x_off, y_off
 
     def interface(self):
         key = cv2.waitKey(10) or 0xff
@@ -347,7 +346,7 @@ class FrameDrawer():
         if vo.cfg.visualization.trajectory.vis_traj:
             vo.drawer.draw_traj(
                     pred_poses=vo.global_poses,
-                    gt_poses=vo.gt_poses,
+                    gt_poses=vo.dataset.gt_poses,
                     traj_cfg=vo.cfg.visualization.trajectory,
                     tracking_mode=vo.tracking_mode
                     )
@@ -395,7 +394,7 @@ class FrameDrawer():
                 # Set keypoints
                 vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
                 vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
-                
+
                 vis_match_temp = draw_match_temporal(
                         img1=vo.ref_data['img'][ref_id],
                         kp1=vis_kp_ref,
@@ -407,8 +406,7 @@ class FrameDrawer():
             else:
                 h, w, c = vo.drawer.data["match_temp"][...].shape
                 vo.drawer.data["match_temp"][...] = np.zeros((h,w,c))
-
-        vo.timers.timers["visualization_match"].append(time()-tmp_start_time)
+        vo.timers.count('visualization_match', time()-start_time)
 
         # Visualize flow (forward; backward) and flow inconsistency
         tmp_start_time = time()
@@ -428,7 +426,7 @@ class FrameDrawer():
             h, w, c = vo.drawer.data["flow2"][...].shape
             vo.drawer.data["flow2"][...] = np.zeros((h,w,c))
 
-        vo.timers.timers["visualization_flow"].append(time()-tmp_start_time)
+        vo.timers.count('visualization_flow', time()-start_time)
 
         # Visualize full depth
         tmp_start_time = time()
@@ -461,7 +459,7 @@ class FrameDrawer():
         else:
             h, w, c = vo.drawer.data["depth"][...].shape
             vo.drawer.data["depth"][...] = np.zeros((h,w,c))
-        vo.timers.timers["visualization_depth"].append(time()-tmp_start_time)
+        vo.timers.count('visualization_depth', time()-start_time)
 
         # visualize masks
         if vo.tracking_stage > 1 and vo.cfg.visualization.mask.vis_masks:
@@ -495,8 +493,7 @@ class FrameDrawer():
                 mask = vo.cur_data['rigid_flow_mask']
                 colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
                 vo.drawer.update_data("rigid_flow_mask", colormapped_im)
-
-            vo.timers.timers["visualization_masks"].append(time()-tmp_start_time)
+            vo.timers.count('visualization_masks', time()-start_time)
 
         # Save visualization result
         if vo.cfg.visualization.save_img:
@@ -510,6 +507,5 @@ class FrameDrawer():
         cv2.waitKey(1)
 
         vo.drawer.interface()
-
-        vo.timers.timers["visualization"].append(time()-start_time)
+        vo.timers.count('visualization', time()-start_time)
         return vo

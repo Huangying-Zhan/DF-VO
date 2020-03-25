@@ -8,12 +8,16 @@ import os
 
 from .dataset import Dataset
 from tool.evaluation.tum_tool.associate import associate, read_file_list
+from libs.utils import *
 
 
 class TUM(Dataset):
     def __init__(self, *args, **kwargs):
         super(TUM, self).__init__(*args, **kwargs)
-        return
+
+        # update gt poses for sync pairs
+        if self.cfg.directory.gt_pose_dir is not None:
+            self.update_gt_pose()
 
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
@@ -149,3 +153,68 @@ class TUM(Dataset):
  
         return data_dir
 
+    def get_gt_poses(self):
+        """load ground-truth poses
+        Returns:
+            gt_poses (dict): each pose is 4x4 array
+        """
+        annotations = os.path.join(
+                            self.cfg.directory.gt_pose_dir,
+                            self.cfg.seq,
+                            "groundtruth.txt"
+                            )
+        gt_poses = load_poses_from_txt_tum(annotations)
+        return gt_poses
+    
+    def get_timestamp(self, img_id):
+        """get timestamp for the query img_id
+        Args:
+            img_id (int): query image id
+        Returns:
+            timestamp (int): timestamp for query image
+        """
+        return sorted(list(self.rgb_d_pose_pair.keys()))[img_id]
+    
+    def get_image(self, timestamp):
+        """get image data given the image timestamp
+        Args:
+            timestamp (int): timestamp for the image
+        Returns:
+            img (CxHxW): image data
+        """
+        img_path = os.path.join(self.data_dir['img'], 
+                            "{:.6f}.{}".format(timestamp, self.cfg.image.ext)
+                            )
+        img = read_image(img_path, self.cfg.image.height, self.cfg.image.width)
+        return img
+    
+    def get_depth(self, timestamp):
+        """get GT/precomputed depth data given the timestamp
+        Args:
+            timestamp (int): timestamp for the depth
+        Returns:
+            depth (HxW): depth data
+        """
+        img_id = self.rgb_d_pose_pair[timestamp]['depth']
+
+        if self.data_dir['depth_src'] == "gt":
+            img_id = "{:.6f}.png".format(img_id)
+            scale_factor = 5000
+        
+        img_h, img_w = self.cfg.image.height, self.cfg.image.width
+        depth_path = os.path.join(self.data_dir['depth'], img_name)
+        depth = read_depth(depth_path, scale_factor, [img_h, img_w])
+        return depth
+
+    def save_result_traj(self, traj_txt, poses):
+        """Save trajectory (absolute poses) as KITTI odometry file format
+        Args:
+            txt (str): pose text file path
+            poses (array dict): poses, each pose is 4x4 array
+            format (str): trajectory format
+                - kitti: 12 parameters
+                - tum: timestamp tx ty tz qx qy qz qw
+        """
+        timestamps = sorted(list(self.rgb_d_pose_pair.keys()))
+        global_poses_arr = convert_SE3_to_arr(poses, timestamps)
+        save_traj(traj_txt, global_poses_arr, format="tum")

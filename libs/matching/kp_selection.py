@@ -236,7 +236,6 @@ def good_depth_kp(kp1, kp2, ref_data, cfg, outputs):
     return outputs
 
 
-
 def bestN(kp1, kp2, ref_data, cfg, outputs):
     """select best-N kps
     Args:

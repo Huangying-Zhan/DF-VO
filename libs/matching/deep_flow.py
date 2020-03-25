@@ -183,7 +183,7 @@ class LiteFlow():
                                 h, w)
         return flow.detach().cpu().numpy()
 
-    def inference_kp(self, 
+    def inference_flow(self, 
                     img1, img2,
                     flow_dir,
                     forward_backward=False,

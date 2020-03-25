@@ -24,3 +24,11 @@ class Timers():
             self.timers[item] = []
         else:
             assert False, "only list or str is accepted."
+    
+    def count(self, item, duration):
+        """add duration of an item to timer
+        """
+        if self.timers.get(item, -1) == -1:
+            self.timers[item] = []
+        self.timers[item].append(duration)
+

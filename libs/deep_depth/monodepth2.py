@@ -41,7 +41,7 @@ class Monodepth2DepthNet(DeepDepth):
         self.depth_decoder = networks.DepthDecoder(
                 num_ch_enc=self.encoder.num_ch_enc, scales=range(4))
 
-        print("==> Initialize Depth-CNN with {}".format(weight_path))
+        print("==> Initialize Depth-CNN with [{}]".format(weight_path))
         # loading pretrained model (encoder)
         encoder_path = os.path.join(weight_path, "encoder.pth")
         loaded_dict_enc = torch.load(encoder_path, map_location=device)

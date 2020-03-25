@@ -341,7 +341,6 @@ class FrameDrawer():
                     cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
 
     def main(self, vo):
-        start_time = time()
         # Trajectory visualization
         if vo.cfg.visualization.trajectory.vis_traj:
             vo.drawer.draw_traj(
@@ -352,7 +351,7 @@ class FrameDrawer():
                     )
 
         # Draw correspondence
-        tmp_start_time = time()
+        start_time = time()
         if vo.tracking_stage > 1:
             ref_id = vo.ref_data['id'][-1]
 
@@ -409,7 +408,7 @@ class FrameDrawer():
         vo.timers.count('visualization_match', time()-start_time)
 
         # Visualize flow (forward; backward) and flow inconsistency
-        tmp_start_time = time()
+        start_time = time()
         if vo.drawer.display['flow1'] and vo.cfg.visualization.flow.vis_full_flow and vo.tracking_stage > 1:
             vis_flow = vo.ref_data['flow'][vo.ref_data['id'][0]].transpose(1,2,0)
             vis_flow = flow_to_image(vis_flow)
@@ -429,7 +428,7 @@ class FrameDrawer():
         vo.timers.count('visualization_flow', time()-start_time)
 
         # Visualize full depth
-        tmp_start_time = time()
+        start_time = time()
         if vo.drawer.display['depth'] and \
               (vo.cfg.visualization.depth.vis_full_depth or vo.cfg.visualization.depth.vis_full_disp):
             if vo.cfg.visualization.depth.use_tracking_depth:
@@ -463,7 +462,7 @@ class FrameDrawer():
 
         # visualize masks
         if vo.tracking_stage > 1 and vo.cfg.visualization.mask.vis_masks:
-            tmp_start_time = time()
+            start_time = time()
 
             if vo.cfg.kp_selection.flow_consistency.enable:
                 # normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)

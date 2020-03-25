@@ -46,7 +46,7 @@ class LiteFlow():
             weight_path (str): weight path
         """
         if weight_path is not None:
-            print("==> initialize LiteFlowNet with [{}]: ".format(weight_path))
+            print("==> Initialize LiteFlowNet with [{}]: ".format(weight_path))
             # Initialize network
             self.model = LiteFlowNet().cuda()
 

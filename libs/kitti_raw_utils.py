@@ -2,7 +2,6 @@ import numpy as np
 from collections import namedtuple
 import os
 
-# FIXME .utils
 from .kitti_utils import *
 
 

@@ -44,7 +44,51 @@ class DFVO():
         
         # reference data and current data
         self.initialize_data()
+
+    def setup(self):
+        """Reading configuration and setup, including
+        - Tracking method
+        - dataset
+        - Keypoint Sampler
+        - Deep networks
+        - Deep layers
+        - Display drawer
+        - Timer
+        """
+
+        # intialize dataset
+        datasets = {
+            "kitti_odom": Dataset.KittiOdom,
+            "kitti_raw": Dataset.KittiRaw,
+            "tum": Dataset.TUM
+        }
+        self.dataset = datasets[self.cfg.dataset](self.cfg)
+
+        # get tracking method
+        self.tracking_method = self.get_tracking_method(self.cfg.tracking_method)
+        self.initialize_tracker()
+
+        # initialize keypoint sampler
+        self.kp_sampler = KeypointSampler(self.cfg)
         
+        # Deep networks
+        self.deep_models = DeepModel(self.cfg)
+        self.deep_models.initialize_models()
+        
+        # Depth consistency
+        if self.cfg.kp_selection.depth_consistency.enable:
+            self.depth_consistency_computer = DepthConsistency(self.cfg, self.dataset.cam_intrinsics)
+
+        # visualization interface
+        self.drawer = FrameDrawer(self.cfg.visualization)
+        self.drawer.get_traj_init_xy(
+                        vis_h=self.drawer.h,
+                        vis_w=self.drawer.w/5*2,
+                        gt_poses=self.dataset.gt_poses)
+        
+        # timer
+        self.timers = Timers()
+
     def initialize_data(self):
         self.ref_data = {
                         'id': [], 
@@ -99,50 +143,6 @@ class DFVO():
         if self.tracking_method == "hybrid":
             self.e_tracker = EssTracker(self.cfg, self.dataset.cam_intrinsics)
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
-
-    def setup(self):
-        """Reading configuration and setup, including
-        - Tracking method
-        - dataset
-        - Keypoint Sampler
-        - Deep networks
-        - Deep layers
-        - Display drawer
-        - Timer
-        """
-
-        # intialize dataset
-        datasets = {
-            "kitti_odom": Dataset.KittiOdom,
-            "kitti_raw": Dataset.KittiRaw,
-            "tum": Dataset.TUM
-        }
-        self.dataset = datasets[self.cfg.dataset](self.cfg)
-
-        # get tracking method
-        self.tracking_method = self.get_tracking_method(self.cfg.tracking_method)
-        self.initialize_tracker()
-
-        # initialize keypoint sampler
-        self.kp_sampler = KeypointSampler(self.cfg)
-        
-        # Deep networks
-        self.deep_models = DeepModel(self.cfg)
-        self.deep_models.initialize_models()
-        
-        # Depth consistency
-        if self.cfg.kp_selection.depth_consistency.enable:
-            self.depth_consistency_computer = DepthConsistency(self.cfg, self.dataset.cam_intrinsics)
-
-        # visualization interface
-        self.drawer = FrameDrawer(self.cfg.visualization)
-        self.drawer.get_traj_init_xy(
-                        vis_h=self.drawer.h,
-                        vis_w=self.drawer.w/5*2,
-                        gt_poses=self.dataset.gt_poses)
-        
-        # timer
-        self.timers = Timers()
 
     def update_global_pose(self, new_pose, scale):
         """update estimated poses w.r.t global coordinate system
@@ -285,7 +285,7 @@ class DFVO():
                                                 (self.cfg.image.width, self.cfg.image.height),
                                                 interpolation=cv2.INTER_NEAREST
                                                 )
-            self.timers.count('Depth-CNN', time()-start_time)
+            self.timers.count('Deep Depth-CNN', time()-start_time)
         self.cur_data['depth'] = preprocess_depth(self.cur_data['raw_depth'], self.cfg.crop.depth_crop, [self.cfg.depth.min_depth, self.cfg.depth.max_depth])
 
         # Two-view flow
@@ -306,10 +306,11 @@ class DFVO():
                         self.cur_data['flow'][ref_id] = flows[(self.cur_data['id'], self.ref_data['id'][i])].copy()
                         self.ref_data['flow_diff'][ref_id] = flows[(self.ref_data['id'][i], self.cur_data['id'], "diff")].copy()
             
-            self.timers.count('Flow-CNN', time()-start_time)
+            self.timers.count('Deep Flow-CNN', time()-start_time)
         
         # Relative camera pose
         if self.tracking_stage >= 1 and self.cfg.kp_selection.depth_consistency.enable:
+            start_time = time()
             # Deep pose prediction
             self.ref_data['deep_pose'] = {}
             for ref_id in self.ref_data['id']:
@@ -319,9 +320,10 @@ class DFVO():
                                 self.cur_data['img'], 
                                 )
                 self.ref_data['deep_pose'][ref_id] = pose[0] # from cur->ref
+            self.timers.count('Deep Pose-CNN', time()-start_time)
 
     def main(self):
-        print("==> Start VO")
+        print("==> Start DF-VO")
         main_start_time = time()
         if self.cfg.no_confirm:
             start_frame = 0
@@ -340,12 +342,12 @@ class DFVO():
             # Read image data and (optional) precomputed depth data
             start_time = time()
             self.load_raw_data()
-            self.timers.count('data_loading', time()-start_time)
+            self.timers.count('Data loading', time()-start_time)
 
             # Deep model inferences
             start_time = time()
             self.deep_model_inference()
-            self.timers.count('deep_inference', time()-start_time)
+            self.timers.count('Deep model inference', time()-start_time)
 
             """ Visual odometry """
             start_time = time()
@@ -353,7 +355,7 @@ class DFVO():
                 self.tracking_hybrid()
             else:
                 raise NotImplementedError
-            self.timers.count('tracking', time()-start_time)
+            self.timers.count('Tracking', time()-start_time)
 
             """ Visualization """
             start_time = time()
@@ -371,13 +373,7 @@ class DFVO():
         print("=> Finish!")
 
         """ Display & Save result """
-        # Output experiement information
-        print("---- time breakdown ----")
-        print("total runtime: {}".format(time() - main_start_time))
-        for key in self.timers.timers.keys():
-            if len(self.timers.timers[key]) != 0:
-                print("{} : {}".format(key, np.asarray(self.timers.timers[key]).mean()))
-
+        print("The result is saved in [{}].".format(self.cfg.result_dir))
         # Save trajectory map
         print("Save VO map.")
         map_png = "{}/map.png".format(self.cfg.result_dir)
@@ -386,3 +382,10 @@ class DFVO():
         # Save trajectory txt
         traj_txt = "{}/{}.txt".format(self.cfg.result_dir, self.cfg.seq)
         self.dataset.save_result_traj(traj_txt, self.global_poses)
+
+        # Output experiement information
+        print("---- time breakdown ----")
+        print("total runtime: {}".format(time() - main_start_time))
+        for key in sorted(self.timers.timers.keys()):
+            if len(self.timers.timers[key]) != 0:
+                print("{} : {}".format(key, np.asarray(self.timers.timers[key]).mean()))

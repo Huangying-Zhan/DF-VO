@@ -41,7 +41,7 @@ class Monodepth2PoseNet(DeepPose):
         self.pose_decoder = networks.PoseDecoder(
                 self.encoder.num_ch_enc, 1, 2)
 
-        print("==> Initialize Pose-CNN with {}".format(weight_path))
+        print("==> Initialize Pose-CNN with [{}]".format(weight_path))
         # loading pretrained model (encoder)
         encoder_path = os.path.join(weight_path, "pose_encoder.pth")
         loaded_dict_enc = torch.load(encoder_path, map_location=device)

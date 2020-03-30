@@ -9,6 +9,8 @@ import multiprocessing as mp
 import numpy as np
 from sklearn import linear_model
 
+
+from .gric import *
 from libs.camera_modules import SE3
 from libs.geometry.ops_3d import *
 from libs.utils import image_shape, image_grid
@@ -57,6 +59,7 @@ def find_Ess_mat(inputs):
     return outputs
 
 
+
 class EssTracker():
     def __init__(self, cfg, cam_intrinsics):
         self.cfg = cfg
@@ -94,8 +97,7 @@ class EssTracker():
         if valid_cfg.method == "flow":
             # check flow magnitude
             avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
-            valid_case = avg_flow > valid_cfg.thre
-        
+            valid_case = avg_flow > valid_cfg.thre        
         elif valid_cfg.method == "homo_ratio":
             # Find homography
             H, H_inliers = cv2.findHomography(
@@ -105,6 +107,22 @@ class EssTracker():
                         confidence=0.99,
                         ransacReprojThreshold=0.2,
                         )
+        elif valid_cfg.method == "GRIC":
+            H, H_inliers = cv2.findHomography(
+                        kp_cur,
+                        kp_ref,
+                        method=cv2.RANSAC,
+                        confidence=0.99,
+                        ransacReprojThreshold=0.2,
+                        )
+            H_res = compute_homography_residual(H, kp_cur, kp_ref)
+            H_gric = calc_GRIC(
+                        res=H_res,
+                        sigma=0.8,
+                        n=kp_cur.shape[0],
+                        model="HMat"
+            )
+
         
         if valid_case:
             num_valid_case = 0
@@ -124,23 +142,54 @@ class EssTracker():
                             prob=0.99,
                             threshold=self.cfg.compute_2d2d_pose.ransac.reproj_thre,
                             )
-                
+
                 # check homography inlier ratio
                 if valid_cfg.method == "homo_ratio":
                     H_inliers_ratio = H_inliers.sum()/(H_inliers.sum()+inliers.sum())
                     valid_case = H_inliers_ratio < valid_cfg.thre
-                    # print("valid: {}; ratio: {}".format(valid_case, H_inliers_ratio))
+                    # print("valid: {} ratio: {}".format(valid_case, H_inliers_ratio))
 
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt
                 elif valid_cfg.method == "flow":
-                    cheirality_cnt, R, t, _ = cv2.recoverPose(E, new_kp_cur, new_kp_ref,
+                    cheirality_cnt, R, t, _ = cv2.recoverPose(E2, new_kp_cur, new_kp_ref,
                                             focal=self.cam_intrinsics.fx,
                                             pp=principal_points)
                     valid_case = cheirality_cnt > kp_cur.shape[0]*0.1
                     
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > kp_cur.shape[0]*0.05
+                
+
+
+                elif valid_cfg.method == "GRIC":
+                    # get F from E
+                    K = self.cam_intrinsics.mat
+                    F = np.linalg.inv(K.T) @ E @ np.linalg.inv(K)
+                    E_res = compute_fundamental_residual(F, new_kp_cur, new_kp_ref)
+
+                    # E_gric = compute_GRIC(
+                    #             res=E_res,
+                    #             n=kp_cur.shape[0],
+                    #             d=3,
+                    #             k=5,
+                    #             r=4
+                    # )
+                    E_gric = calc_GRIC(
+                        res=E_res,
+                        sigma=0.8,
+                        n=kp_cur.shape[0],
+                        model="EMat"
+                    )
+                    valid_case = H_gric > E_gric
+                    # inlier check
+                    inlier_check = inliers.sum() > best_inlier_cnt
+
+                    print("H_gric: ", H_gric)
+                    print("E_gric: ", E_gric)
+                    # print("-"*20)
+                    # input("debug")
+
 
                 # save best_E
                 if inlier_check:

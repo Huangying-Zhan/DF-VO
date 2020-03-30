@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 debug: False
 use_multiprocessing: False
-seq: "04"
+seq: "07"
 dataset: kitti_odom # [kitti_odom, kitti_raw]
 seed: 4869
 # result_dir: result/dfvo2/4/0
@@ -26,7 +26,7 @@ compute_2d2d_pose:
     reproj_thre: 0.2
     repeat: 5
   validity:
-    method: homo_ratio # [flow+chei, homo_ratio]
+    method: GRIC # [flow+chei, homo_ratio, GRIC]
     thre: 0.25
   kp_src: kp_best # [kp_best, kp_list]
 
@@ -110,7 +110,7 @@ kp_selection:
 
     
   depth_consistency:
-    enable: True
+    enable: False
     thre: 0.05
   flow_consistency:
     enable: True
@@ -120,7 +120,7 @@ kp_selection:
 # Visualization
 # ----------------------------------------------------------------------------
 visualization:
-  save_img: False
+  save_img: True
   kp_src: kp_best
   flow: 
     vis_full_flow: True

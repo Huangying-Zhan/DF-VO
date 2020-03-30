@@ -1,6 +1,6 @@
 ############# Run particular exp #############
-# python run.py -c options/kitti/sampling_test.yml 
-python run.py -c options/kitti/sampling_test.yml --no_confirm
+python run.py -c options/kitti/sampling_test.yml 
+# python run.py -c options/kitti/sampling_test.yml --no_confirm
 # python run.py -c options/kitti/dfvo_test.yml --no_confirm
 # python run.py -c options/kitti/dfvo_test.yml 
 

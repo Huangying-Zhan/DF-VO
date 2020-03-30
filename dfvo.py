@@ -196,7 +196,6 @@ class DFVO():
                 self.ref_data['inliers'][ref_id] = e_tracker_outputs['inliers']
 
                 # scale recovery
-                # FIXME: separate scale recovery from E_tracker
                 if np.linalg.norm(E_pose.t) != 0:
                     scale = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
                     if scale != -1:

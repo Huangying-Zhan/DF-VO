@@ -10,14 +10,16 @@ Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ian Reid
 The demo video can be found [here](https://www.youtube.com/watch?v=Nl8mFU4SJKY).
 
 ```
-# The paper is accepted to ICRA-2020. Updated bibtex will be provided in the future.
+# The paper is accepted to ICRA-2020. 
 
-@article{zhan2019dfvo,
+@inproceedings{zhan2019dfvo,
   title={Visual Odometry Revisited: What Should Be Learnt?},
   author={Zhan, Huangying and Weerasekera, Chamara Saroj and Bian, Jiawang and Reid, Ian},
-  journal={arXiv preprint arXiv:1909.09803},
-  year={2019}
+  booktitle={2020 International Conference on Robotics and Automation (ICRA)},
+  year={2020},
+  organization={IEEE}
 }
+
 ```
 
 <img src='misc/dfvo_eg.gif' width=640 height=320>

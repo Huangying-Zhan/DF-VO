@@ -1,16 +1,18 @@
-# This configuration corresponds to 
+# This configuration corresponds to Reference Model
 
 # ----------------------------------------------------------------------------
 # Basic setup
 # ----------------------------------------------------------------------------
 debug: False
 use_multiprocessing: False
-seq: "04"
-dataset: kitti_odom # [kitti_odom, kitti_raw]
+seq: "2011_10_03_drive_0047_sync"
+dataset: kitti_raw # [kitti_odom, kitti_raw]
 seed: 4869
-result_dir: result/dfvo2/6/0
-# result_dir: result/tmp/2
+# result_dir: result/dfvo2/tro_paper/4/0
+result_dir: result/dfvo2/tro_paper/tmp/2
 image:
+  # height: 192
+  # width: 640
   height: 370
   width: 1226
   ext: jpg
@@ -18,36 +20,37 @@ image:
 # ----------------------------------------------------------------------------
 # tracking options
 # ----------------------------------------------------------------------------
-tracking_method: 3 
+tracking_method: 3
   # 3: hybrid
+  # 1: PnP
 
 compute_2d2d_pose:
   ransac:
     reproj_thre: 0.2
     repeat: 5
   validity:
-    method: GRIC # [flow+chei, homo_ratio, GRIC]
-    thre: 0.25
-  kp_src: kp_best # [kp_best, kp_list]
+    method: GRIC # [flow, homo_ratio, GRIC]
+    thre: 
+  kp_src: kp_best # [kp_best, kp_list, kp_rigid]
 
 PnP:
   ransac:
     iter: 1000
     reproj_thre: 1
     repeat: 5
-  kp_src: kp_best # [kp_best, kp_list]
+  kp_src: kp_best # [kp_best, kp_list, kp_rigid]
 
 # translation scale
 translation_scale:
-  method: single # [single; iterative]
+  method: iterative # [single; iterative]
     # - dfvo: selcted kps 
   ransac:
     method: depth_ratio # [abs_diff, depth_ratio]
     min_samples: 3
-    max_trials: 100
+    max_trials: 1000
     stop_prob: 0.99
     thre: 0.1
-  kp_src: kp_best # [kp_best, kp_list]
+  kp_src: kp_depth # [kp_best, kp_list, kp_rigid]
 
 # ----------------------------------------------------------------------------
 # Deep Optical Flow
@@ -58,6 +61,7 @@ deep_flow:
   network: liteflow  
     # liteflow: LiteFlowNet
   flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
+  # flow_net_weight: model_zoo/optical_flow/UnLiteFlowNet/kitti_odom/mono_640x192/flow.pth
   batch_size: 1
   precomputed_flow: #tmp/result/flow/kitti_odom/liteflow_default/{}/npy
 
@@ -70,18 +74,20 @@ crop:
 # ----------------------------------------------------------------------------
 depth:
   depth_src: # (blank: deep model inference; 0: GT depth)
-  max_depth: 50 # [50/200]
+  max_depth: 50 # [10/50/200]
   min_depth: 0
   pretrained_model: model_zoo/depth/kitti_odom/stereo/
   # pretrained_model: model_zoo/depth/kitti_odom/mono_sc/
+  # pretrained_model: model_zoo/depth/kitti_odom/mono/
 
 # ----------------------------------------------------------------------------
 # Deep two-view pose
 # ----------------------------------------------------------------------------
 pose_net:
-  enable: True
+  enable: False
   pretrained_model: model_zoo/pose/kitti_odom/stereo/
   # pretrained_model: model_zoo/pose/kitti_odom/mono_sc/
+  # pretrained_model: model_zoo/pose/kitti_odom/mono/
 
 # ----------------------------------------------------------------------------
 # Keypoint selection
@@ -97,9 +103,9 @@ kp_selection:
     enable: False
     num_bestN: 2000
   sampled_kp:
-    enable: True
-  rigid_flow_kp: 
     enable: False
+  rigid_flow_kp: 
+    enable: True
     num_row: 10
     num_col: 10
     num_bestN: 2000
@@ -118,34 +124,35 @@ kp_selection:
 # Visualization
 # ----------------------------------------------------------------------------
 visualization:
-  save_img: False
+  save_img: True
   kp_src: kp_best
   flow: 
-    vis_full_flow: False
-    vis_back_flow: False
-    vis_flow_diff: False
+    vis_full_flow: True
+    vis_back_flow: True
+    vis_flow_diff: True
   match:
     kp_num: 100  # -1 for using all
     vis_temp: 
-      enable: False
+      enable: True
     vis_side: 
-      enable: False
-      inlier_plot: False
+      enable: True
+      inlier_plot: True
 
   depth:
-    vis_full_disp: False
+    vis_full_disp: True
+    use_tracking_depth: True
   mask:
-    vis_masks: False
+    vis_masks: True
   trajectory:
     vis_traj: True
-    draw_scale: 0.8
+    draw_scale: 0.6
     mono_scale: 1 #5.4; 0.2
     vis_gt_traj: True
 
 directory:
-  img_seq_dir: dataset/kitti_odom/odom_data_jpg/
-  gt_pose_dir: dataset/kitti_odom/gt_poses/
-  depth_dir: ../robust-vo/dataset/kitti_odom/depth/
-  # img_seq_dir: dataset/kitti_raw
-  # gt_pose_dir: dataset/kitti_raw_pose
-  # depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth
+  # img_seq_dir: dataset/kitti_odom/odom_data_jpg/
+  # gt_pose_dir: dataset/kitti_odom/gt_poses/
+  # depth_dir: ../robust-vo/dataset/kitti_odom/depth/
+  img_seq_dir: dataset/kitti_raw
+  gt_pose_dir: dataset/kitti_raw_pose
+  depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

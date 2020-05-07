@@ -22,6 +22,24 @@ from libs.matching.depth_consistency import DepthConsistency
 from libs.tracker import EssTracker, PnpTracker
 from libs.utils import *
 
+from libs.tracker.gric import *
+
+
+def get_E_from_pose(pose):
+    R = pose.R
+    t = pose.t / np.linalg.norm(pose.t)
+    t_ssym = np.zeros((3,3))
+    t_ssym[0, 1] = - t[2,0]
+    t_ssym[0, 2] = t[1,0]
+    t_ssym[1, 2] = - t[0,0]
+    t_ssym[2, 1] = t[0,0]
+    t_ssym[2, 0] = - t[1,0]
+    t_ssym[1, 0] = t[2,0]
+
+    E = t_ssym @ R
+    return E
+
+
 
 class DFVO():
     def __init__(self, cfg):
@@ -125,7 +143,7 @@ class DFVO():
         Args:
             method_idx (int): tracking method index
                 - 0: 2d-2d
-                - 1: 3d-2d
+                - 1: PnP
                 - 2: 3d-3d
                 - 3: hybrid
         Returns:
@@ -133,7 +151,7 @@ class DFVO():
         """
         tracking_method_cases = {
             0: "2d-2d",
-            1: "3d-2d",
+            1: "PnP",
             2: "3d-3d",
             3: "hybrid"
         }
@@ -143,6 +161,10 @@ class DFVO():
         if self.tracking_method == "hybrid":
             self.e_tracker = EssTracker(self.cfg, self.dataset.cam_intrinsics)
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
+        elif self.tracking_method == "PnP":
+            self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
+        else:
+            assert False, "Wrong tracker is selected"
 
     def update_global_pose(self, new_pose, scale):
         """update estimated poses w.r.t global coordinate system
@@ -155,7 +177,7 @@ class DFVO():
         self.cur_data['pose'].R = self.cur_data['pose'].R @ new_pose.R
         self.global_poses[self.cur_data['id']] = copy.deepcopy(self.cur_data['pose'])
 
-    def tracking_hybrid(self):
+    def tracking(self):
         """Tracking using both Essential matrix and PnP
         Essential matrix for rotation (and direction);
             *** triangluate depth v.s. CNN-depth for translation scale ***
@@ -175,42 +197,47 @@ class DFVO():
                 self.depth_consistency_computer.compute(self.cur_data, self.ref_data)
 
             # kp_selection
-            kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data)
+            kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data, self.e_tracker)
             self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
 
             # Pose estimation
             for ref_id in self.ref_data['id']:
                 # Initialize hybrid pose
                 hybrid_pose = SE3()
+                E_pose = SE3()
 
-                # Essential matrix pose
-                e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
-                                self.cur_data[self.cfg.compute_2d2d_pose.kp_src],
-                                self.ref_data[self.cfg.compute_2d2d_pose.kp_src][ref_id]) # pose: from cur->ref
-                E_pose = e_tracker_outputs['pose']
+                if self.tracking_method in ['hybrid']:
+                    # Essential matrix pose
+                    e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
+                                    self.cur_data[self.cfg.compute_2d2d_pose.kp_src],
+                                    self.ref_data[self.cfg.compute_2d2d_pose.kp_src][ref_id]) # pose: from cur->ref
+                    E_pose = e_tracker_outputs['pose']
 
-                # Rotation
-                hybrid_pose.R = E_pose.R
+                    # Rotation
+                    hybrid_pose.R = E_pose.R
 
-                # save inliers
-                self.ref_data['inliers'][ref_id] = e_tracker_outputs['inliers']
+                    # save inliers
+                    self.ref_data['inliers'][ref_id] = e_tracker_outputs['inliers']
 
-                # scale recovery
-                if np.linalg.norm(E_pose.t) != 0:
-                    scale = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
-                    if scale != -1:
-                        hybrid_pose.t = E_pose.t * scale
-                    
-                # PnP if Essential matrix fail
-                if np.linalg.norm(E_pose.t) == 0 or scale == -1:
-                    pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
-                                    self.cur_data[self.cfg.PnP.kp_src],
-                                    self.ref_data[self.cfg.PnP.kp_src][ref_id],
-                                    self.ref_data['depth'][ref_id]
-                                    ) # pose: from cur->ref
-                    # use PnP pose instead of E-pose
-                    hybrid_pose = pnp_outputs['pose']
-                    self.tracking_mode = "PnP"
+                    # scale recovery
+                    if np.linalg.norm(E_pose.t) != 0:
+                        scale = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
+                        if scale != -1:
+                            hybrid_pose.t = E_pose.t * scale
+
+                if self.tracking_method in ['PnP', 'hybrid']:
+                    # PnP if Essential matrix fail
+                    if np.linalg.norm(E_pose.t) == 0 or scale == -1:
+                        pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
+                                        self.cur_data[self.cfg.PnP.kp_src],
+                                        self.ref_data[self.cfg.PnP.kp_src][ref_id],
+                                        self.ref_data['depth'][ref_id]
+                                        ) # pose: from cur->ref
+
+                        # use PnP pose instead of E-pose
+                        hybrid_pose = pnp_outputs['pose']
+                        self.tracking_mode = "PnP"
+
                 self.ref_data['pose'][ref_id] = copy.deepcopy(hybrid_pose)
 
             # update global poses
@@ -308,7 +335,7 @@ class DFVO():
             self.timers.count('Deep Flow-CNN', time()-start_time)
         
         # Relative camera pose
-        if self.tracking_stage >= 1 and self.cfg.kp_selection.depth_consistency.enable:
+        if self.tracking_stage >= 1 and self.cfg.pose_net.enable:
             start_time = time()
             # Deep pose prediction
             self.ref_data['deep_pose'] = {}
@@ -350,10 +377,12 @@ class DFVO():
 
             """ Visual odometry """
             start_time = time()
-            if self.tracking_method == "hybrid":
-                self.tracking_hybrid()
-            else:
-                raise NotImplementedError
+            # if self.tracking_method == "hybrid":
+            self.tracking()
+            # elif self.tracking_method == "PnP":
+            #     self.tracking_pnp()
+            # else:
+            #     raise NotImplementedError
             self.timers.count('Tracking', time()-start_time)
 
             """ Visualization """

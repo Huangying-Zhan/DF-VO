@@ -448,7 +448,7 @@ class FrameDrawer():
                 vis_depth = 1/(tmp_vis_depth+1e-3)
                 vis_depth[tmp_vis_depth==0] = 0
                 if "kitti" in vo.cfg.dataset:
-                    vmax = 0.3
+                    vmax = vis_depth.max()
                 elif "tum" in vo.cfg.dataset:
                     vmax = 5
                 normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
@@ -487,7 +487,7 @@ class FrameDrawer():
                 vo.drawer.update_data("depth_mask", colormapped_im)
             
             if vo.cur_data.get('rigid_flow_mask', -1) is not -1:
-                normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.rigid_flow_consistency.thre)
+                normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.rigid_flow_kp.thre)
                 mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
                 mask = vo.cur_data['rigid_flow_mask']
                 colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)

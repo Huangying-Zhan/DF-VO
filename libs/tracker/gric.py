@@ -101,12 +101,14 @@ def calc_GRIC(res, sigma, n, model):
     K = {
         "FMat": 7,
         "EMat": 5,
-        "HMat": 8
+        "HMat": 8,
+        "pnp": 6
     }[model]
     D = {
         "FMat": 3,
         "EMat": 3,
-        "HMat": 2
+        "HMat": 2,
+        "pnp": 3
     }[model]
     
     lam3RD=2.0 * (R-D)

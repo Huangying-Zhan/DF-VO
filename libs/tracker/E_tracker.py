@@ -14,7 +14,8 @@ from .gric import *
 from libs.camera_modules import SE3
 from libs.geometry.ops_3d import *
 from libs.utils import image_shape, image_grid
-from libs.matching.kp_selection import good_depth_kp
+from libs.matching.kp_selection import rigid_flow_kp, opt_rigid_flow_kp
+
 
 def find_Ess_mat(inputs):
     # inputs
@@ -63,7 +64,8 @@ def find_Ess_mat(inputs):
 class EssTracker():
     def __init__(self, cfg, cam_intrinsics):
         self.cfg = cfg
-        self.prev_scale = 1
+        self.prev_scale = 0
+        self.prev_pose = SE3()
         self.cam_intrinsics = cam_intrinsics
 
         if self.cfg.use_multiprocessing:
@@ -152,7 +154,7 @@ class EssTracker():
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt
                 elif valid_cfg.method == "flow":
-                    cheirality_cnt, R, t, _ = cv2.recoverPose(E2, new_kp_cur, new_kp_ref,
+                    cheirality_cnt, R, t, _ = cv2.recoverPose(E, new_kp_cur, new_kp_ref,
                                             focal=self.cam_intrinsics.fx,
                                             pp=principal_points)
                     valid_case = cheirality_cnt > kp_cur.shape[0]*0.1
@@ -160,36 +162,21 @@ class EssTracker():
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > kp_cur.shape[0]*0.05
                 
-
-
                 elif valid_cfg.method == "GRIC":
                     # get F from E
                     K = self.cam_intrinsics.mat
                     F = np.linalg.inv(K.T) @ E @ np.linalg.inv(K)
                     E_res = compute_fundamental_residual(F, new_kp_cur, new_kp_ref)
 
-                    # E_gric = compute_GRIC(
-                    #             res=E_res,
-                    #             n=kp_cur.shape[0],
-                    #             d=3,
-                    #             k=5,
-                    #             r=4
-                    # )
                     E_gric = calc_GRIC(
                         res=E_res,
                         sigma=0.8,
                         n=kp_cur.shape[0],
-                        model="EMat"
+                        model='EMat'
                     )
                     valid_case = H_gric > E_gric
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt
-
-                    print("H_gric: ", H_gric)
-                    print("E_gric: ", E_gric)
-                    # print("-"*20)
-                    # input("debug")
-
 
                 # save best_E
                 if inlier_check:
@@ -213,6 +200,8 @@ class EssTracker():
                 if cheirality_cnt > kp_cur.shape[0]*0.1:
                     best_Rt = [R, t]
 
+        # print("H_gric: ", H_gric)
+        # print("E_gric: ", E_gric)
         R, t = best_Rt
         pose = SE3()
         pose.R = R
@@ -329,12 +318,8 @@ class EssTracker():
         Returns:
             scale (float)
         """
-        if self.cfg.translation_scale.kp_src == "kp_best":
-            ref_kp = cur_data[self.cfg.translation_scale.kp_src]
-            cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
-        elif self.cfg.translation_scale.kp_src == "kp_depth":
-            ref_kp = cur_data[self.cfg.translation_scale.kp_src]
-            cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+        ref_kp = cur_data[self.cfg.translation_scale.kp_src]
+        cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
 
         scale = self.find_scale_from_depth(
             ref_kp,
@@ -376,12 +361,9 @@ class EssTracker():
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
             
             # translation scale from triangulation v.s. CNN-depth
-            if self.cfg.translation_scale.kp_src == "kp_best":
-                ref_kp = cur_data[self.cfg.translation_scale.kp_src][ref_data['inliers'][ref_id]]
-                cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id][ref_data['inliers'][ref_id]]
-            elif self.cfg.translation_scale.kp_src == "kp_depth":
-                ref_kp = cur_data[self.cfg.translation_scale.kp_src]
-                cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+            ref_kp = cur_data[self.cfg.translation_scale.kp_src]
+            cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+
             new_scale = self.find_scale_from_depth(
                 ref_kp,
                 cur_kp,
@@ -481,7 +463,7 @@ class EssTracker():
 
         return scale
 
-    def kp_selection_good_depth(self, cur_data, ref_data):
+    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method="rigid_flow_kp"):
         """Choose valid kp from a series of operations
         """
         outputs = {}
@@ -495,48 +477,50 @@ class EssTracker():
         tmp_flow_data = np.transpose(np.expand_dims(ref_data['flow'][ref_id], 0), (0, 2, 3, 1))
         kp2 = kp1 + tmp_flow_data
 
-        """ depth consistent kp selection """
-        if self.cfg.kp_selection.good_depth_kp.enable:
+        """ opt-rigid flow consistent kp selection """
+        if self.cfg.kp_selection.rigid_flow_kp.enable:
             ref_data['rigid_flow_diff'] = {}
             # compute rigid flow
             rigid_flow_pose = ref_data['rigid_flow_pose'][ref_id].pose
             rigid_flow = self.compute_rigid_flow(
                                         ref_data['raw_depth'][ref_id],  
-                                        # cur_data['raw_depth'],
-                                        # np.linalg.inv(ref_data['deep_pose'][ref_id])
                                         rigid_flow_pose
                                         )
             rigid_flow_diff = np.linalg.norm(
                                 rigid_flow - ref_data['flow'][ref_id].transpose(1,2,0),
                                 axis=2)
+            # DEBUG
+            # from matplotlib import pyplot as plt
+            # plt.imshow(rigid_flow_diff)
+            # plt.show()
+            
             rigid_flow_diff = np.expand_dims(rigid_flow_diff, 2)
             
-            # print("pose: ", np.linalg.inv(ref_data['deep_pose'][ref_id]))
-            # print("gt_pose: ", gt_pose)
-            # plt.figure("depth")
-            # plt.imshow(self.ref_data['raw_depth'][ref_id])
-            # plt.figure("rigid_flow x")
-            # plt.imshow(rigid_flow[:,:,0])
-            # plt.figure("rigid_flow y")
-            # plt.imshow(rigid_flow[:,:,1])
-            # plt.figure("ref_flow")
-            # plt.imshow(ref_data['flow'][ref_id][0, :,:])
-            # plt.figure("flow_diff")
-            # plt.imshow(rigid_flow_diff, vmin=0, vmax=3)
-            # plt.show()
 
             ref_data['rigid_flow_diff'][ref_id] = rigid_flow_diff
 
             # get depth-flow consistent kp
-            outputs.update(
-                good_depth_kp(
-                    kp1=kp1,
-                    kp2=kp2,
-                    ref_data=ref_data,
-                    cfg=self.cfg,
-                    outputs=outputs
-                    )
-            )
+            if rigid_kp_method == "rigid_flow_kp":
+                outputs.update(
+                    rigid_flow_kp(
+                        kp1=kp1,
+                        kp2=kp2,
+                        ref_data=ref_data,
+                        cfg=self.cfg,
+                        outputs=outputs
+                        )
+                )
+            elif rigid_kp_method == "opt_rigid_flow_kp":
+                outputs.update(
+                    opt_rigid_flow_kp(
+                        kp1=kp1,
+                        kp2=kp2,
+                        ref_data=ref_data,
+                        cfg=self.cfg,
+                        outputs=outputs
+                        )
+                )
+                
 
         return outputs
 

@@ -12,12 +12,11 @@ The demo video can be found [here](https://www.youtube.com/watch?v=Nl8mFU4SJKY).
 ```
 # The paper is accepted to ICRA-2020. 
 
-@inproceedings{zhan2019dfvo,
+@article{zhan2019visual,
   title={Visual Odometry Revisited: What Should Be Learnt?},
   author={Zhan, Huangying and Weerasekera, Chamara Saroj and Bian, Jiawang and Reid, Ian},
-  booktitle={2020 International Conference on Robotics and Automation (ICRA)},
-  year={2020},
-  organization={IEEE}
+  journal={arXiv preprint arXiv:1909.09803},
+  year={2019}
 }
 
 ```

@@ -300,13 +300,20 @@ class EssTracker():
     def scale_recovery(self, cur_data, ref_data, E_pose, ref_id):
         """recover depth scale
         """
+        outputs = {}
 
         if self.cfg.translation_scale.method == "single":
             scale = self.scale_recovery_single(cur_data, ref_data, E_pose, ref_id)
         
         elif self.cfg.translation_scale.method == "iterative":
-            scale = self.scale_recovery_iterative(cur_data, ref_data, E_pose, ref_id)
-        return scale
+            iter_outputs = self.scale_recovery_iterative(cur_data, ref_data, E_pose, ref_id)
+            scale = iter_outputs['scale']
+            outputs['cur_kp_depth'] = iter_outputs['cur_kp']
+            outputs['ref_kp_depth'] = iter_outputs['ref_kp']
+            outputs['rigid_flow_mask'] = iter_outputs['rigid_flow_mask']
+        
+        outputs['scale'] = scale
+        return outputs
 
     def scale_recovery_single(self, cur_data, ref_data, E_pose, ref_id):
         """recover depth scale by comparing triangulated depths and CNN depths
@@ -340,6 +347,8 @@ class EssTracker():
         Returns:
             scale (float)
         """
+        outputs = {}
+
         # Initialization
         scale = self.prev_scale
         delta = 0.001
@@ -374,10 +383,16 @@ class EssTracker():
             delta_scale = np.abs(new_scale-scale)
             scale = new_scale
             self.prev_scale = new_scale
+
+            # Get outputs
+            outputs['scale'] = scale
+            outputs['cur_kp'] = cur_data['kp_depth']
+            outputs['ref_kp'] = ref_data['kp_depth']
+            outputs['rigid_flow_mask'] = cur_data['rigid_flow_mask']
             
             if delta_scale < delta:
-                return scale
-        return scale
+                return outputs
+        return outputs
 
     def find_scale_from_depth(self, kp1, kp2, T_21, depth2):
         """Compute VO scaling factor for T_21

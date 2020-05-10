@@ -221,7 +221,12 @@ class DFVO():
 
                     # scale recovery
                     if np.linalg.norm(E_pose.t) != 0:
-                        scale = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
+                        scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
+                        scale = scale_out['scale']
+                        if self.cfg.translation_scale.kp_src == 'kp_depth':
+                            self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
+                            self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
+                            self.cur_data['valid_mask'] *= scale_out['rigid_flow_mask']
                         if scale != -1:
                             hybrid_pose.t = E_pose.t * scale
 
@@ -237,6 +242,29 @@ class DFVO():
                         # use PnP pose instead of E-pose
                         hybrid_pose = pnp_outputs['pose']
                         self.tracking_mode = "PnP"
+
+                # DEBUG
+                # if self.tracking_method in ['PnP', 'hybrid']:
+                # PnP if Essential matrix fail
+                # pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
+                #                 self.cur_data[self.cfg.PnP.kp_src],
+                #                 self.ref_data[self.cfg.PnP.kp_src][ref_id],
+                #                 self.ref_data['depth'][ref_id]
+                #                 ) # pose: from cur->ref
+
+                # if np.linalg.norm(E_pose.t) == 0 :
+                #     # use PnP pose instead of E-pose
+                #     hybrid_pose = pnp_outputs['pose']
+                #     self.tracking_mode = "PnP"
+                # else:
+                #     pnp_pose = pnp_outputs['pose']
+                #     pnp_scale = np.linalg.norm(pnp_pose.t)
+                #     hybrid_pose.t = E_pose.t * pnp_scale
+
+                #     gt_rel = np.linalg.inv(self.dataset.gt_poses[self.cur_data['id']]) @ self.dataset.gt_poses[self.ref_data['id'][0]]
+                    # print("pnp scale: ", pnp_scale)
+                    # print("gt_scale: ", np.linalg.norm(gt_rel[:3, 3]))
+
 
                 self.ref_data['pose'][ref_id] = copy.deepcopy(hybrid_pose)
 

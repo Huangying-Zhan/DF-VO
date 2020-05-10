@@ -161,13 +161,13 @@ class FrameDrawer():
         self.assign_data(
                     item="rigid_flow_mask",
                     top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3)],
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3.5)],
                     )
 
         self.assign_data(
                     item="flow_mask",
-                    top_left=[int(visual_h/4*3), int(visual_w/5*3)], 
-                    bottom_right=[int(visual_h/4*4), int(visual_w/5*4)],
+                    top_left=[int(visual_h/4*3), int(visual_w/5*3.5)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*5)],
                     )
 
         self.assign_data(
@@ -369,6 +369,16 @@ class FrameDrawer():
                 vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
                 vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
 
+                # Draw 3D-2D correspondence
+                if False:
+                    tmp_vis_depth = vo.cur_data['raw_depth']
+                    vis_depth = 1/(tmp_vis_depth+1e-3)
+                    # vis_depth = tmp_vis_depth
+                    vmax = vis_depth.max()
+                    normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
+                    mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='magma')
+                    colormapped_im = (mapper.to_rgba(vis_depth)[:, :, :3] * 255).astype(np.uint8)
+
                 if vo.cfg.visualization.match.vis_side.inlier_plot:
                     inliers=vo.ref_data['inliers'][ref_id]
                 else:
@@ -377,6 +387,7 @@ class FrameDrawer():
                     img2=vo.ref_data['img'][ref_id],
                     kp2=vis_kp_cur,
                     img1=vo.cur_data['img'],
+                    # img1=colormapped_im,
                     kp1=vis_kp_ref,
                     N=vis_kp_num,
                     inliers=inliers
@@ -472,12 +483,12 @@ class FrameDrawer():
                 colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
                 vo.drawer.update_data("flow_mask", colormapped_im)
                 
-                if vo.cfg.kp_selection.uniform_filtered_bestN.enable:
-                    normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)
-                    mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='gray_r')
-                    mask = vo.cur_data['valid_mask']
-                    colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
-                    vo.drawer.update_data("valid_mask", colormapped_im)
+                # if vo.cfg.kp_selection.uniform_filtered_bestN.enable:
+                #     normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)
+                #     mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='gray_r')
+                #     mask = vo.cur_data['valid_mask']
+                #     colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
+                #     vo.drawer.update_data("valid_mask", colormapped_im)
 
             if vo.cfg.kp_selection.depth_consistency.enable:
                 normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.depth_consistency.thre)

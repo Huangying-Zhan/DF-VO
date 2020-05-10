@@ -150,6 +150,7 @@ def rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs):
     N = bestN_cfg.num_bestN
     score_method = bestN_cfg.score_method
     flow_diff_thre = kp_cfg.rigid_flow_kp.thre
+    opt_flow_diff_thre = kp_cfg.flow_consistency.thre
     # depth_diff_thre = kp_cfg.depth_consistency.thre
 
     h, w = ref_data['depth'][ref_data['id'][0]].shape
@@ -185,7 +186,7 @@ def rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs):
                 tmp_flow_diff = flow_diff[:, x0[0]:x1[0], x0[1]:x1[1]].copy()
                 flow_mask = (tmp_flow_diff < flow_diff_thre) 
                 
-                flow_mask = flow_mask * (tmp_opt_flow_diff < 1)
+                flow_mask = flow_mask * (tmp_opt_flow_diff < opt_flow_diff_thre)
                 valid_mask = flow_mask
 
                 # computing scores

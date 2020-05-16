@@ -78,7 +78,9 @@ class DFVO():
         datasets = {
             "kitti_odom": Dataset.KittiOdom,
             "kitti_raw": Dataset.KittiRaw,
-            "tum": Dataset.TUM
+            "tum": Dataset.TUM,
+            "adelaide1": Dataset.Adelaide1,
+            "adelaide2": Dataset.Adelaide2
         }
         self.dataset = datasets[self.cfg.dataset](self.cfg)
 
@@ -221,6 +223,9 @@ class DFVO():
 
                     # scale recovery
                     if np.linalg.norm(E_pose.t) != 0:
+                        # FIXME: for DOM
+                        self.e_tracker.cnt = self.cur_data['id']
+
                         scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
                         scale = scale_out['scale']
                         if self.cfg.translation_scale.kp_src == 'kp_depth':
@@ -384,7 +389,7 @@ class DFVO():
         else:
             start_frame = int(input("Start with frame: "))
 
-        for img_id in tqdm(range(start_frame, len(self.dataset))):
+        for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
         # for img_id in range(start_frame, len(self.dataset)):
             self.tracking_mode = "Ess. Mat."
 

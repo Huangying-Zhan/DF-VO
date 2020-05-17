@@ -118,7 +118,11 @@ def save_cfg(cfg_files, file_path):
     """
     # read configurations
     default = read_yaml(cfg_files[0])
-    custom = read_yaml(cfg_files[1])
+    
+    # FIXME: combine cfg has bug?
+    custom = read_yaml(cfg_files[0])
+    # custom = read_yaml(cfg_files[1])
+    custom.update(read_yaml(cfg_files[1]))
 
     # create file to be written
     f = open(file_path, 'w')

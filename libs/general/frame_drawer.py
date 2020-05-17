@@ -109,6 +109,7 @@ class FrameDrawer():
         self.data = {}
         self.display = {}
         self.initialize_drawer()
+        self.traj_map_scale = 1
     
     def initialize_drawer(self):
         """Initialize drawer by assigning items to the drawer
@@ -119,7 +120,7 @@ class FrameDrawer():
         self.assign_data(
                     item="traj",
                     top_left=[0, 0], 
-                    bottom_right=[int(visual_h), int(visual_w)],
+                    bottom_right=[int(visual_h), int(visual_w/5*2)],
                     )
 
         self.assign_data(
@@ -134,22 +135,38 @@ class FrameDrawer():
                     bottom_right=[int(visual_h/4*2), int(visual_w/5*5)],
                     )
         
+        # self.assign_data(
+        #             item="depth",
+        #             top_left=[int(visual_h/4*2), int(visual_w/5*2)], 
+        #             bottom_right=[int(visual_h/4*3), int(visual_w/5*3)],
+        #             )
+        
         self.assign_data(
                     item="depth",
                     top_left=[int(visual_h/4*2), int(visual_w/5*2)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/5*3)],
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*3.5)],
                     )
         
+        # self.assign_data(
+        #             item="flow1",
+        #             top_left=[int(visual_h/4*2), int(visual_w/5*3)], 
+        #             bottom_right=[int(visual_h/4*3), int(visual_w/5*4)],
+        #             )
         self.assign_data(
                     item="flow1",
-                    top_left=[int(visual_h/4*2), int(visual_w/5*3)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/5*4)],
+                    top_left=[int(visual_h/4*2), int(visual_w/5*3.5)], 
+                    bottom_right=[int(visual_h/4*3), int(visual_w/5*5)],
                     )
         
+        # self.assign_data(
+        #             item="flow2",
+        #             top_left=[int(visual_h/4*2), int(visual_w/5*4)], 
+        #             bottom_right=[int(visual_h/4*3), int(visual_w/5*5)],
+        #             )
         self.assign_data(
                     item="flow2",
-                    top_left=[int(visual_h/4*2), int(visual_w/5*4)], 
-                    bottom_right=[int(visual_h/4*3), int(visual_w/5*5)],
+                    top_left=[int(visual_h/4*3), int(visual_w/5*2)], 
+                    bottom_right=[int(visual_h/4*4), int(visual_w/5*3.5)],
                     )
         
         self.assign_data(
@@ -296,12 +313,13 @@ class FrameDrawer():
             self.display['flow_diff'] = not(self.display['flow_diff'])
             print("flow: {}".format(self.display['flow1']))
 
-    def draw_traj(self, pred_poses, gt_poses, traj_cfg, tracking_mode):
+    def draw_traj_bak(self, pred_poses, gt_poses, traj_cfg, tracking_mode):
         """draw trajectory and related information
         Args:
             pred_poses (dict): predicted poses w.r.t world coordinate system
         """
         traj = self.data["traj"]
+        traj_h, traj_w, _ = traj.shape
         latest_id = max(pred_poses.keys())
 
         # draw scales
@@ -317,28 +335,118 @@ class FrameDrawer():
             cv2.circle(traj, (true_x, true_y), 1, (0, 0, 255), 1)
         
         # Draw prediction trajectory
+        traj_map = traj[60:traj_h-50, 0:int(traj_w)]
+        traj_map_h, traj_map_w, _ = traj_map.shape
         cur_t = pred_poses[latest_id].t[:, 0]
         x, y, z = cur_t[0], cur_t[1], cur_t[2]
-        draw_x = int(x*pred_draw_scale) + self.traj_x0
-        draw_y = -(int(z*pred_draw_scale)) + self.traj_y0
-        cv2.circle(traj, (draw_x, draw_y), 1, (0, 255, 0), 1)
-        
+        draw_x = int(x*pred_draw_scale*self.traj_map_scale) + self.traj_x0
+        draw_y = -(int(z*pred_draw_scale*self.traj_map_scale)) + self.traj_y0
+        # draw_x = int((x*pred_draw_scale + self.traj_x0) * self.traj_map_scale)
+        # draw_y = int((-z*pred_draw_scale + self.traj_y0) * self.traj_map_scale)
+        print("traj_map-scale: ", self.traj_map_scale)
+        print("x: ", draw_x)
+        print("y: ", draw_y)
+        cv2.circle(traj, (draw_x, draw_y), 1, (0, 255, 0), int(10*self.traj_map_scale))
+        if (draw_x > traj_w) or (draw_x < 0) or (draw_y > traj_h-50) or (draw_y < 60):
+            # resize traj map
+            scale = 0.9
+            zoom_traj_map = cv2.resize(traj_map, (int(traj_map_w*scale), int(traj_map_h*scale)))
+            new_h, new_w, _ = zoom_traj_map.shape
+
+            traj_map[...] = 0
+
+            h_gap = int((traj_h-50-60-new_h)/2)
+            w_gap = int((traj_w-new_w)/2)
+
+            print("h_gap; ", h_gap)
+            print("new_h; ", new_h)
+            print("traj_h: ", traj_h)
+            print("traj_map: ", traj_map.shape)
+            print("zoom_traj_map; ", zoom_traj_map.shape)
+            print("target: ", traj_map[60+h_gap:60+h_gap+new_h, w_gap: w_gap+new_w].shape)
+
+            traj_map[h_gap:h_gap+new_h, w_gap: w_gap+new_w] = zoom_traj_map
+            self.traj_map_scale *= scale
+
+
         # Draw coordinate information
-        cv2.rectangle(traj, (10, 20), (int(self.w/2), 60), (0, 0, 0), -1)
+        cv2.rectangle(traj, (0, 20), (int(traj_w), 60), (0, 0, 0), -1)
         text = "Coordinates: x=%2fm y=%2fm z=%2fm" % (x, y, z)
         cv2.putText(traj, text, (20, 40),
                     cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
         
         # Draw tracking mode
-        cv2.rectangle(traj, (0, self.h-50), (350, self.h), (0, 0, 0), -1)
+        cv2.rectangle(traj, (0, traj_h-50), (int(traj_w), traj_h), (0, 0, 0), -1)
         text = "Tracking mode: {}".format(tracking_mode)
-        cv2.putText(traj, text, (20, self.h-20),
+        cv2.putText(traj, text, (20, traj_h-20),
                     cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
 
         # Draw interface text
         text = "p/c: pause/continue;  1: flow; 2: match; 3: depth; 4: flow vis."
-        cv2.putText(traj, text, (20, self.h-40),
+        cv2.putText(traj, text, (20, traj_h-40),
                     cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+
+    def draw_traj(self, pred_poses, gt_poses, traj_cfg, tracking_mode):
+        """draw trajectory and related information
+        Args:
+            pred_poses (dict): predicted poses w.r.t world coordinate system
+        """
+        traj = self.data["traj"]
+        traj_h, traj_w, _ = traj.shape
+        latest_id = max(pred_poses.keys())
+
+        # draw scales
+        draw_scale = traj_cfg.draw_scale
+        mono_scale = traj_cfg.mono_scale
+        pred_draw_scale = draw_scale * mono_scale
+
+        # Draw GT trajectory
+        if traj_cfg.vis_gt_traj:
+            trueX, trueY, trueZ = gt_poses[latest_id][:3, 3]
+            true_x = int(trueX*draw_scale) + self.traj_x0
+            true_y = -(int(trueZ*draw_scale)) + self.traj_y0
+            cv2.circle(traj, (true_x, true_y), 1, (0, 0, 255), 1)
+        
+        # Draw prediction trajectory
+        traj_map = traj[60:traj_h-50, 0:int(traj_w)]
+        traj_map_h, traj_map_w, _ = traj_map.shape
+        cur_t = pred_poses[latest_id].t[:, 0]
+        x, y, z = cur_t[0], cur_t[1], cur_t[2]
+        draw_x = int(x*pred_draw_scale*self.traj_map_scale) + self.traj_x0
+        draw_y = -(int(z*pred_draw_scale*self.traj_map_scale)) + self.traj_y0
+        cv2.circle(traj, (draw_x, draw_y), 1, (0, 255, 0), max(1, int(10*self.traj_map_scale)))
+        if (draw_x > traj_w) or (draw_x < 0) or (draw_y > traj_h-50) or (draw_y < 60):
+            # resize traj map
+            scale = 0.9
+            zoom_traj_map = cv2.resize(traj_map, (int(traj_map_w*scale), int(traj_map_h*scale)))
+            new_h, new_w, _ = zoom_traj_map.shape
+
+            traj_map[...] = 0
+
+            h_gap = int((traj_h-50-60-new_h)/2)
+            w_gap = int((traj_w-new_w)/2)
+
+            traj_map[h_gap:h_gap+new_h, w_gap: w_gap+new_w] = zoom_traj_map
+            self.traj_map_scale *= scale
+
+
+        # Draw coordinate information
+        cv2.rectangle(traj, (0, 20), (int(traj_w), 60), (0, 0, 0), -1)
+        text = "Coordinates: x=%2fm y=%2fm z=%2fm" % (x, y, z)
+        cv2.putText(traj, text, (20, 40),
+                    cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+        
+        # Draw tracking mode
+        cv2.rectangle(traj, (0, traj_h-50), (int(traj_w), traj_h), (0, 0, 0), -1)
+        text = "Tracking mode: {}".format(tracking_mode)
+        cv2.putText(traj, text, (20, traj_h-20),
+                    cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+
+        # Draw interface text
+        text = "p/c: pause/continue;  1: flow; 2: match; 3: depth; 4: flow vis."
+        cv2.putText(traj, text, (20, traj_h-40),
+                    cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+
 
     def main(self, vo):
         # Trajectory visualization
@@ -462,6 +570,8 @@ class FrameDrawer():
                     vmax = vis_depth.max()
                 elif "tum" in vo.cfg.dataset:
                     vmax = 5
+                else:
+                    vmax = vis_depth.max()
                 normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
                 mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='magma')
                 colormapped_im = (mapper.to_rgba(vis_depth)[:, :, :3] * 255).astype(np.uint8)

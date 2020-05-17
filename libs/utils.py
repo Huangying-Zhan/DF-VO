@@ -46,6 +46,18 @@ def read_depth(path, scale, target_size=None):
     return depth
 
 
+def save_depth_png(depth, png, png_scale):
+    """save depth map
+    Args:
+        depth (HxW): depth map
+        png (str): path for saving depth map PNG file
+        png_scale (float): scaling factor for saving PNG file
+    """
+    depth = np.clip(depth, 0, 65535 / png_scale)
+    depth = (depth * png_scale).astype(np.uint16)
+    cv2.imwrite(png, depth)
+    
+
 def preprocess_depth(depth, crop, depth_range):
     """preprocess depth map
     Args:

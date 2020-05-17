@@ -90,6 +90,16 @@ python tool/evaluation/eval_odom.py --result result/tmp/0 --align 6dof
 For more information about the evaluation toolkit, please check the [toolbox page](https://github.com/Huangying-Zhan/kitti_odom_eval) or the [wiki page](https://github.com/Huangying-Zhan/DF-VO/wiki).
 
 
+### Add your new dataset
+- configuration [seq, dataset, dataset_dir]
+- dfvo.py datasets dictionary
+- libs/datasets/__init__.py
+- libs/datasets/DATASET_LOADER.py
+- libs/deep_depth/monodepth2 (dataset parameters, min/max depth, stereo)
+- libs/general/frame_drawer.py (vmax for depth)
+
+
+
 ### License
 For academic usage, the code is released under the permissive MIT license. Our intension of sharing the project is for research/personal purpose. For any commercial purpose, please contact the authors. 
 

@@ -16,6 +16,11 @@ from libs.geometry.ops_3d import *
 from libs.utils import image_shape, image_grid
 from libs.matching.kp_selection import rigid_flow_kp, opt_rigid_flow_kp
 
+# FIXME: For DOM
+import os
+from libs.utils import save_depth_png
+from libs.general.utils import mkdir_if_not_exists
+
 
 def find_Ess_mat(inputs):
     # inputs
@@ -70,6 +75,9 @@ class EssTracker():
 
         if self.cfg.use_multiprocessing:
             self.p = mp.Pool(5)
+        
+        # FIXME: For DOM
+        self.save_tri_depth = False
 
     def compute_pose_2d2d(self, kp_ref, kp_cur):
         """Compute the pose from view2 to view1
@@ -368,7 +376,7 @@ class EssTracker():
                 ref_data['kp_depth'][ref_id] = kp_sel_outputs['kp2_depth'][ref_id][0]
             
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
-            
+
             # translation scale from triangulation v.s. CNN-depth
             ref_kp = cur_data[self.cfg.translation_scale.kp_src]
             cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
@@ -424,6 +432,8 @@ class EssTracker():
         depth2_tri = convert_sparse3D_to_depth(kp2, X2_tri, img_h, img_w)
         depth2_tri[depth2_tri < 0] = 0
 
+
+
         # common mask filtering
         non_zero_mask_pred2 = (depth2 > 0)
         non_zero_mask_tri2 = (depth2_tri > 0)
@@ -445,6 +455,9 @@ class EssTracker():
         depth_pred_non_zero = np.concatenate([depth2[valid_mask2]])
         depth_tri_non_zero = np.concatenate([depth2_tri[valid_mask2]])
         depth_ratio = depth_tri_non_zero / depth_pred_non_zero
+        
+            
+
         
         # Estimate scale (ransac)
         # if (valid_mask1.sum() + valid_mask2.sum()) > 10:
@@ -475,6 +488,31 @@ class EssTracker():
             #     scale = -1
         else:
             scale = -1
+
+        # FIXME: For DOM
+        if self.save_tri_depth:
+            # save triangulated depths
+            depth2_tri *= scale
+            png_dir = os.path.join(self.cfg.result_dir, "depth_tri_{}".format(self.cfg.seq))
+            mkdir_if_not_exists(png_dir)
+            png_path = os.path.join(png_dir, "{:06}.png".format(self.cnt))
+            save_depth_png(depth2_tri, png_path, 500)
+
+            # save cnn depth
+            png_dir = os.path.join(self.cfg.result_dir, "depth_cnn_{}".format(self.cfg.seq))
+            mkdir_if_not_exists(png_dir)
+            png_path = os.path.join(png_dir, "{:06}.png".format(self.cnt))
+            save_depth_png(depth2, png_path, 500)
+            self.cnt += 1
+            
+
+            # print(depth_pred_non_zero.shape)
+            # from matplotlib import pyplot as plt
+            # plt.figure("tri")
+            # plt.imshow(depth2_tri, vmin=np.percentile(depth_tri_non_zero*scale, 10), vmax=np.percentile(depth_tri_non_zero*scale, 90))
+            # plt.figure("cnn")
+            # plt.imshow(depth2, vmin=np.percentile(depth_tri_non_zero*scale, 10), vmax=np.percentile(depth_tri_non_zero*scale, 90))
+            # plt.show()
 
         return scale
 

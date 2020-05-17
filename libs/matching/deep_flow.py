@@ -55,12 +55,6 @@ class LiteFlow():
             self.model.load_state_dict(checkpoint)
             self.model.eval()
 
-        # FIXME: hardcode for network-default.pytorch
-        if "network-default.pytorch" in weight_path or "network-sintel.pytorch" in weight_path:
-            self.half_flow = True
-        else:
-            self.half_flow = False
-
     def get_target_size(self, H, W):
         h = 32 * np.array([[math.floor(H / 32), math.floor(H / 32) + 1]])
         w = 32 * np.array([[math.floor(W / 32), math.floor(W / 32) + 1]])
@@ -207,8 +201,6 @@ class LiteFlow():
         # Get flow data
         # if precomputed flow is provided, load precomputed flow
         if flow_dir is not None:
-            if self.half_flow:
-                self.half_flow = False
             if forward_backward:
                 flow_data, back_flow_data = self.load_precomputed_flow(
                                 img1=img1,
@@ -238,11 +230,6 @@ class LiteFlow():
             flow_data = combined_flow_data[0:1]
             if forward_backward:
                 back_flow_data = combined_flow_data[1:2]
-
-        if self.half_flow:
-            flow_data /= 2.
-            if forward_backward:
-                back_flow_data /= 2.
 
         # Compute keypoint map
         n, _, h, w = flow_data.shape

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+''''''
 """
 # ==============================
 # flowlib.py
@@ -22,12 +23,20 @@ Flow Section
 =============
 """
 
+def TODO():
+    """
+    TODO: 
+        update docstring in this page 
+    """
 
 def read_flow(filename):
-    """
-    read optical flow data from flow file
-    :param filename: name of the flow file
-    :return: optical flow data in numpy array (dtype: np.float32)
+    """read optical flow data from flow file
+    
+    Args:
+        filename (str): name of the flow file
+    
+    Returns:
+        flow (array): optical flow data in numpy array (dtype: np.float32)
     """
     if filename.endswith('.flo'):
         flow = read_flo_file(filename)
@@ -42,11 +51,11 @@ def read_flow(filename):
 
 
 def write_flow(flow, filename):
-    """
-    write optical flow in Middlebury .flo format
-    :param flow: optical flow map
-    :param filename: optical flow file path to be saved
-    :return: None
+    """write optical flow in Middlebury .flo format
+
+    Args:
+        flow (array, [HxWx2]): optical flow map
+        filename (str): optical flow file path to be saved
     """
     f = open(filename, 'wb')
     magic = np.array([202021.25], dtype=np.float32)
@@ -61,11 +70,11 @@ def write_flow(flow, filename):
 
 
 def save_flow_image(flow, image_file):
-    """
-    save flow visualization into image file
-    :param flow: optical flow data
-    :param flow_fil
-    :return: None
+    """save flow visualization into image file
+
+    Args:
+        flow (array, [HxWx2]): optical flow data
+        image_file (str): image file path to be saved
     """
     # print flow.shape
     flow_img = flow_to_image(flow)
@@ -74,19 +83,18 @@ def save_flow_image(flow, image_file):
 
 
 def flowfile_to_imagefile(flow_file, image_file):
-    """
-    convert flowfile into image file
-    :param flow: optical flow data
-    :param flow_fil
-    :return: None
+    """convert flowfile into image file
+
+    Args:
+        flow (str): optical flow file path
+        image_file (str): image file path
     """
     flow = read_flow(flow_file)
     save_flow_image(flow, image_file)
 
 
 def flow_error(tu, tv, u, v):
-    """
-    Calculate average end point error
+    """Calculate average end point error
     :param tu: ground-truth horizontal flow map
     :param tv: ground-truth vertical flow map
     :param u:  estimated horizontal flow map
@@ -176,10 +184,13 @@ def flow_kitti_error(tu, tv, u, v, mask):
 
 
 def flow_to_image(flow, maxrad=-1):
-    """
-    Convert flow into middlebury color code image
-    :param flow: optical flow map
-    :return: optical flow image in middlebury color
+    """Convert flow into middlebury color code image
+
+    Args:
+        flow (array, [HxWx2]): optical flow map
+    
+    Returns:
+        img (array, [HxWx3]): optical flow image in middlebury color
     """
     u = flow[:, :, 0]
     v = flow[:, :, 1]

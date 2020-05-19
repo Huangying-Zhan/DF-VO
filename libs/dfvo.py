@@ -12,7 +12,7 @@ import os
 from time import time
 from tqdm import tqdm
 
-from libs.camera_modules import SE3
+from libs.geometry.camera_modules import SE3
 import libs.datasets as Dataset
 from libs.deep_models.deep_models import DeepModel
 from libs.general.frame_drawer import FrameDrawer

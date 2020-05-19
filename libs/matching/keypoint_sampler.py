@@ -8,7 +8,7 @@ import numpy as np
 
 from libs.utils import image_grid
 from .kp_selection import *
-from libs.camera_modules import SE3
+from libs.geometry.camera_modules import SE3
 
 class KeypointSampler():
     def __init__(self, cfg):

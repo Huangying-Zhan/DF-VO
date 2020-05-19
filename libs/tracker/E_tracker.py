@@ -11,7 +11,7 @@ from sklearn import linear_model
 
 
 from .gric import *
-from libs.camera_modules import SE3
+from libs.geometry.camera_modules import SE3
 from libs.geometry.ops_3d import *
 from libs.utils import image_shape, image_grid
 from libs.matching.kp_selection import rigid_flow_kp, opt_rigid_flow_kp

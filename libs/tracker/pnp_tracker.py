@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 # from sklearn import linear_model
 
-from libs.camera_modules import SE3
+from libs.geometry.camera_modules import SE3
 from libs.geometry.ops_3d import unprojection_kp
 # from libs.utils import image_shape
 

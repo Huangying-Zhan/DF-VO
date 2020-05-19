@@ -1,14 +1,26 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
-
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-06-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-20
+@LastEditors: Huangying Zhan
+@Description: This is the Base class for dataset loader.
+'''
 
 import numpy as np
 
-from libs.camera_modules import SE3, Intrinsics
+from libs.geometry.camera_modules import Intrinsics
 
 class Dataset():
+    """This is the Base class for dataset loader.
+    """
+    
     def __init__(self, cfg):
+        """
+        Args:
+            cfg (edict): configuration edict
+        """
         self.cfg = cfg
 
         # read camera intrinsics
@@ -34,16 +46,17 @@ class Dataset():
         """Read intrinsics parameters for each dataset
 
         Returns:
-            intrinsics_param (float list): [cx, cy, fx, fy]
+            intrinsics_param (list): [cx, cy, fx, fy]
         """
         raise NotImplementedError
     
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
         mainly for TUM-RGBD dataset
+        
         Returns:
-            rgb_d_pose_pair (dict):
-                - rgb_timestamp: {depth: depth_timestamp, pose: pose_timestamp}
+            a dictionary containing
+                - **rgb_timestamp** : {depth: depth_timestamp, pose: pose_timestamp}
         """
         raise NotImplementedError
 
@@ -51,15 +64,16 @@ class Dataset():
         """Get data directory
 
         Returns:
-            data_dir (dict):
-                - img (str): image data directory
-                - (optional) depth (str): depth data direcotry or None
-                - (optional) depth_src (str): depth data type [gt/None]
+            a dictionary containing
+                - **img** (str) : image data directory
+                - (optional) **depth** (str) : depth data direcotry or None
+                - (optional) **depth_src** (str) : depth data type [gt/None]
         """
         raise NotImplementedError
 
     def get_gt_poses(self):
         """load ground-truth poses
+        
         Returns:
             gt_poses (dict): each pose is 4x4 array
         """
@@ -67,8 +81,10 @@ class Dataset():
 
     def get_timestamp(self, img_id):
         """get timestamp for the query img_id
+
         Args:
             img_id (int): query image id
+
         Returns:
             timestamp (int): timestamp for query image
         """
@@ -76,8 +92,10 @@ class Dataset():
 
     def get_image(self, timestamp):
         """get image data given the image timestamp
+
         Args:
             timestamp (int): timestamp for the image
+            
         Returns:
             img (CxHxW): image data
         """
@@ -85,8 +103,10 @@ class Dataset():
     
     def get_depth(self, timestamp):
         """get GT/precomputed depth data given the timestamp
+
         Args:
             timestamp (int): timestamp for the depth
+
         Returns:
             depth (HxW): depth data
         """
@@ -94,11 +114,9 @@ class Dataset():
 
     def save_result_traj(self, traj_txt, poses):
         """Save trajectory (absolute poses) as KITTI odometry file format
+
         Args:
             txt (str): pose text file path
             poses (array dict): poses, each pose is 4x4 array
-            format (str): trajectory format
-                - kitti: 12 parameters
-                - tum: timestamp tx ty tz qx qy qz qw
         """
         raise NotImplementedError

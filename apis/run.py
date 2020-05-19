@@ -1,65 +1,87 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-06-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-19
+@LastEditors: Huangying Zhan
+@Description: This API runs DF-VO.
+'''
 
 import argparse
-import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from dfvo import DFVO
-from libs.general.utils import *
-from libs.utils import load_kitti_odom_intrinsics
+from libs.dfvo import DFVO
+from libs.general.utils import mkdir_if_not_exists
+from libs.general.configuration import ConfigLoader
 
-""" Argument Parsing """
-parser = argparse.ArgumentParser(description='VO system')
-parser.add_argument("-s", "--seq", 
-                    default=None, help="sequence")
-parser.add_argument("-c", "--configuration", type=str,
-                    default=None,
-                    help="custom configuration file")
-parser.add_argument("-d", "--default_configuration", type=str,
-                    default="options/kitti/kitti_default_configuration.yml",
-                    help="default configuration files")
-parser.add_argument("--no_confirm", action="store_true",
-                    help="no confirmation questions")
-args = parser.parse_args()
 
-""" Read configuration """
-# Read configuration
-default_config_file = args.default_configuration
-config_files = [default_config_file, args.configuration]
-cfg = merge_cfg(config_files)
-if args.seq is not None:
-    if cfg.dataset == "kitti_odom":
-        cfg.seq = "{:02}".format(int(args.seq))
-    else:
-        cfg.seq = args.seq
-cfg.seq = str(cfg.seq)
+config_loader = ConfigLoader()
 
-# Double check result directory
-if args.no_confirm:
-    mkdir_if_not_exists(cfg.result_dir)
-    cfg.no_confirm = True
-else:
-    cfg.no_confirm = False
-    continue_flag = input("Save result in {}? [y/n]".format(cfg.result_dir))
-    if continue_flag == "y":
+def read_cfgs():
+    """Parse arguments and laod configurations
+
+    Returns
+    -------
+    args : args
+        arguments
+    cfg : edict
+        configuration dictionary
+    """
+    ########## Argument Parsing ##########
+    parser = argparse.ArgumentParser(description='VO system')
+    parser.add_argument("-s", "--seq", 
+                        default=None, help="sequence")
+    parser.add_argument("-d", "--default_configuration", type=str, 
+                        required=True,
+                        default="options/kitti/kitti_default_configuration.yml",
+                        help="default configuration files")
+    parser.add_argument("-c", "--configuration", type=str,
+                        default=None,
+                        help="custom configuration file")
+    parser.add_argument("--no_confirm", action="store_true",
+                        help="no confirmation questions")
+    args = parser.parse_args()
+
+    ''' Read configuration '''
+    # read default and custom config, merge cfgs
+    config_files = [args.default_configuration, args.configuration]
+    cfg = config_loader.merge_cfg(config_files)
+    if args.seq is not None:
+        if cfg.dataset == "kitti_odom":
+            cfg.seq = "{:02}".format(int(args.seq))
+        else:
+            cfg.seq = args.seq
+    cfg.seq = str(cfg.seq)
+
+    ''' double check result directory '''
+    if args.no_confirm:
         mkdir_if_not_exists(cfg.result_dir)
+        cfg.no_confirm = True
     else:
-        exit()
+        cfg.no_confirm = False
+        continue_flag = input("Save result in {}? [y/n]".format(cfg.result_dir))
+        if continue_flag == "y":
+            mkdir_if_not_exists(cfg.result_dir)
+        else:
+            exit()
+    return args, cfg
 
-""" basic setup """
-# Random seed
-SEED = cfg.seed
-np.random.seed(SEED)
 
-""" Main """
-vo = DFVO(cfg)
-vo.setup()
-vo.main()
+if __name__ == '__main__':
+    # Read config
+    args, cfg = read_cfgs()
 
-# Save configuration file
-cfg_path = os.path.join(cfg.result_dir, "configuration_{}.yml".format(cfg.seq))
-save_cfg(config_files, file_path=cfg_path)
+    # Set random seed
+    SEED = cfg.seed
+    np.random.seed(SEED)
+
+    # setup DFVO
+    vo = DFVO(cfg)
+    vo.setup()
+    vo.main()
+
+    # Save configuration file
+    cfg_path = os.path.join(cfg.result_dir, 'configuration_{}.yml'.format(cfg.seq))
+    config_loader.save_cfg([args.default_configuration, args.configuration], file_path=cfg_path)

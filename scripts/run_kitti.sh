@@ -1,5 +1,6 @@
 ############# Run particular exp #############
-python run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/adelaide/default.yml  --no_confirm
+python apis/run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/adelaide/default.yml  --no_confirm
+python apis/run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c result/dfvo2/adelaide/tmp/2/configuration_2020_05_13-00.yml  --no_confirm
 # python run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/kitti/tro_exp/reference.yml  --no_confirm
 # python run.py -c options/kitti/sampling_test.yml --no_confirm
 # python run.py -c options/kitti/dfvo_test.yml --no_confirm

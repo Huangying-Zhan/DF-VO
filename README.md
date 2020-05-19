@@ -2,7 +2,7 @@
 
 This repo implements the system described in the paper:
 
-[**Visual Odometry Revisited: What Should Be Learnt?** 
+[Visual Odometry Revisited: What Should Be Learnt? 
 ](https://arxiv.org/abs/1909.09803) 
 
 Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ian Reid
@@ -20,7 +20,7 @@ The demo video can be found [here](https://www.youtube.com/watch?v=Nl8mFU4SJKY).
 }
 ```
 
-<img src='misc/dfvo_eg.gif' width=640 height=320>
+<img src='docs/misc/dfvo_eg.gif' width=640 height=320>
 
 This repo includes
 1. the frame-to-frame tracking system **DF-VO**;
@@ -72,11 +72,11 @@ The result (trajectory pose file) is saved in `result_dir` defined in the config
 Please check the `kitti_default_configuration.yml` for more possible configuration.
 
 ### Part 4. Result evaluation
-<img src='misc/dfvo_result.png' width=320 height=480>
+<img src='docs/misc/dfvo_result.png' width=320 height=480>
 
 Note that, we have cleaned and optimized the code for better readability and it changes the randomness such that the quantitative result is slightly different from the result reported in the paper. 
 
-<img src='misc/dfvo_result2.png' width=400 height=100>
+<img src='docs/misc/dfvo_result2.png' width=400 height=100>
 
 The original results, including related works, can be found [here](https://www.dropbox.com/sh/u7x3rt4lz6zx8br/AADshjd33Q3TLCy2stKt6qpJa?dl=0).
 

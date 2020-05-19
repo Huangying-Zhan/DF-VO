@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-07
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-19
+@LastEditTime: 2020-05-20
 @LastEditors: Huangying Zhan
 @Description: This program generate optical flow prediction for KITTI Flow 2012/2015
 '''
@@ -17,7 +17,7 @@ import os
 import scipy.misc
 from tqdm import tqdm
 
-from libs.matching.deep_flow import LiteFlow
+from libs.deep_models.flow.lite_flow_net.lite_flow import LiteFlow
 from libs.general.utils import *
 
 

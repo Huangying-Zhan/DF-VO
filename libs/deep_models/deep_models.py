@@ -1,33 +1,56 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2020-05-19
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-20
+@LastEditors: Huangying Zhan
+@Description: DeepModel initializes different deep networks and provide forward interfaces.
+'''
 
 import numpy as np
 
+from .flow.lite_flow_net.lite_flow import LiteFlow
+# FIXME: update correct path
 from libs.deep_depth.monodepth2 import Monodepth2DepthNet
 from libs.deep_pose.monodepth2 import Monodepth2PoseNet
-from libs.matching.deep_flow import LiteFlow
 
 class DeepModel():
+    """DeepModel initializes different deep networks and provide forward interfaces.
+
+    TODO:
+        add forward_depth()
+        
+        add forward_pose()
+
+    """
+    
     def __init__(self, cfg):
+        """
+        Args:
+            cfg (edict): configuration dictionary
+        """
         self.cfg = cfg
         
     def initialize_models(self):
-        """ optical flow """
+        """intialize multiple deep models
+        """
+
+        ''' optical flow '''
         self.flow = self.initialize_deep_flow_model()
 
         # allow reading precomputed flow instead of network inference for speeding up debug
         if self.cfg.deep_flow.precomputed_flow is not None:
             self.cfg.deep_flow.precomputed_flow = self.cfg.deep_flow.precomputed_flow.replace("{}", self.cfg.seq)
 
-        """ single-view depth """
+        ''' single-view depth '''
         if self.cfg.depth.depth_src is None:
             if self.cfg.depth.pretrained_model is not None:
                 self.depth = self.initialize_deep_depth_model()
             else:
                 assert False, "No precomputed depths nor pretrained depth model"
         
-        """ two-view pose """
+        ''' two-view pose '''
         if self.cfg.pose_net.enable:
             if self.cfg.pose_net.pretrained_model is not None:
                 self.pose = self.initialize_deep_pose_model()
@@ -36,8 +59,9 @@ class DeepModel():
 
     def initialize_deep_flow_model(self):
         """Initialize optical flow network
+        
         Returns:
-            flow_net: optical flow network
+            flow_net (network): optical flow network
         """
         if self.cfg.deep_flow.network == "liteflow":
             flow_net = LiteFlow(self.cfg.image.height, self.cfg.image.width)
@@ -52,8 +76,9 @@ class DeepModel():
 
     def initialize_deep_depth_model(self):
         """Initialize single-view depth model
+
         Returns:
-            depth_net: single-view depth network
+            depth_net (network): single-view depth network
         """
         depth_net = Monodepth2DepthNet()
         depth_net.initialize_network_model(
@@ -63,8 +88,9 @@ class DeepModel():
     
     def initialize_deep_pose_model(self):
         """Initialize two-view pose model
+
         Returns:
-            pose_net: two-view pose network
+            pose_net (network): two-view pose network
         """
         pose_net = Monodepth2PoseNet()
         pose_net.initialize_network_model(
@@ -75,15 +101,16 @@ class DeepModel():
             )
         return pose_net
 
-    def flow_forward(self, in_cur_data, in_ref_data, forward_backward):
-        """Update keypoints in cur_data and ref_data
+    def forward_flow(self, in_cur_data, in_ref_data, forward_backward):
+        """Optical flow network forward interface, a forward inference.
+
         Args:
-            cur_data (dict): current data
-            ref_data (dict): reference data
+            in_cur_data (dict): current data
+            in_ref_data (dict): reference data
             forward_backward (bool): use forward-backward consistency if True
+        
         Returns:
-            cur_data (dict): current data
-            ref_data (dict): reference data
+            flows (dict): predicted flow data. flows[(id1, id2)] is flows from id1 to id2.
         """
         # Preprocess image
         ref_imgs = []
@@ -118,3 +145,13 @@ class DeepModel():
                     flows[(tgt_id, src_id)] = batch_flows['backward'][j].copy()
                     flows[(src_id, tgt_id, "diff")] = batch_flows['flow_diff'][j].copy()
         return flows
+
+    def forward_depth(self):
+        """Not implemented
+        """
+        raise NotImplementedError
+
+    def forward_pose(self):
+        """Not implemented
+        """
+        raise NotImplementedError

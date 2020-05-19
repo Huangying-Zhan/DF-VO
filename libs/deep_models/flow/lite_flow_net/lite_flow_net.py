@@ -8,6 +8,15 @@ Backward_tensorGrid = {}
 
 
 def Backward(tensorInput, tensorFlow):
+    """Backward warping, warp tensorInput according to the grid defined by tensorFlow
+
+    Args:
+        tensorInput (tensor): source data
+        tensorFlow (tensor): flow data
+    
+    Returns:
+        tensorOutput (tensor): warped data
+    """
     if str(tensorFlow.size()) not in Backward_tensorGrid:
         tensorHorizontal = torch.linspace(-1.0, 1.0, tensorFlow.size(3)).view(1, 1, 1, tensorFlow.size(3)).expand(tensorFlow.size(0), -1, tensorFlow.size(2), -1)
         tensorVertical = torch.linspace(-1.0, 1.0, tensorFlow.size(2)).view(1, 1, tensorFlow.size(2), 1).expand(tensorFlow.size(0), -1, -1, tensorFlow.size(3))
@@ -17,7 +26,6 @@ def Backward(tensorInput, tensorFlow):
     tensorFlow = torch.cat([ tensorFlow[:, 0:1, :, :] / ((tensorInput.size(3) - 1.0) / 2.0), tensorFlow[:, 1:2, :, :] / ((tensorInput.size(2) - 1.0) / 2.0) ], 1)
 
     return torch.nn.functional.grid_sample(input=tensorInput, grid=(Backward_tensorGrid[str(tensorFlow.size())] + tensorFlow).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros')
-
 
 
 class LiteFlowNet(torch.nn.Module):
@@ -275,28 +283,20 @@ class LiteFlowNet(torch.nn.Module):
     
 
     def forward(self, inputs):
-        """
+        """Forward pass 
+
         Args:
-            inputs (tensor list): [tensorFirst; tensorSecond]
-                - tensorFirst (Nx3xHxW): first image
-                - tensorSecond (Nx3xHxW): second image
+            inputs (list): list of two image tensors, each with shape [Nx3xHxW]
+
         Returns:
-            flows (tensor dict): flow at different scale
-                - each element: Nx2xHxW
-                - {0: flow0, 1:flow1, ...}
-                    all flows are resized as raw input size
-                    0-level is upsampled from the coarsest level
-                
+            a dictionary containing flow predictions at different scale
+                - **1** (tensor, [Nx2x(H/2)x(W/2)])
+                - **2** (tensor, [Nx2x(H/4)x(W/4)])
+                - **3** (tensor, [Nx2x(H/8)x(W/8)])
+                - **4** (tensor, [Nx2x(H/16)x(W/16)])
         """
         tensorFirst, tensorSecond = inputs
-        # _, _, raw_h, raw_w = tensorFirst.shape
-        # tensorFirst[:, 0, :, :] = tensorFirst[:, 0, :, :] - 0.411618
-        # tensorFirst[:, 1, :, :] = tensorFirst[:, 1, :, :] - 0.434631
-        # tensorFirst[:, 2, :, :] = tensorFirst[:, 2, :, :] - 0.454253
 
-        # tensorSecond[:, 0, :, :] = tensorSecond[:, 0, :, :] - 0.410782
-        # tensorSecond[:, 1, :, :] = tensorSecond[:, 1, :, :] - 0.433645
-        # tensorSecond[:, 2, :, :] = tensorSecond[:, 2, :, :] - 0.452793
         tensorFeaturesFirst = self.moduleFeatures(tensorFirst)
         tensorFeaturesSecond = self.moduleFeatures(tensorSecond)
 
@@ -320,37 +320,4 @@ class LiteFlowNet(torch.nn.Module):
         # post-processing flow
         for i in flows:
             flows[i] = flows[i] * (20.0 * (0.5 ** (i-1)))
-            # _, _, out_h, out_w = flows[i].shape
-            # flows[i] = torch.nn.functional.interpolate(input=flows[i], size=(raw_h, raw_w), mode='bilinear', align_corners=False)
-            # flows[i][:, 0, :, :] *= float(raw_w) / float(out_w)
-            # flows[i][:, 1, :, :] *= float(raw_h) / float(out_h)
         return flows
-    
-##########################################################
-
-# def estimate(tensorFirst, tensorSecond):
-#     assert(tensorFirst.size(1) == tensorSecond.size(1))
-#     assert(tensorFirst.size(2) == tensorSecond.size(2))
-
-#     intWidth = tensorFirst.size(2)
-#     intHeight = tensorFirst.size(1)
-
-#     assert(intWidth == 1024) # remember that there is no guarantee for correctness, comment this line out if you acknowledge this and want to continue
-#     assert(intHeight == 436) # remember that there is no guarantee for correctness, comment this line out if you acknowledge this and want to continue
-
-#     tensorPreprocessedFirst = tensorFirst.cuda().view(1, 3, intHeight, intWidth)
-#     tensorPreprocessedSecond = tensorSecond.cuda().view(1, 3, intHeight, intWidth)
-
-#     intPreprocessedWidth = int(math.floor(math.ceil(intWidth / 32.0) * 32.0))
-#     intPreprocessedHeight = int(math.floor(math.ceil(intHeight / 32.0) * 32.0))
-
-#     tensorPreprocessedFirst = torch.nn.functional.interpolate(input=tensorPreprocessedFirst, size=(intPreprocessedHeight, intPreprocessedWidth), mode='bilinear', align_corners=False)
-#     tensorPreprocessedSecond = torch.nn.functional.interpolate(input=tensorPreprocessedSecond, size=(intPreprocessedHeight, intPreprocessedWidth), mode='bilinear', align_corners=False)
-
-    
-
-#     tensorFlow[:, 0, :, :] *= float(intWidth) / float(intPreprocessedWidth)
-#     tensorFlow[:, 1, :, :] *= float(intHeight) / float(intPreprocessedHeight)
-
-#     return tensorFlow[0, :, :, :].cpu()
-

@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from libs.camera_modules import SE3
 import libs.datasets as Dataset
-from libs.deep_models import DeepModel
+from libs.deep_models.deep_models import DeepModel
 from libs.general.frame_drawer import FrameDrawer
 from libs.general.timer import Timers
 from libs.matching.keypoint_sampler import KeypointSampler
@@ -355,7 +355,7 @@ class DFVO():
         # Two-view flow
         if self.tracking_stage >= 1:
             start_time = time()
-            flows = self.deep_models.flow_forward(
+            flows = self.deep_models.forward_flow(
                                     self.cur_data,
                                     self.ref_data,
                                     forward_backward=self.cfg.deep_flow.forward_backward)

@@ -85,7 +85,7 @@ class LiteFlow(DeepFlow):
                     img1, img2,
                     flow_dir,
                     forward_backward=False,
-                    dataset="kitti"):
+                    dataset='kitti'):
         """Estimate flow (1->2) and form keypoints
         
         Args:

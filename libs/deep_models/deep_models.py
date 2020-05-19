@@ -11,9 +11,9 @@
 import numpy as np
 
 from .flow.lite_flow_net.lite_flow import LiteFlow
+from .depth.monodepth2.monodepth2 import Monodepth2DepthNet
 # FIXME: update correct path
-from libs.deep_depth.monodepth2 import Monodepth2DepthNet
-from libs.deep_pose.monodepth2 import Monodepth2PoseNet
+# from libs.deep_pose.monodepth2 import Monodepth2PoseNet
 
 class DeepModel():
     """DeepModel initializes different deep networks and provide forward interfaces.

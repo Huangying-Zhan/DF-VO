@@ -6,11 +6,11 @@ import torch
 from torchvision import transforms
 
 # Import monodepth2 modules
-monodepth2_dir = os.path.join(os.getcwd(), "deep_depth/monodepth2")
-sys.path.insert(0, monodepth2_dir)
-import deep_depth.monodepth2.networks as networks
-from deep_depth.monodepth2.layers import transformation_from_parameters
-sys.path.remove(monodepth2_dir)
+# monodepth2_dir = os.path.join(os.getcwd(), "deep_depth/monodepth2")
+# sys.path.insert(0, monodepth2_dir)
+from libs.deep_models.depth.monodepth2.resnet_encoder import ResnetEncoder
+from libs.deep_models.depth.monodepth2.layers import transformation_from_parameters
+# sys.path.remove(monodepth2_dir)
 
 
 class DeepPose():

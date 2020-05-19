@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 sys.path.append(os.getcwd())
-from tool.evaluation.tum_tool.pose_evaluation_utils import quat2mat
+from tools.evaluation.tum_tool.pose_evaluation_utils import quat2mat
 from .kitti_raw_utils import generate_pose
 
 

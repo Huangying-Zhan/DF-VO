@@ -1,10 +1,11 @@
+''''''
 '''
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-13
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-14
+@LastEditTime: 2020-05-19
 @LastEditors: Huangying Zhan
-@Description: Dataset loader for Adelaide Driving Sequence (Huangying driving camera)
+@Description: Dataset loader for Adelaide Driving Sequence (Huangying's car camera)
 '''
 # Copyright (C) Huangying Zhan 2020. All rights reserved.
 # This software is licensed under the terms in the LICENSE file 

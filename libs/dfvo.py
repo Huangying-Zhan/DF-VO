@@ -63,6 +63,8 @@ class DFVO():
         # reference data and current data
         self.initialize_data()
 
+        self.setup()
+
     def setup(self):
         """Reading configuration and setup, including
         - Tracking method
@@ -275,6 +277,9 @@ class DFVO():
 
             # update global poses
             pose = self.ref_data['pose'][self.ref_data['id'][-1]]
+
+            # FIXME: testing only
+            print(pose.pose)
             self.update_global_pose(pose, 1)
 
             self.tracking_stage += 1
@@ -389,7 +394,9 @@ class DFVO():
         else:
             start_frame = int(input("Start with frame: "))
 
-        for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
+        # FIXME: testing only
+        for img_id in tqdm(range(start_frame, 3)):
+        # for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
         # for img_id in range(start_frame, len(self.dataset)):
             self.tracking_mode = "Ess. Mat."
 

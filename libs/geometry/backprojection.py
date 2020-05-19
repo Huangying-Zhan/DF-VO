@@ -8,6 +8,7 @@ import torch.nn as nn
 
 class Backprojection(nn.Module):
     """Layer to backproject a depth image given the camera intrinsics
+
     Attributes
         xy (Nx3x(HxW)): homogeneous pixel coordinates on regular grid
     """
@@ -37,13 +38,15 @@ class Backprojection(nn.Module):
         self.xy = nn.Parameter(self.xy, requires_grad=False)
 
     def forward(self, depth, inv_K, img_like_out=False):
-        """
+        """Forward pass
+
         Args:
-            depth (Nx1xHxW): depth map
-            inv_K (Nx4x4): inverse camera intrinsics
-            img_like_out (bool): if True, the output shape is Nx4xHxW; else Nx4x(HxW)
+            depth (tensor, [Nx1xHxW]): depth map 
+            inv_K (tensor, [Nx4x4]): inverse camera intrinsics
+            img_like_out (bool):if True, the output shape is Nx4xHxW; else Nx4x(HxW)
+        
         Returns:
-            points (Nx4x(HxW)): 3D points in homogeneous coordinates
+            points (tensor, [Nx4x(HxW) or Nx4xHxW]): 3D points in homogeneous coordinates
         """
         depth = depth.contiguous()
 

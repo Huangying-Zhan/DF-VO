@@ -1,3 +1,12 @@
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-20
+@LastEditors: Huangying Zhan
+@Description: Provides helper methods for loading and parsing KITTI Raw data
+'''
 import numpy as np
 from collections import namedtuple
 import os
@@ -18,12 +27,14 @@ OxtsPacket = namedtuple('OxtsPacket',
 
 def generate_pose(seq, frame_idx, do_flip):
     """Get pose for a frame in a sequence
+
     Args:
         seq (str): sequence oxts_dir directory
         frame_idx (int): frame index
         do_flip (bool): flip sequence horizontally
+        
     Returns:
-        pose (4x4 array): absolute pose w.r.t frame-0
+        pose (array, [4x4]): absolute pose w.r.t frame-0
     """
     # Read oxts data
     oxts_files = [
@@ -66,11 +77,13 @@ def generate_pose(seq, frame_idx, do_flip):
 
 
 def flip_rotation(R):
-    """
+    """Transform rotation when there is a flipping of image along x-axis
+
     Args:
-        R (3x3): rotation matrix
+        R (array, [3x3]): rotation matrix
+
     Returns:
-        new_R (3x3): new rotation matrix
+        new_R (array, [3x3]): new rotation matrix
     """
     theta_x = np.arctan2(R[2,1], R[2,2])
     theta_y = np.arctan2(-R[2,0], np.linalg.norm([R[2,1], R[2,2]]))
@@ -90,7 +103,14 @@ def flip_rotation(R):
 
 
 def poses_from_oxts(oxts_packets):
-    """Helper method to compute SE(3) pose matrices from OXTS packets."""
+    """Helper method to compute SE(3) pose matrices from OXTS packets.
+    
+    Args:
+        oxts_packets (namedtuple): oxts data
+    
+    Returns:
+        poses (list): list of sensor poses
+    """
     er = 6378137.  # earth radius (approx.) in meters
 
     # compute scale from first lat value

@@ -329,7 +329,7 @@ def save_traj(txt, poses, format='kitti'):
             pose = poses[i]
             if format == 'kitti':
                 pose = pose.flatten()[:12]
-                line_to_write = "" "".join([str(j) for j in pose])
+                line_to_write = " ".join([str(j) for j in pose])
             elif format == 'tum':
                 qw, qx, qy, qz = rot2quat(pose[:3, :3])
                 tx, ty, tz = pose[:3, 3]

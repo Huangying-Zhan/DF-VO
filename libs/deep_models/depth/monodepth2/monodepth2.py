@@ -66,7 +66,7 @@ class Monodepth2DepthNet(DeepDepth):
             self.min_depth = 0.1
             self.max_depth = 100
             self.stereo_baseline = 5.4
-        elif dataset == 'tum':
+        elif 'tum' in dataset:
             self.min_depth = 0.1
             self.max_depth = 10
             self.stereo_baseline = 1

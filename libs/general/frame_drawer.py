@@ -569,7 +569,7 @@ class FrameDrawer():
                 if "kitti" in vo.cfg.dataset:
                     vmax = vis_depth.max()
                 elif "tum" in vo.cfg.dataset:
-                    vmax = 5
+                    vmax = 1
                 else:
                     vmax = vis_depth.max()
                 normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)

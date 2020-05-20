@@ -1,17 +1,27 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-20
+@LastEditors: Huangying Zhan
+@Description: Dataset loaders for TUM RGB-D Sequence
+'''
 
 import copy
 from glob import glob
 import os
 
-from .dataset import Dataset
 from tools.evaluation.tum_tool.associate import associate, read_file_list
+
+from .dataset import Dataset
 from libs.general.utils import *
 
 
 class TUM(Dataset):
+    """Dataset loader for TUM RBG-D dataset
+    """
+
     def __init__(self, *args, **kwargs):
         super(TUM, self).__init__(*args, **kwargs)
 
@@ -21,17 +31,17 @@ class TUM(Dataset):
 
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
-        mainly for TUM-RGBD dataset
+        
         Returns:
-            rgb_d_pose_pair (dict):
-                - rgb_timestamp: {depth: depth_timestamp, pose: pose_timestamp}
+            a dictionary containing
+                - **rgb_timestamp** : {'depth': depth_timestamp, 'pose': pose_timestamp}
         """
         self.rgb_d_pose_pair = {}
 
         # associate rgb-depth-pose timestamp pair
-        rgb_list = read_file_list(self.data_dir['img'] +"/../rgb.txt")
-        depth_list = read_file_list(self.data_dir['img'] +"/../depth.txt")
-        pose_list = read_file_list(self.data_dir['img'] +"/../groundtruth.txt")
+        rgb_list = read_file_list(self.data_dir['img'] +'/../rgb.txt')
+        depth_list = read_file_list(self.data_dir['img'] +'/../depth.txt')
+        pose_list = read_file_list(self.data_dir['img'] +'/../groundtruth.txt')
 
         for i in rgb_list:
             self.rgb_d_pose_pair[i] = {}
@@ -64,7 +74,7 @@ class TUM(Dataset):
         # Clear pairs without depth
         to_del_pair = []
         for rgb_stamp in self.rgb_d_pose_pair:
-            if self.rgb_d_pose_pair[rgb_stamp].get("depth", -1) == -1:
+            if self.rgb_d_pose_pair[rgb_stamp].get('depth', -1) == -1:
                 to_del_pair.append(rgb_stamp)
         for rgb_stamp in to_del_pair:
             del(self.rgb_d_pose_pair[rgb_stamp])
@@ -73,10 +83,10 @@ class TUM(Dataset):
         to_del_pair = []
         tmp_rgb_d_pose_pair = copy.deepcopy(self.rgb_d_pose_pair)
         for rgb_stamp in tmp_rgb_d_pose_pair:
-            if self.rgb_d_pose_pair[rgb_stamp].get("pose", -1) == -1:
+            if self.rgb_d_pose_pair[rgb_stamp].get('pose', -1) == -1:
                 to_del_pair.append(rgb_stamp)
         for rgb_stamp in to_del_pair:
-            del(tmp_rgb_d_pose_pair[rgb_stamp])
+            del(self.rgb_d_pose_pair[rgb_stamp])
         
         # timestep
         timestep = 5
@@ -88,16 +98,17 @@ class TUM(Dataset):
             del(self.rgb_d_pose_pair[rgb_stamp])
     
     def update_gt_pose(self):
-        """update GT pose according to sync pairs
+        """Update GT pose according to sync pairs
         """
         # Update gt pose
         self.tmp_gt_poses = {}
-        gt_pose_0_time = tmp_rgb_d_pose_pair[sorted(list(tmp_rgb_d_pose_pair.keys()))[0]]['pose']
+        sorted_timestamps = sorted(list(self.rgb_d_pose_pair.keys()))
+        gt_pose_0_time = self.rgb_d_pose_pair[sorted_timestamps[0]]['pose']
         gt_pose_0 = self.gt_poses[gt_pose_0_time]
         
         i = 0
         for rgb_stamp in sorted(list(self.rgb_d_pose_pair.keys())):
-            if self.rgb_d_pose_pair[rgb_stamp].get("pose", -1) != -1:
+            if self.rgb_d_pose_pair[rgb_stamp].get('pose', -1) != -1:
                 self.tmp_gt_poses[i] = np.linalg.inv(gt_pose_0) @ self.gt_poses[self.rgb_d_pose_pair[rgb_stamp]['pose']]
             else:
                 self.tmp_gt_poses[i] = np.eye(4)
@@ -108,12 +119,12 @@ class TUM(Dataset):
         """Read intrinsics parameters for each dataset
 
         Returns:
-            intrinsics_param (float list): [cx, cy, fx, fy]
+            intrinsics_param (list): [cx, cy, fx, fy]
         """
         tum_intrinsics = {
-                "tum-1": [318.6, 255.3, 517.3, 516.5],  # fr1
-                "tum-2": [325.1, 249.7, 520.9, 521.0],  # fr2
-                "tum-3": [320.1, 247.6, 535.4, 539.2],  # fr3
+                'tum-1': [318.6, 255.3, 517.3, 516.5],  # fr1
+                'tum-2': [325.1, 249.7, 520.9, 521.0],  # fr2
+                'tum-3': [320.1, 247.6, 535.4, 539.2],  # fr3
             }
         intrinsics_param = tum_intrinsics[self.cfg.dataset]
         return intrinsics_param
@@ -122,10 +133,10 @@ class TUM(Dataset):
         """Get data directory
 
         Returns:
-            data_dir (dict):
-                - img (str): image data directory
-                - (optional) depth (str): depth data direcotry or None
-                - (optional) depth_src (str): depth data type [gt/None]
+            a dictionary containing
+                - **img** (str) : image data directory
+                - (optional) **depth** (str) : depth data direcotry or None
+                - (optional) **depth_src** (str) : depth data type [gt/None]
         """
         data_dir = {}
 
@@ -154,33 +165,38 @@ class TUM(Dataset):
         return data_dir
 
     def get_gt_poses(self):
-        """load ground-truth poses
+        """Get ground-truth poses
+        
         Returns:
-            gt_poses (dict): each pose is 4x4 array
+            gt_poses (dict): each pose is a [4x4] array
         """
         annotations = os.path.join(
                             self.cfg.directory.gt_pose_dir,
                             self.cfg.seq,
-                            "groundtruth.txt"
+                            'groundtruth.txt'
                             )
         gt_poses = load_poses_from_txt_tum(annotations)
         return gt_poses
     
     def get_timestamp(self, img_id):
-        """get timestamp for the query img_id
+        """Get timestamp for the query img_id
+
         Args:
             img_id (int): query image id
+
         Returns:
             timestamp (int): timestamp for query image
         """
         return sorted(list(self.rgb_d_pose_pair.keys()))[img_id]
     
     def get_image(self, timestamp):
-        """get image data given the image timestamp
+        """Get image data given the image timestamp
+
         Args:
             timestamp (int): timestamp for the image
+            
         Returns:
-            img (CxHxW): image data
+            img (array, [CxHxW]): image data
         """
         img_path = os.path.join(self.data_dir['img'], 
                             "{:.6f}.{}".format(timestamp, self.cfg.image.ext)
@@ -189,17 +205,21 @@ class TUM(Dataset):
         return img
     
     def get_depth(self, timestamp):
-        """get GT/precomputed depth data given the timestamp
+        """Get GT/precomputed depth data given the timestamp
+
         Args:
             timestamp (int): timestamp for the depth
+
         Returns:
-            depth (HxW): depth data
+            depth (array, [HxW]): depth data
         """
         img_id = self.rgb_d_pose_pair[timestamp]['depth']
 
         if self.data_dir['depth_src'] == "gt":
-            img_id = "{:.6f}.png".format(img_id)
+            img_name = "{:.6f}.png".format(img_id)
             scale_factor = 5000
+        else:
+            assert False, "Proper depth loader should be defined."
         
         img_h, img_w = self.cfg.image.height, self.cfg.image.width
         depth_path = os.path.join(self.data_dir['depth'], img_name)
@@ -208,13 +228,11 @@ class TUM(Dataset):
 
     def save_result_traj(self, traj_txt, poses):
         """Save trajectory (absolute poses) as KITTI odometry file format
+
         Args:
             txt (str): pose text file path
-            poses (array dict): poses, each pose is 4x4 array
-            format (str): trajectory format
-                - kitti: 12 parameters
-                - tum: timestamp tx ty tz qx qy qz qw
+            poses (dict): poses, each pose is a [4x4] array
         """
         timestamps = sorted(list(self.rgb_d_pose_pair.keys()))
         global_poses_arr = convert_SE3_to_arr(poses, timestamps)
-        save_traj(traj_txt, global_poses_arr, format="tum")
+        save_traj(traj_txt, global_poses_arr, format='tum')

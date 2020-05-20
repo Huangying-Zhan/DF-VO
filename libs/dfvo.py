@@ -80,7 +80,9 @@ class DFVO():
         datasets = {
             "kitti_odom": Dataset.KittiOdom,
             "kitti_raw": Dataset.KittiRaw,
-            "tum": Dataset.TUM,
+            "tum-1": Dataset.TUM,
+            "tum-2": Dataset.TUM,
+            "tum-3": Dataset.TUM,
             "adelaide1": Dataset.Adelaide1,
             "adelaide2": Dataset.Adelaide2
         }

@@ -397,7 +397,6 @@ class DFVO():
         # FIXME: testing only
         for img_id in tqdm(range(start_frame, 3)):
         # for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
-        # for img_id in range(start_frame, len(self.dataset)):
             self.tracking_mode = "Ess. Mat."
 
             """ Data reading """

@@ -6,7 +6,7 @@
 # import math
 import numpy as np
 
-from libs.utils import image_grid
+from libs.general.utils import image_grid
 from .kp_selection import *
 from libs.geometry.camera_modules import SE3
 

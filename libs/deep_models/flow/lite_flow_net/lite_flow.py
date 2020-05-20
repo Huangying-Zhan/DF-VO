@@ -16,7 +16,7 @@ import sys
 import torch
 import torch.nn.functional as F
 
-from libs.utils import image_grid
+from libs.general.utils import image_grid
 
 from ..deep_flow import DeepFlow
 from .lite_flow_net import LiteFlowNet

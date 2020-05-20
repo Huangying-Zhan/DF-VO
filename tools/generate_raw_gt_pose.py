@@ -1,6 +1,6 @@
 import os
 
-from libs.utils import load_poses_from_oxts, save_traj
+from libs.general.utils import load_poses_from_oxts, save_traj
 from libs.general.utils import mkdir_if_not_exists
 
 seqs = ["2011_09_26_drive_0005_sync",

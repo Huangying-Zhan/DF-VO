@@ -3,14 +3,28 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-19
+@LastEditTime: 2020-05-20
 @LastEditors: Huangying Zhan
 @Description: ConfigLoader contains operations for processing multiple yml files
 '''
 
 from easydict import EasyDict as edict
+import yaml
 
-from libs.general.utils import read_yaml
+def read_yaml(filename):
+    """Load yaml file as a dictionary item
+
+    Args:
+        filename (str): yaml file path
+    
+    Returns:
+        cfg (dict): configuration
+    """
+    if filename is not None:
+        with open(filename, 'r') as f:
+            return yaml.load(f, Loader=yaml.FullLoader)
+    else:
+        return {}
 
 
 class ConfigLoader():

@@ -6,7 +6,7 @@ from glob import glob
 import os
 
 from .dataset import Dataset
-from libs.utils import *
+from libs.general.utils import *
 
 
 class KITTI(Dataset):

@@ -10,7 +10,7 @@ import numpy as np
 
 from libs.geometry.camera_modules import SE3
 from libs.geometry.ops_3d import unprojection_kp
-# from libs.utils import image_shape
+# from libs.general.utils import image_shape
 
 class PnpTracker():
     def __init__(self, cfg, cam_intrinsics):

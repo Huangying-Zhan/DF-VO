@@ -52,11 +52,10 @@ class Dataset():
     
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
-        mainly for TUM-RGBD dataset
         
         Returns:
             a dictionary containing
-                - **rgb_timestamp** : {depth: depth_timestamp, pose: pose_timestamp}
+                - **rgb_timestamp** : {'depth': depth_timestamp, 'pose': pose_timestamp}
         """
         raise NotImplementedError
 
@@ -72,15 +71,15 @@ class Dataset():
         raise NotImplementedError
 
     def get_gt_poses(self):
-        """load ground-truth poses
+        """Get ground-truth poses
         
         Returns:
-            gt_poses (dict): each pose is 4x4 array
+            gt_poses (dict): each pose is a [4x4] array
         """
         raise NotImplementedError
 
     def get_timestamp(self, img_id):
-        """get timestamp for the query img_id
+        """Get timestamp for the query img_id
 
         Args:
             img_id (int): query image id
@@ -91,24 +90,24 @@ class Dataset():
         raise NotImplementedError
 
     def get_image(self, timestamp):
-        """get image data given the image timestamp
+        """Get image data given the image timestamp
 
         Args:
             timestamp (int): timestamp for the image
             
         Returns:
-            img (CxHxW): image data
+            img (array, [CxHxW]): image data
         """
         raise NotImplementedError
     
     def get_depth(self, timestamp):
-        """get GT/precomputed depth data given the timestamp
+        """Get GT/precomputed depth data given the timestamp
 
         Args:
             timestamp (int): timestamp for the depth
 
         Returns:
-            depth (HxW): depth data
+            depth (array, [HxW]): depth data
         """
         raise NotImplementedError
 
@@ -117,6 +116,6 @@ class Dataset():
 
         Args:
             txt (str): pose text file path
-            poses (array dict): poses, each pose is 4x4 array
+            poses (dict): poses, each pose is a [4x4] array
         """
         raise NotImplementedError

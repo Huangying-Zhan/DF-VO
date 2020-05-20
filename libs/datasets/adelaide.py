@@ -3,28 +3,34 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-13
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-19
+@LastEditTime: 2020-05-20
 @LastEditors: Huangying Zhan
-@Description: Dataset loader for Adelaide Driving Sequence (Huangying's car camera)
+@Description: Dataset loader for Adelaide Driving Sequence
 '''
-# Copyright (C) Huangying Zhan 2020. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
 
 import numpy as np
 from glob import glob
 import os
 
+from libs.general.utils import *
 from .dataset import Dataset
-from libs.utils import *
 
 
 class Adelaide(Dataset):
+    """Base class of dataset loaders for Adelaide Driving Sequence
+    """
+
     def __init__(self, *args, **kwargs):
         super(Adelaide, self).__init__(*args, **kwargs)
         return
     
     def synchronize_timestamps(self):
+        """Synchronize RGB, Depth, and Pose timestamps to form pairs
+        
+        Returns:
+            a dictionary containing
+                - **rgb_timestamp** : {'depth': depth_timestamp, 'pose': pose_timestamp}
+        """
         self.rgb_d_pose_pair = {}
         len_seq = len(glob(os.path.join(self.data_dir['img'], "*.{}".format(self.cfg.image.ext))))
         for i in range(len_seq):
@@ -33,9 +39,11 @@ class Adelaide(Dataset):
             self.rgb_d_pose_pair[i]['pose'] = i
     
     def get_timestamp(self, img_id):
-        """get timestamp for the query img_id
+        """Get timestamp for the query img_id
+
         Args:
             img_id (int): query image id
+
         Returns:
             timestamp (int): timestamp for query image
         """
@@ -43,28 +51,29 @@ class Adelaide(Dataset):
 
     def save_result_traj(self, traj_txt, poses):
         """Save trajectory (absolute poses) as KITTI odometry file format
+
         Args:
             txt (str): pose text file path
-            poses (array dict): poses, each pose is 4x4 array
-            format (str): trajectory format
-                - kitti: 12 parameters
-                - tum: timestamp tx ty tz qx qy qz qw
+            poses (dict): poses, each pose is a [4x4] array
         """
         global_poses_arr = convert_SE3_to_arr(poses)
-        save_traj(traj_txt, global_poses_arr, format="kitti")
+        save_traj(traj_txt, global_poses_arr, format='kitti')
 
 
-class AdelaideHY(Adelaide):
+class AdelaideHY1(Adelaide):
+    """Dataset loader for Adelaide Driving Sequence (HY's car camera 1)
+    """
+    
     def __init__(self, *args, **kwargs):
         self.height = 256
         self.width = 832
-        super(AdelaideHY, self).__init__(*args, **kwargs)
+        super(AdelaideHY1, self).__init__(*args, **kwargs)
     
     def get_intrinsics_param(self):
         """Read intrinsics parameters for each dataset
 
         Returns:
-            intrinsics_param (float list): [cx, cy, fx, fy]
+            intrinsics_param (list): [cx, cy, fx, fy]
         """
         img_seq_dir = os.path.join(
                             self.cfg.directory.img_seq_dir,
@@ -81,10 +90,10 @@ class AdelaideHY(Adelaide):
         """Get data directory
 
         Returns:
-            data_dir (dict):
-                - img (str): image data directory
-                - (optional) depth (str): depth data direcotry or None
-                - (optional) depth_src (str): depth data type [gt/None]
+            a dictionary containing
+                - **img** (str) : image data directory
+                - (optional) **depth** (str) : depth data direcotry or None
+                - (optional) **depth_src** (str) : depth data type [gt/None]
         """
         data_dir = {"depth": None, "depth_src": None}
 
@@ -98,18 +107,21 @@ class AdelaideHY(Adelaide):
         return data_dir
     
     def get_gt_poses(self):
-        """ load ground-truth poses
+        """Load ground-truth poses
+        
         Returns:
-            gt_poses (dict): each pose is 4x4 array
+            gt_poses (dict): each pose is a [4x4] array
         """
         raise NotImplementedError
     
     def get_image(self, timestamp):
-        """get image data given the image timestamp
+        """Get image data given the image timestamp
+
         Args:
             timestamp (int): timestamp for the image
+            
         Returns:
-            img (CxHxW): image data
+            img (array, [CxHxW]): image data
         """
         img_path = os.path.join(self.data_dir['img'], 
                             "{:06d}.{}".format(timestamp, self.cfg.image.ext)
@@ -118,16 +130,21 @@ class AdelaideHY(Adelaide):
         return img
     
     def get_depth(self, timestamp):
-        """get GT/precomputed depth data given the timestamp
+        """Get GT/precomputed depth data given the timestamp
+
         Args:
             timestamp (int): timestamp for the depth
+
         Returns:
-            depth (HxW): depth data
+            depth (array, [HxW]): depth data
         """
         raise NotImplementedError
 
 
 class AdelaideHY2(Adelaide):
+    """Dataset loader for Adelaide Driving Sequence (HY's car camera 2)
+    """
+
     def __init__(self, *args, **kwargs):
         self.height = 512
         self.width = 1664
@@ -137,7 +154,7 @@ class AdelaideHY2(Adelaide):
         """Read intrinsics parameters for each dataset
 
         Returns:
-            intrinsics_param (float list): [cx, cy, fx, fy]
+            intrinsics_param (list): [cx, cy, fx, fy]
         """
         img_seq_dir = os.path.join(
                             self.cfg.directory.img_seq_dir,
@@ -154,10 +171,10 @@ class AdelaideHY2(Adelaide):
         """Get data directory
 
         Returns:
-            data_dir (dict):
-                - img (str): image data directory
-                - (optional) depth (str): depth data direcotry or None
-                - (optional) depth_src (str): depth data type [gt/None]
+            a dictionary containing
+                - **img** (str) : image data directory
+                - (optional) **depth** (str) : depth data direcotry or None
+                - (optional) **depth_src** (str) : depth data type [gt/None]
         """
         data_dir = {"depth": None, "depth_src": None}
 
@@ -171,18 +188,21 @@ class AdelaideHY2(Adelaide):
         return data_dir
     
     def get_gt_poses(self):
-        """ load ground-truth poses
+        """Get ground-truth poses
+        
         Returns:
-            gt_poses (dict): each pose is 4x4 array
+            gt_poses (dict): each pose is a [4x4] array
         """
         raise NotImplementedError
     
     def get_image(self, timestamp):
-        """get image data given the image timestamp
+        """Get image data given the image timestamp
+
         Args:
             timestamp (int): timestamp for the image
+            
         Returns:
-            img (CxHxW): image data
+            img (array, [CxHxW]): image data
         """
         img_path = os.path.join(self.data_dir['img'], 
                             "{:06d}.{}".format(timestamp, self.cfg.image.ext)
@@ -191,11 +211,13 @@ class AdelaideHY2(Adelaide):
         return img
     
     def get_depth(self, timestamp):
-        """get GT/precomputed depth data given the timestamp
+        """Get GT/precomputed depth data given the timestamp
+
         Args:
             timestamp (int): timestamp for the depth
+
         Returns:
-            depth (HxW): depth data
+            depth (array, [HxW]): depth data
         """
         raise NotImplementedError
     

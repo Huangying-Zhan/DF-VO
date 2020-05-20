@@ -8,8 +8,8 @@ import numpy as np
 import os
 from time import time
 
-from ..flowlib.flowlib import flow_to_image
 from .utils import mkdir_if_not_exists
+from ..flowlib.flowlib import flow_to_image
 
 
 def draw_match_temporal(img1, kp1, img2, kp2, N):

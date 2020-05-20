@@ -3,11 +3,10 @@
 # which allows for non-commercial use only.
 
 
-# import math
 import numpy as np
 
-from libs.general.utils import image_grid
 from .kp_selection import *
+from libs.general.utils import image_grid
 from libs.geometry.camera_modules import SE3
 
 class KeypointSampler():

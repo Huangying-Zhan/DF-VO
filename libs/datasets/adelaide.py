@@ -12,8 +12,8 @@ import numpy as np
 from glob import glob
 import os
 
-from libs.general.utils import *
 from .dataset import Dataset
+from libs.general.utils import *
 
 
 class Adelaide(Dataset):

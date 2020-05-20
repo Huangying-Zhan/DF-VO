@@ -18,8 +18,8 @@ import torch.nn.functional as F
 
 from libs.general.utils import image_grid
 
-from ..deep_flow import DeepFlow
 from .lite_flow_net import LiteFlowNet
+from ..deep_flow import DeepFlow
 
 
 class LiteFlow(DeepFlow):

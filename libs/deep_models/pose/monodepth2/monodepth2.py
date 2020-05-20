@@ -14,10 +14,10 @@ import PIL.Image as pil
 import torch
 from torchvision import transforms
 
-from libs.deep_models.depth.monodepth2.resnet_encoder import ResnetEncoder
-from libs.deep_models.depth.monodepth2.layers import transformation_from_parameters
 from .pose_decoder import PoseDecoder
 from ..deep_pose import DeepPose
+from libs.deep_models.depth.monodepth2.resnet_encoder import ResnetEncoder
+from libs.deep_models.depth.monodepth2.layers import transformation_from_parameters
 
 
 

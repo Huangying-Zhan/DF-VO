@@ -10,8 +10,8 @@
 
 import numpy as np
 
-from .flow.lite_flow_net.lite_flow import LiteFlow
 from .depth.monodepth2.monodepth2 import Monodepth2DepthNet
+from .flow.lite_flow_net.lite_flow import LiteFlow
 from .pose.monodepth2.monodepth2 import Monodepth2PoseNet
 
 class DeepModel():

@@ -78,7 +78,6 @@ if __name__ == '__main__':
 
     # setup DFVO
     vo = DFVO(cfg)
-    vo.setup()
     vo.main()
 
     # Save configuration file

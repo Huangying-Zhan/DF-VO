@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-06-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-19
+@LastEditTime: 2020-05-20
 @LastEditors: Huangying Zhan
 @Description: This API runs DF-VO.
 '''
@@ -29,7 +29,7 @@ def read_cfgs():
     cfg : edict
         configuration dictionary
     """
-    ########## Argument Parsing ##########
+    ''' Argument Parsing '''
     parser = argparse.ArgumentParser(description='VO system')
     parser.add_argument("-s", "--seq", 
                         default=None, help="sequence")

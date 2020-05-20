@@ -16,7 +16,7 @@ from libs.geometry.camera_modules import SE3
 import libs.datasets as Dataset
 from libs.deep_models.deep_models import DeepModel
 from libs.general.frame_drawer import FrameDrawer
-from libs.general.timer import Timers
+from libs.general.timer import Timer
 from libs.matching.keypoint_sampler import KeypointSampler
 from libs.matching.depth_consistency import DepthConsistency
 from libs.tracker import EssTracker, PnpTracker
@@ -111,7 +111,7 @@ class DFVO():
                         gt_poses=self.dataset.gt_poses)
         
         # timer
-        self.timers = Timers()
+        self.timers = Timer()
 
     def initialize_data(self):
         self.ref_data = {
@@ -281,7 +281,7 @@ class DFVO():
             pose = self.ref_data['pose'][self.ref_data['id'][-1]]
 
             # FIXME: testing only
-            print(pose.pose)
+            # print(pose.pose)
             self.update_global_pose(pose, 1)
 
             self.tracking_stage += 1
@@ -344,19 +344,19 @@ class DFVO():
         """
         # Single-view Depth prediction
         if self.dataset.data_dir['depth_src'] is None:
-            start_time = time()
+            self.timers.start('depth_cnn', 'deep inference')
             self.cur_data['raw_depth'] = \
                     self.deep_models.depth.inference(img=self.cur_data['img'])
             self.cur_data['raw_depth'] = cv2.resize(self.cur_data['raw_depth'],
                                                 (self.cfg.image.width, self.cfg.image.height),
                                                 interpolation=cv2.INTER_NEAREST
                                                 )
-            self.timers.count('Deep Depth-CNN', time()-start_time)
+            self.timers.end('depth_cnn')
         self.cur_data['depth'] = preprocess_depth(self.cur_data['raw_depth'], self.cfg.crop.depth_crop, [self.cfg.depth.min_depth, self.cfg.depth.max_depth])
 
         # Two-view flow
         if self.tracking_stage >= 1:
-            start_time = time()
+            self.timers.start('flow_cnn', 'deep inference')
             flows = self.deep_models.forward_flow(
                                     self.cur_data,
                                     self.ref_data,
@@ -372,11 +372,11 @@ class DFVO():
                         self.cur_data['flow'][ref_id] = flows[(self.cur_data['id'], self.ref_data['id'][i])].copy()
                         self.ref_data['flow_diff'][ref_id] = flows[(self.ref_data['id'][i], self.cur_data['id'], "diff")].copy()
             
-            self.timers.count('Deep Flow-CNN', time()-start_time)
+            self.timers.end('flow_cnn')
         
         # Relative camera pose
         if self.tracking_stage >= 1 and self.cfg.pose_net.enable:
-            start_time = time()
+            self.timers.start('pose_cnn', 'deep inference')
             # Deep pose prediction
             self.ref_data['deep_pose'] = {}
             for ref_id in self.ref_data['id']:
@@ -386,19 +386,20 @@ class DFVO():
                                 self.cur_data['img'], 
                                 )
                 self.ref_data['deep_pose'][ref_id] = pose[0] # from cur->ref
-            self.timers.count('Deep Pose-CNN', time()-start_time)
+            self.timers.end('pose_cnn')
 
     def main(self):
         print("==> Start DF-VO")
-        main_start_time = time()
+
         if self.cfg.no_confirm:
             start_frame = 0
         else:
             start_frame = int(input("Start with frame: "))
 
         # FIXME: testing only
-        for img_id in tqdm(range(start_frame, 3)):
+        for img_id in tqdm(range(start_frame, 100)):
         # for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
+            self.timers.start('DF-VO')
             self.tracking_mode = "Ess. Mat."
 
             """ Data reading """
@@ -407,29 +408,30 @@ class DFVO():
             self.cur_data['timestamp'] = self.dataset.get_timestamp(img_id)
 
             # Read image data and (optional) precomputed depth data
-            start_time = time()
+            self.timers.start('data_loading')
             self.load_raw_data()
-            self.timers.count('Data loading', time()-start_time)
+            self.timers.end('data_loading')
 
             # Deep model inferences
-            start_time = time()
+            self.timers.start('deep_inference')
             self.deep_model_inference()
-            self.timers.count('Deep model inference', time()-start_time)
+            self.timers.end('deep_inference')
 
             """ Visual odometry """
-            start_time = time()
+            self.timers.start('tracking')
             # if self.tracking_method == "hybrid":
             self.tracking()
             # elif self.tracking_method == "PnP":
             #     self.tracking_pnp()
             # else:
             #     raise NotImplementedError
-            self.timers.count('Tracking', time()-start_time)
+            self.timers.end('tracking')
 
             """ Visualization """
-            start_time = time()
-            self.drawer.main(self)
-            self.timers.count('visualization', time()-start_time)
+            if self.cfg.visualization.enable:
+                self.timers.start('visualization')
+                self.drawer.main(self)
+                self.timers.end('visualization')
 
             """ Update reference and current data """
             self.ref_data, self.cur_data = self.update_ref_data(
@@ -438,6 +440,8 @@ class DFVO():
                                     self.window_size,
                                     self.keyframe_step
             )
+
+            self.timers.end('DF-VO')
 
         print("=> Finish!")
 
@@ -453,8 +457,5 @@ class DFVO():
         self.dataset.save_result_traj(traj_txt, self.global_poses)
 
         # Output experiement information
-        print("---- time breakdown ----")
-        print("total runtime: {}".format(time() - main_start_time))
-        for key in sorted(self.timers.timers.keys()):
-            if len(self.timers.timers[key]) != 0:
-                print("{} : {}".format(key, np.asarray(self.timers.timers[key]).mean()))
+        self.timers.time_analysis()
+

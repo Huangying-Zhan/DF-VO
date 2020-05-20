@@ -34,7 +34,6 @@ def read_cfgs():
     parser.add_argument("-s", "--seq", 
                         default=None, help="sequence")
     parser.add_argument("-d", "--default_configuration", type=str, 
-                        required=True,
                         default="options/kitti/kitti_default_configuration.yml",
                         help="default configuration files")
     parser.add_argument("-c", "--configuration", type=str,

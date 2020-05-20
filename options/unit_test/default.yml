@@ -68,6 +68,7 @@ kp_selection:                                                                   
     enable: True                                                                                     # | 
     thre: 0.1                                                                                        # | 
 visualization:                                                                                       # |
+  enable: True
   window_h: 900                                                                                      # | 
   window_w: 1500                                                                                     # | 
   save_img: False                                                                                    # | 

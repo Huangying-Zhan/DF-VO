@@ -60,9 +60,9 @@ deep_flow:
   num_kp: 2000
   network: liteflow  
     # liteflow: LiteFlowNet
-  # flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
+  flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
   # flow_net_weight: model_zoo/optical_flow/UnLiteFlowNet/kitti_odom/mono_640x192/flow.pth
-  flow_net_weight: /home/hyzhan/harddisk_local/DF-VO/robust-vo/deep_depth/monodepth2/checkpoint/kitti/flow/exp_2/0/09/M_640x192/models/weights_0/flow.pth
+  # flow_net_weight: /home/hyzhan/harddisk_local/DF-VO/robust-vo/deep_depth/monodepth2/checkpoint/kitti/flow/exp_2/0/09/M_640x192/models/weights_0/flow.pth
   batch_size: 1
   precomputed_flow: #tmp/result/flow/kitti_odom/liteflow_default/{}/npy
 
@@ -125,6 +125,7 @@ kp_selection:
 # Visualization
 # ----------------------------------------------------------------------------
 visualization:
+  enable: False
   save_img: True
   kp_src: kp_best
   flow: 
@@ -152,5 +153,5 @@ visualization:
 
 directory:
   img_seq_dir: dataset/kitti_raw
-  gt_pose_dir: dataset/kitti_raw
-  depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth
+  gt_pose_dir: #dataset/kitti_raw_rv
+  depth_dir: #/home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

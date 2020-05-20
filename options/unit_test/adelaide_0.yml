@@ -126,6 +126,8 @@ kp_selection:
 # Visualization
 # ----------------------------------------------------------------------------
 visualization:
+  enable: False
+
   save_img: True
   kp_src: kp_best
   flow: 

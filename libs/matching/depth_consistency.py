@@ -1,22 +1,31 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
-
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2020-05-19
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-20
+@LastEditors: Huangying Zhan
+@Description: DepthConsistency computes depth consistency between depth maps
+'''
 
 import numpy as np
 import torch
 import torch.nn.functional as nnFunc
 
-from libs.deep_layers import DeepLayer
+from libs.geometry.backprojection import Backprojection
+from libs.geometry.reprojection import Reprojection
 
 class DepthConsistency():
+    """DepthConsistency computes depth consistency between depth maps
+    """
+
     def __init__(self, cfg, cam_intrinsics):
         self.cfg = cfg
         self.cam_intrinsics = cam_intrinsics
 
         # Deep layers
-        self.layers = DeepLayer(self.cfg)
-        self.layers.initialize_layers()
+        h, w = self.cfg.image.height, self.cfg.image.width
+        self.backproj = Backprojection(h, w).cuda()
+        self.reproj = Reprojection(h, w).cuda()
 
     def prepare_depth_consistency_data(self, cur_data, ref_data):
         """Prepare data for computing depth consistency
@@ -80,7 +89,7 @@ class DepthConsistency():
 
         # Get depth and 3D points of frame_0
         cur_depth = inputs[('depth', inputs['cur_id'])]
-        cam_points = self.layers.backproj(cur_depth, inv_K)
+        cam_points = self.backproj(cur_depth, inv_K)
 
 
         n, _, h, w = cur_depth.shape
@@ -89,7 +98,7 @@ class DepthConsistency():
             T = inputs[("pose_T", inputs['cur_id'], frame_id)]
 
             # reprojection
-            reproj_xy = self.layers.reproj(cur_depth, T, K, inv_K)
+            reproj_xy = self.reproj(cur_depth, T, K, inv_K)
 
             # Warp src depth to tgt ref view
             outputs[('warp_depth', inputs['cur_id'], frame_id)] = nnFunc.grid_sample(

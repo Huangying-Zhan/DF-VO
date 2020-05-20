@@ -5,7 +5,7 @@
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
 @LastEditTime: 2020-05-20
 @LastEditors: Huangying Zhan
-@Description: Dataset loader for Adelaide Driving Sequence
+@Description: Dataset loaders for Adelaide Driving Sequence
 '''
 
 import numpy as np

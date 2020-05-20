@@ -1,0 +1,94 @@
+# -------------------- Setup --------------------------------------------------------------------------|---------- Default --------------------
+dataset: kitti_odom                                                                                  # | 
+seed: 4869                                                                                           # | 
+image:                                                                                               # |
+  height: 192                                                                                        # | 370
+  width: 640                                                                                         # | 1226
+  ext: jpg                                                                                           # | 
+seq: 09                                                                                              # | 10
+result_dir: result/dfvo2/tro_paper/0/0                                                               # | result/tmp/0
+tracking_method: 3                                                                                   # | 
+compute_2d2d_pose:                                                                                   # |
+  ransac:                                                                                            # |
+    reproj_thre: 0.2                                                                                 # | 
+    repeat: 5                                                                                        # | 
+  validity:                                                                                          # |
+    method: GRIC                                                                                     # | flow+chei
+    min_flow: 5                                                                                      # | 
+  kp_src: kp_best                                                                                    # | 
+PnP:                                                                                                 # |
+  ransac:                                                                                            # |
+    iter: 1000                                                                                       # | 
+    reproj_thre: 1                                                                                   # | 
+    repeat: 5                                                                                        # | 
+  kp_src: kp_best                                                                                    # | kp_list
+translation_scale:                                                                                   # |
+  ransac:                                                                                            # |
+    method: depth_ratio                                                                              # | 
+    min_samples: 3                                                                                   # | 
+    max_trials: 100                                                                                  # | 
+    stop_prob: 0.99                                                                                  # | 
+    thre: 0.1                                                                                        # | 
+  kp_src: kp_best                                                                                    # | kp_list
+depth:                                                                                               # |
+  depth_src:                                                                                         # | 
+  max_depth: 50                                                                                      # | 
+  min_depth: 0                                                                                       # | 
+  pretrained_model: model_zoo/depth/kitti_odom/stereo/                                               # | 
+deep_flow:                                                                                           # |
+  forward_backward: True                                                                             # | 
+  num_kp: 2000                                                                                       # | 
+  network: liteflow                                                                                  # | 
+  flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                        # | 
+  batch_size: 1                                                                                      # | 
+  precomputed_flow:                                                                                  # | 
+crop:                                                                                                # |
+  depth_crop: [[0.3, 1], [0, 1]]                                                                     # | 
+  flow_crop: [[0, 1], [0, 1]]                                                                        # | 
+pose_net:                                                                                            # |
+  enable: False                                                                                      # | 
+  pretrained_model: model_zoo/pose/kitti_odom/stereo/                                                # | 
+kp_selection:                                                                                        # |
+  feature_tracking_method: 1                                                                         # | 
+  uniform_filtered_bestN:                                                                            # |
+    enable: True                                                                                     # | False
+    num_row: 10                                                                                      # | 
+    num_col: 10                                                                                      # | 
+    num_bestN: 2000                                                                                  # | 
+    score_method: flow                                                                               # | 
+  bestN:                                                                                             # |
+    enable: False                                                                                    # | True
+    num_bestN: 2000                                                                                  # | 
+  sampled_kp:                                                                                        # |
+    enable: False                                                                                    # | True
+  depth_consistency:                                                                                 # |
+    enable: False                                                                                    # | 
+    thre: 0.05                                                                                       # | 
+  flow_consistency:                                                                                  # |
+    enable: True                                                                                     # | 
+    thre: 0.1                                                                                        # | 
+visualization:                                                                                       # |
+  window_h: 900                                                                                      # | 
+  window_w: 1500                                                                                     # | 
+  save_img: False                                                                                    # | 
+  kp_src: kp_best                                                                                    # | 
+  flow:                                                                                              # |
+    vis_full_flow: True                                                                              # | 
+    vis_back_flow: True                                                                              # | 
+    vis_flow_diff: True                                                                              # | 
+  match:                                                                                             # |
+    kp_num: 100                                                                                      # | 50
+    vis_type: 2                                                                                      # | 
+  trajectory:                                                                                        # |
+    vis_traj: True                                                                                   # | 
+    draw_scale: 0.8                                                                                  # | 
+    mono_scale: 1                                                                                    # | 
+    vis_gt_traj: True                                                                                # | False
+  depth:                                                                                             # |
+    use_tracking_depth: False                                                                        # | 
+    vis_full_depth: False                                                                            # | 
+    vis_full_disp: True                                                                              # | 
+directory:                                                                                           # |
+  gt_pose_dir: dataset/kitti_odom/gt_poses/                                                          # | None
+  img_seq_dir: dataset/kitti_odom/odom_data_jpg/                                                     # | dataset/kitti_odom/odom_data/
+  depth_dir: ../robust-vo/dataset/kitti_odom/depth/                                                  # | None

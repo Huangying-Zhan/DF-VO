@@ -5,11 +5,9 @@
 # ----------------------------------------------------------------------------
 debug: False
 use_multiprocessing: False
-seq: "2011_10_03_drive_0047_sync"
-dataset: kitti_raw # [kitti_odom, kitti_raw]
+seq: "09"
+dataset: kitti_odom # [kitti_odom, kitti_raw]
 seed: 4869
-# result_dir: result/dfvo2/tro_paper/7/0
-# result_dir: result/dfvo2/tro_paper/tmp/1/epoch_0
 result_dir: result/tmp/0
 frame_step: 1
 image:
@@ -153,9 +151,9 @@ visualization:
     vis_gt_traj: True
 
 directory:
-  # img_seq_dir: dataset/kitti_odom/odom_data_jpg/
-  # gt_pose_dir: dataset/kitti_odom/gt_poses/
-  # depth_dir: ../robust-vo/dataset/kitti_odom/depth/
-  img_seq_dir: dataset/kitti_raw
-  gt_pose_dir: dataset/kitti_raw
-  depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth
+  img_seq_dir: dataset/kitti_odom/odom_data_jpg/
+  gt_pose_dir: dataset/kitti_odom/gt_poses/
+  depth_dir: ../robust-vo/dataset/kitti_odom/depth/
+  # img_seq_dir: dataset/kitti_raw
+  # gt_pose_dir: dataset/kitti_raw
+  # depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

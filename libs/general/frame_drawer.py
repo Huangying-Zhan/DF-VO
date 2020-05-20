@@ -1,6 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-20
+@LastEditors: Huangying Zhan
+@Description: Frame drawer to display different visualizations
+'''
 
 import cv2
 import matplotlib as mpl
@@ -13,46 +19,56 @@ from ..flowlib.flowlib import flow_to_image
 
 
 def draw_match_temporal(img1, kp1, img2, kp2, N):
-    """Draw matches temporally
+    """Draw matches defined by kp1, kp2. Lay the matches on img2.
+
     Args:
-        img1 (HxW(xC) array): image 1
-        kp1 (Nx2 array): keypoint for image 1
-        img2 (HxW(xC) array): image 2
-        kp2 (Nx2 array): keypoint for image 2
-        N (int): number of matches to draw
+        img1 (array, [HxWxC]): image 1
+        kp1 (array, [Nx2]): keypoint for image 1
+        img2 (array, [HxWxC]): image 2
+        kp2 (array, [Nx2]): keypoint for image 2
+        N (int): number of matches to be drawn
+    
     Returns:
-        out_img (Hx2W(xC) array): output image with drawn matches
+        out_img (array, [HxWxC]): output image with drawn matches
     """
-    r1, g1, b1 = img1[:,:,0], img1[:,:,1], img1[:,:,2]
-    r2, g2, b2 = img2[:,:,0], img2[:,:,1], img2[:,:,2]
+    # initialize output image
     out_img = img2.copy()
 
+    # generate a list of keypoints to be drawn
     kp_list = np.linspace(0, min(kp1.shape[0], kp2.shape[0])-1, N,
                                             dtype=np.int
                                             )
     for i in kp_list:
+        # get location of of keypoints
         center1 = (kp1[i][0].astype(np.int), kp1[i][1].astype(np.int))
         center2 = (kp2[i][0].astype(np.int), kp2[i][1].astype(np.int))
 
+        # randomly pick a color for the match
         color = np.random.randint(0, 255, 3)
         color = tuple([int(i) for i in color])
 
+        # draw line between keypoints
         cv2.line(out_img, center1, center2, color, 2)
     return out_img
 
 
 def draw_match_side(img1, kp1, img2, kp2, N, inliers):
     """Draw matches on 2 sides
+
     Args:
-        img1 (HxW(xC) array): image 1
-        kp1 (Nx2 array): keypoint for image 1
-        img2 (HxW(xC) array): image 2
-        kp2 (Nx2 array): keypoint for image 2
-        N (int): number of matches to draw
-        inliers (Nx1 array): boolean mask for inlier (not used)
+        img1 (array, [HxWxC]): image 1
+        kp1 (array, [Nx2]): keypoint for image 1
+        img2 (array, [HxWxC]): image 2
+        kp2 (array, [Nx2]): keypoint for image 2
+        N (int): number of matches to be drawn
+        inliers (array, [Nx1]): boolean mask for inlier
+        
     Returns:
-        out_img (Hx2W(xC) array): output image with drawn matches
+        out_img (array, [Hx2WxC]): output image with drawn matches
     """
+    out_img = np.array([])
+    
+    # generate a list of keypoints to be drawn
     kp_list = np.linspace(0, min(kp1.shape[0], kp2.shape[0])-1, N,
                             dtype=np.int
                             )
@@ -61,7 +77,6 @@ def draw_match_side(img1, kp1, img2, kp2, N, inliers):
     cv_kp1 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp1[kp_list]]
     cv_kp2 = [cv2.KeyPoint(x=pt[0], y=pt[1], _size=1) for pt in kp2[kp_list]]
 
-    out_img = np.array([])
     good_matches = [cv2.DMatch(_imgIdx=0, _queryIdx=idx, _trainIdx=idx,_distance=0) for idx in range(len(cv_kp1))]
 
     # inlier/outlier plot option
@@ -86,14 +101,9 @@ def draw_match_side(img1, kp1, img2, kp2, N, inliers):
 
 
 class FrameDrawer():
+    """Frame drawer to display different visualizations
     """
-    Attributes
-        h (int): drawer image height
-        w (int): drawer image width
-        img (hxwx3): drawer image
-        data (dict): linking between item and img
-        display (dict): options to display items
-    """
+    
     def __init__(self, cfg):
         """
         Args:
@@ -195,6 +205,7 @@ class FrameDrawer():
 
     def assign_data(self, item, top_left, bottom_right):
         """assign data to the drawer image
+        
         Args:
             top_left (list): [y, x] position of top left corner
             bottom_right (list): [y, x] position of bottom right corner
@@ -208,9 +219,10 @@ class FrameDrawer():
 
     def update_data(self, item, data):
         """update drawer content
+        
         Args:
             item (str): item to be updated
-            data (HxWx3 array): content to be updated, RGB format
+            data (array, [HxWx3]): content to be updated, RGB format
         """
         data_bgr = cv2.cvtColor(data, cv2.COLOR_RGB2BGR)
         vis_h, vis_w, _ = self.data[item].shape
@@ -218,6 +230,7 @@ class FrameDrawer():
 
     def update_display(self, item):
         """update display option by inversing the current setup
+        
         Args:
             item (str): item to be updated
         """
@@ -225,12 +238,14 @@ class FrameDrawer():
 
     def get_traj_init_xy(self, vis_h, vis_w, gt_poses):
         """Get [x,y] of initial pose
+
         Args:
             vis_h (int): visualization image height
             vis_w (int): visualization image width
             gt_poses (dict): ground truth poses
+        
         Returns:
-            [x_off, y_off] (int): x,y offset of initial pose
+            offsets (int): [x,y] offset of initial pose
         """
         if len(gt_poses) != 1:
             # Get max and min X,Z; [x,y] of
@@ -315,6 +330,7 @@ class FrameDrawer():
 
     def draw_traj_bak(self, pred_poses, gt_poses, traj_cfg, tracking_mode):
         """draw trajectory and related information
+
         Args:
             pred_poses (dict): predicted poses w.r.t world coordinate system
         """
@@ -388,6 +404,7 @@ class FrameDrawer():
 
     def draw_traj(self, pred_poses, gt_poses, traj_cfg, tracking_mode):
         """draw trajectory and related information
+
         Args:
             pred_poses (dict): predicted poses w.r.t world coordinate system
         """
@@ -447,8 +464,12 @@ class FrameDrawer():
         cv2.putText(traj, text, (20, traj_h-40),
                     cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
 
-
     def main(self, vo):
+        """Main function for drawing
+
+        Args:
+            vo (DFVO): DFVO object
+        """
         # Trajectory visualization
         if vo.cfg.visualization.trajectory.vis_traj:
             vo.drawer.draw_traj(
@@ -524,7 +545,7 @@ class FrameDrawer():
             else:
                 h, w, c = vo.drawer.data["match_temp"][...].shape
                 vo.drawer.data["match_temp"][...] = np.zeros((h,w,c))
-        vo.timers.count('visualization_match', time()-start_time)
+        # vo.timers.count('visualization_match', time()-start_time)
 
         # Visualize flow (forward; backward) and flow inconsistency
         start_time = time()
@@ -544,7 +565,7 @@ class FrameDrawer():
             h, w, c = vo.drawer.data["flow2"][...].shape
             vo.drawer.data["flow2"][...] = np.zeros((h,w,c))
 
-        vo.timers.count('visualization_flow', time()-start_time)
+        # vo.timers.count('visualization_flow', time()-start_time)
 
         # Visualize full depth
         start_time = time()
@@ -579,7 +600,7 @@ class FrameDrawer():
         else:
             h, w, c = vo.drawer.data["depth"][...].shape
             vo.drawer.data["depth"][...] = np.zeros((h,w,c))
-        vo.timers.count('visualization_depth', time()-start_time)
+        # vo.timers.count('visualization_depth', time()-start_time)
 
         # visualize masks
         if vo.tracking_stage > 1 and vo.cfg.visualization.mask.vis_masks:
@@ -613,7 +634,7 @@ class FrameDrawer():
                 mask = vo.cur_data['rigid_flow_mask']
                 colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
                 vo.drawer.update_data("rigid_flow_mask", colormapped_im)
-            vo.timers.count('visualization_masks', time()-start_time)
+            # vo.timers.count('visualization_masks', time()-start_time)
 
         # Save visualization result
         if vo.cfg.visualization.save_img:
@@ -627,5 +648,5 @@ class FrameDrawer():
         cv2.waitKey(1)
 
         vo.drawer.interface()
-        vo.timers.count('visualization', time()-start_time)
+        # vo.timers.count('visualization', time()-start_time)
         return vo

@@ -60,7 +60,15 @@ def uniform_filtered_bestN(kp1, kp2, ref_data, cfg, outputs):
 
                 # computing masks
                 tmp_flow_diff = flow_diff[:, x0[0]:x1[0], x0[1]:x1[1]].copy()
-                flow_mask = tmp_flow_diff < flow_diff_thre
+
+                if score_method == "flow":
+                    flow_mask = tmp_flow_diff < flow_diff_thre
+                elif score_method == "flow_ratio":
+                    tmp_flow = np.expand_dims(ref_data['flow'][ref_id][:, x0[0]:x1[0], x0[1]:x1[1]], 0)
+                    tmp_flow = np.transpose(tmp_flow, (0, 2, 3, 1))
+                    tmp_flow_diff_ratio = tmp_flow_diff / np.linalg.norm(tmp_flow, axis=3, keepdims=True)
+                    flow_mask = tmp_flow_diff_ratio < flow_diff_thre
+
                 valid_mask = flow_mask
 
                 if kp_cfg.depth_consistency.enable:
@@ -69,10 +77,12 @@ def uniform_filtered_bestN(kp1, kp2, ref_data, cfg, outputs):
                     valid_mask *= depth_mask
                 
                 # computing scores
-                if score_method == "flow":
+                if score_method == 'flow':
                     score = tmp_flow_diff
-                elif score_method == "flow_depth":
+                elif score_method == 'flow_depth':
                     score = tmp_flow_diff * tmp_depth_diff
+                elif score_method == 'flow_ratio':
+                    score = tmp_flow_diff_ratio
 
                 # kp selection
                 tmp_kp_list = np.where(valid_mask)
@@ -115,7 +125,13 @@ def uniform_filtered_bestN(kp1, kp2, ref_data, cfg, outputs):
         outputs['kp2_best'][ref_id] = kp2_best
 
         # mask generation
-        outputs['flow_mask'] = flow_diff[0,:,:,0]
+        if score_method == 'flow_ratio':
+            flow = np.expand_dims(ref_data['flow'][ref_id], 0)
+            flow = np.transpose(flow, (0, 2, 3, 1))
+            flow_diff_ratio = flow_diff / np.linalg.norm(flow, axis=3, keepdims=True)
+            outputs['flow_mask'] = flow_diff_ratio[0,:,:,0]
+        elif score_method == 'flow':
+            outputs['flow_mask'] = flow_diff[0,:,:,0]
         valid_mask = (flow_diff < flow_diff_thre) * 1
 
         if kp_cfg.depth_consistency.enable:

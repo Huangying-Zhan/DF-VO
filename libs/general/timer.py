@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-21
 @LastEditors: Huangying Zhan
 @Description: Timer object for counting times.
 '''
@@ -102,5 +102,3 @@ class Timer():
                 avg_time = np.asarray(member['duration']).mean()
                 group_avg_times.append(avg_time)
                 print("\t[{}]: {:.03f}s".format(member['name'], avg_time))
-            if group_name != 'single':
-                print("Group [{}]'s total time: {:.03f}s".format(group_name, np.asarray(group_avg_times).sum()))

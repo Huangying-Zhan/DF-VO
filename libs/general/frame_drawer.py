@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-21
 @LastEditors: Huangying Zhan
 @Description: Frame drawer to display different visualizations
 '''
@@ -608,7 +608,11 @@ class FrameDrawer():
 
             if vo.cfg.kp_selection.flow_consistency.enable:
                 # normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)
-                normalizer = mpl.colors.Normalize(vmin=0, vmax=1)
+                vmax = 1
+                if vo.cfg.kp_selection.uniform_filtered_bestN.enable:
+                    if vo.cfg.kp_selection.uniform_filtered_bestN.score_method == "flow_ratio":
+                        vmax = 0.1
+                normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
                 mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
                 mask = vo.cur_data['flow_mask']
                 colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)

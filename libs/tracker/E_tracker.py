@@ -54,6 +54,20 @@ def find_Ess_mat(inputs):
                                 focal=cam_intrinsics.fx,
                                 pp=principal_points,)
         valid_case = cheirality_cnt > kp_cur.shape[0]*0.05
+    elif valid_cfg.method == "GRIC":
+        H_gric = inputs['H_gric']
+        # get F from E
+        K = cam_intrinsics.mat
+        F = np.linalg.inv(K.T) @ E @ np.linalg.inv(K)
+        E_res = compute_fundamental_residual(F, kp_cur, kp_ref)
+
+        E_gric = calc_GRIC(
+            res=E_res,
+            sigma=0.8,
+            n=kp_cur.shape[0],
+            model='EMat'
+        )
+        valid_case = H_gric > E_gric
     
     # gather output
     outputs = {}
@@ -67,17 +81,20 @@ def find_Ess_mat(inputs):
 
 
 class EssTracker():
-    def __init__(self, cfg, cam_intrinsics):
+    def __init__(self, cfg, cam_intrinsics, vo):
         self.cfg = cfg
         self.prev_scale = 0
         self.prev_pose = SE3()
         self.cam_intrinsics = cam_intrinsics
 
         if self.cfg.use_multiprocessing:
-            self.p = mp.Pool(5)
+            self.p = mp.Pool(2)
         
         # FIXME: For DOM
         self.save_tri_depth = False
+
+        # FIXME: For debug
+        self.vo = vo
 
     def compute_pose_2d2d(self, kp_ref, kp_cur):
         """Compute the pose from view2 to view1
@@ -118,13 +135,18 @@ class EssTracker():
                         ransacReprojThreshold=0.2,
                         )
         elif valid_cfg.method == "GRIC":
+            self.vo.timers.start('GRIC-H', 'E-tracker')
+            self.vo.timers.start('find H', 'E-tracker')
             H, H_inliers = cv2.findHomography(
                         kp_cur,
                         kp_ref,
                         method=cv2.RANSAC,
+                        # method=cv2.LMEDS,
                         confidence=0.99,
-                        ransacReprojThreshold=0.2,
+                        ransacReprojThreshold=1,
                         )
+            self.vo.timers.end('find H')
+
             H_res = compute_homography_residual(H, kp_cur, kp_ref)
             H_gric = calc_GRIC(
                         res=H_res,
@@ -132,10 +154,12 @@ class EssTracker():
                         n=kp_cur.shape[0],
                         model="HMat"
             )
+            self.vo.timers.end('GRIC-H')
 
         
         if valid_case:
             num_valid_case = 0
+            self.vo.timers.start('find-Ess (full)', 'E-tracker')
             for i in range(max_ransac_iter): # repeat ransac for several times for stable result
                 # shuffle kp_cur and kp_ref (only useful when random seed is fixed)	
                 new_list = np.arange(0, kp_cur.shape[0], 1)	
@@ -143,6 +167,7 @@ class EssTracker():
                 new_kp_cur = kp_cur.copy()[new_list]
                 new_kp_ref = kp_ref.copy()[new_list]
 
+                self.vo.timers.start('find-Ess', 'E-tracker')
                 E, inliers = cv2.findEssentialMat(
                             new_kp_cur,
                             new_kp_ref,
@@ -152,6 +177,7 @@ class EssTracker():
                             prob=0.99,
                             threshold=self.cfg.compute_2d2d_pose.ransac.reproj_thre,
                             )
+                self.vo.timers.end('find-Ess')
 
                 # check homography inlier ratio
                 if valid_cfg.method == "homo_ratio":
@@ -168,9 +194,9 @@ class EssTracker():
                     valid_case = cheirality_cnt > kp_cur.shape[0]*0.1
                     
                     # inlier check
-                    inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > kp_cur.shape[0]*0.05
-                
+                    inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > kp_cur.shape[0]*0.05               
                 elif valid_cfg.method == "GRIC":
+                    self.vo.timers.start('GRIC-E', 'E-tracker')
                     # get F from E
                     K = self.cam_intrinsics.mat
                     F = np.linalg.inv(K.T) @ E @ np.linalg.inv(K)
@@ -183,8 +209,13 @@ class EssTracker():
                         model='EMat'
                     )
                     valid_case = H_gric > E_gric
+
+                    # print("H_gric: ", H_gric)
+                    # print("E_gric: ", E_gric)
+                    # input("debug")
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt
+                    self.vo.timers.end('GRIC-E')
 
                 # save best_E
                 if inlier_check:
@@ -197,12 +228,15 @@ class EssTracker():
                     best_inliers = inliers[list(revert_new_list)]
                 num_valid_case += (valid_case * 1)
 
+            self.vo.timers.end('find-Ess (full)')
             major_valid = num_valid_case > (max_ransac_iter/2)
             if major_valid:
+                self.vo.timers.start('recover pose', 'E-tracker')
                 cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, kp_cur, kp_ref,
                                         focal=self.cam_intrinsics.fx,
                                         pp=principal_points,
                                         )
+                self.vo.timers.end('recover pose')
 
                 # cheirality_check
                 if cheirality_cnt > kp_cur.shape[0]*0.1:
@@ -227,7 +261,6 @@ class EssTracker():
                 - pose (SE3): relative pose from current to reference view
                 - best_inliers (N boolean array): inlier mask
         """
-        start_time = time()
         principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
 
         # validity check
@@ -254,7 +287,29 @@ class EssTracker():
                         confidence=0.99,
                         ransacReprojThreshold=0.2,
                         )
-        
+
+        elif valid_cfg.method == "GRIC":
+            self.vo.timers.start('GRIC-H', 'E-tracker')
+            self.vo.timers.start('find H', 'E-tracker')
+            H, H_inliers = cv2.findHomography(
+                        kp_cur,
+                        kp_ref,
+                        method=cv2.RANSAC,
+                        # method=cv2.LMEDS,
+                        confidence=0.99,
+                        ransacReprojThreshold=1,
+                        )
+            self.vo.timers.end('find H')
+
+            H_res = compute_homography_residual(H, kp_cur, kp_ref)
+            H_gric = calc_GRIC(
+                        res=H_res,
+                        sigma=0.8,
+                        n=kp_cur.shape[0],
+                        model="HMat"
+            )
+            self.vo.timers.end('GRIC-H')
+
         if valid_case:
             inputs_mp = []
             outputs_mp = []
@@ -271,6 +326,8 @@ class EssTracker():
                 inputs['H_inliers'] = H_inliers
                 inputs['cfg'] = self.cfg
                 inputs['cam_intrinsics'] = self.cam_intrinsics
+                if valid_cfg.method == "GRIC":
+                    inputs['H_gric'] = H_gric
                 inputs_mp.append(inputs)
             outputs_mp = self.p.map(find_Ess_mat, inputs_mp)
 
@@ -300,9 +357,8 @@ class EssTracker():
         pose = SE3()
         pose.R = R
         pose.t = t
-        self.timers.count('Ess. Mat.', time()-start_time)
 
-        outputs = {"pose": pose, "inliers": best_inliers}
+        outputs = {"pose": pose, "inliers": best_inliers[:, 0]==1}
         return outputs
 
     def scale_recovery(self, cur_data, ref_data, E_pose, ref_id):
@@ -330,6 +386,7 @@ class EssTracker():
             cur_data (dict)
             ref_data (dict)
             E_pose (SE3)
+
         Returns:
             scale (float)
         """
@@ -404,11 +461,13 @@ class EssTracker():
 
     def find_scale_from_depth(self, kp1, kp2, T_21, depth2):
         """Compute VO scaling factor for T_21
+
         Args:
             kp1 (Nx2 array): reference kp
             kp2 (Nx2 array): current kp
             T_21 (4x4 array): relative pose; from view 1 to view 2
             depth2 (HxW array): depth 2
+        
         Returns:
             scale (float): scaling factor
         """
@@ -426,11 +485,13 @@ class EssTracker():
         kp2_norm[:, 1] = \
             (kp2[:, 1] - self.cam_intrinsics.cy) / self.cam_intrinsics.fy
 
-        _, X1_tri, X2_tri = triangulation(kp1_norm, kp2_norm, np.eye(4), T_21)
+        self.vo.timers.start('triangulation', 'scale_recovery')
+        _, _, X2_tri = triangulation(kp1_norm, kp2_norm, np.eye(4), T_21)
 
         # Triangulation outlier removal
         depth2_tri = convert_sparse3D_to_depth(kp2, X2_tri, img_h, img_w)
         depth2_tri[depth2_tri < 0] = 0
+        self.vo.timers.end('triangulation')
 
 
 
@@ -455,6 +516,7 @@ class EssTracker():
         depth_pred_non_zero = np.concatenate([depth2[valid_mask2]])
         depth_tri_non_zero = np.concatenate([depth2_tri[valid_mask2]])
         depth_ratio = depth_tri_non_zero / depth_pred_non_zero
+        # return 1/np.median(depth_ratio)
         
             
 
@@ -463,6 +525,7 @@ class EssTracker():
         # if (valid_mask1.sum() + valid_mask2.sum()) > 10:
         if valid_mask2.sum() > 10:
             # RANSAC scaling solver
+            self.vo.timers.start('scale ransac', 'scale_recovery')
             ransac = linear_model.RANSACRegressor(
                         base_estimator=linear_model.LinearRegression(
                             fit_intercept=False),
@@ -482,6 +545,11 @@ class EssTracker():
                     depth_pred_non_zero.reshape(-1, 1),
                 )
             scale = ransac.estimator_.coef_[0, 0]
+
+            # print("scale: ", scale)
+            # input("debug")
+            self.vo.timers.end('scale ransac')
+
 
             # # scale outlier
             # if ransac.inlier_mask_.sum() / depth_ratio.shape[0] < 0.2:

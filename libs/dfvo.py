@@ -165,7 +165,7 @@ class DFVO():
 
     def initialize_tracker(self):
         if self.tracking_method == "hybrid":
-            self.e_tracker = EssTracker(self.cfg, self.dataset.cam_intrinsics)
+            self.e_tracker = EssTracker(self.cfg, self.dataset.cam_intrinsics, self)
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
         elif self.tracking_method == "PnP":
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
@@ -185,7 +185,7 @@ class DFVO():
 
     def tracking(self):
         """Tracking using both Essential matrix and PnP
-        Essential matrix for rotation (and direction);
+        Essential matrix for rotation and translation direction;
             *** triangluate depth v.s. CNN-depth for translation scale ***
         PnP if Essential matrix fails
         """
@@ -203,8 +203,10 @@ class DFVO():
                 self.depth_consistency_computer.compute(self.cur_data, self.ref_data)
 
             # kp_selection
+            self.timers.start('kp_sel', 'tracking')
             kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data, self.e_tracker)
             self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
+            self.timers.end('kp_sel')
 
             # Pose estimation
             for ref_id in self.ref_data['id']:
@@ -214,10 +216,12 @@ class DFVO():
 
                 if self.tracking_method in ['hybrid']:
                     # Essential matrix pose
+                    self.timers.start('E-tracker', 'tracking')
                     e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
                                     self.cur_data[self.cfg.compute_2d2d_pose.kp_src],
                                     self.ref_data[self.cfg.compute_2d2d_pose.kp_src][ref_id]) # pose: from cur->ref
                     E_pose = e_tracker_outputs['pose']
+                    self.timers.end('E-tracker')
 
                     # Rotation
                     hybrid_pose.R = E_pose.R
@@ -230,6 +234,7 @@ class DFVO():
                         # FIXME: for DOM
                         self.e_tracker.cnt = self.cur_data['id']
 
+                        self.timers.start('scale_recovery', 'tracking')
                         scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
                         scale = scale_out['scale']
                         if self.cfg.translation_scale.kp_src == 'kp_depth':
@@ -238,15 +243,18 @@ class DFVO():
                             self.cur_data['valid_mask'] *= scale_out['rigid_flow_mask']
                         if scale != -1:
                             hybrid_pose.t = E_pose.t * scale
+                        self.timers.end('scale_recovery')
 
                 if self.tracking_method in ['PnP', 'hybrid']:
                     # PnP if Essential matrix fail
                     if np.linalg.norm(E_pose.t) == 0 or scale == -1:
+                        self.timers.start('pnp', 'tracking')
                         pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
                                         self.cur_data[self.cfg.PnP.kp_src],
                                         self.ref_data[self.cfg.PnP.kp_src][ref_id],
                                         self.ref_data['depth'][ref_id]
                                         ) # pose: from cur->ref
+                        self.timers.end('pnp')
 
                         # use PnP pose instead of E-pose
                         hybrid_pose = pnp_outputs['pose']
@@ -397,8 +405,8 @@ class DFVO():
             start_frame = int(input("Start with frame: "))
 
         # FIXME: testing only
-        for img_id in tqdm(range(start_frame, 100)):
-        # for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
+        # for img_id in tqdm(range(start_frame, 100)):
+        for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
             self.timers.start('DF-VO')
             self.tracking_mode = "Ess. Mat."
 
@@ -419,12 +427,7 @@ class DFVO():
 
             """ Visual odometry """
             self.timers.start('tracking')
-            # if self.tracking_method == "hybrid":
             self.tracking()
-            # elif self.tracking_method == "PnP":
-            #     self.tracking_pnp()
-            # else:
-            #     raise NotImplementedError
             self.timers.end('tracking')
 
             """ Visualization """

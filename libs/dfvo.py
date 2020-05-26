@@ -192,7 +192,10 @@ class DFVO():
         # First frame
         if self.tracking_stage == 0:
             # initial pose
-            self.cur_data['pose'] = SE3(self.dataset.gt_poses[self.cur_data['id']])
+            if self.cfg.directory.gt_pose_dir is not None:
+                self.cur_data['pose'] = SE3(self.dataset.gt_poses[self.cur_data['id']])
+            else:
+                self.cur_data['pose'] = SE3()
             self.tracking_stage = 1
             return
 

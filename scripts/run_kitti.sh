@@ -1,6 +1,20 @@
+############# Unit Testing #############
+# TUM RGB-D seqs
+# python apis/run.py -d options/unit_test/default.yml -c options/unit_test/tum_0.yml  --no_confirm
+
+# # Adelaide seqs
+# python apis/run.py -d options/unit_test/default.yml -c options/unit_test/adelaide_0.yml  --no_confirm
+# python apis/run.py -d options/unit_test/default.yml -c result/tmp/0/configuration_2020_05_13-00.yml  --no_confirm
+
+# # KITTI Odometry seqs
+# python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_0.yml  --no_confirm
+
+# # KITTI Raw seqs
+# python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_1.yml  --no_confirm
+
 ############# Run particular exp #############
-python apis/run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/adelaide/default.yml  --no_confirm
-python apis/run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c result/dfvo2/adelaide/tmp/2/configuration_2020_05_13-00.yml  --no_confirm
+# python apis/run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/adelaide/default.yml  --no_confirm
+# python apis/run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c result/dfvo2/adelaide/tmp/2/configuration_2020_05_13-00.yml  --no_confirm
 # python run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/kitti/tro_exp/reference.yml  --no_confirm
 # python run.py -c options/kitti/sampling_test.yml --no_confirm
 # python run.py -c options/kitti/dfvo_test.yml --no_confirm
@@ -58,3 +72,11 @@ python apis/run.py -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c result/
 
 
 # # python run.py -c options/kitti/kitti_stereo_0.yml
+
+############# Generate flow predictions #############
+python tools/generate_flow_prediction.py \
+--dataset kitti2012 --flow_mask_thre 0.1 \
+--model ../robust-vo/deep_depth/monodepth2/checkpoint/kitti/flow/exp_2/0/09/M_640x192/models/weights_9/flow.pth \
+--result result/flow/kitti2012/lfn_odom09/epoch9
+
+ ./tools/evaluation/flow/kitti_flow_2012/evaluate_flow_train kitti2012/lfn_odom09/epoch9/

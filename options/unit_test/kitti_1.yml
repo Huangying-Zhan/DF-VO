@@ -152,6 +152,6 @@ visualization:
     vis_gt_traj: True
 
 directory:
-  img_seq_dir: dataset/kitti_raw
+  img_seq_dir: dataset/kitti_raw_rv
   gt_pose_dir: #dataset/kitti_raw_rv
   depth_dir: #/home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

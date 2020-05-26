@@ -5,10 +5,10 @@
 # ----------------------------------------------------------------------------
 debug: False
 use_multiprocessing: False
-seq: "09"
+seq: "10"
 dataset: kitti_odom # [kitti_odom, kitti_raw]
 seed: 4869
-result_dir: result/tmp/0
+result_dir: result/tmp/3/finetuneOTR/10_1
 frame_step: 1
 image:
   height: 192
@@ -27,7 +27,7 @@ tracking_method: 3
 compute_2d2d_pose:
   ransac:
     reproj_thre: 0.2
-    repeat: 5
+    repeat: 3
   validity:
     method: GRIC # [flow, homo_ratio, GRIC]
     thre: 
@@ -37,7 +37,7 @@ PnP:
   ransac:
     iter: 1000
     reproj_thre: 1
-    repeat: 5
+    repeat: 3
   kp_src: kp_best # [kp_best, kp_list, kp_rigid]
 
 # translation scale
@@ -56,13 +56,17 @@ translation_scale:
 # Deep Optical Flow
 # ----------------------------------------------------------------------------
 deep_flow:
+  half_flow: False
+  finetuneOTR: False
   forward_backward: True
   num_kp: 2000
   network: liteflow  
     # liteflow: LiteFlowNet
   # flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
+  # flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default-doubled.pytorch
+  # flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-kitti.pytorch
   # flow_net_weight: model_zoo/optical_flow/UnLiteFlowNet/kitti_odom/mono_640x192/flow.pth
-  flow_net_weight: /home/hyzhan/harddisk_local/DF-VO/robust-vo/deep_depth/monodepth2/checkpoint/kitti/flow/exp_2/0/09/M_640x192/models/weights_0/flow.pth
+  # flow_net_weight: /home/hyzhan/harddisk_local/DF-VO/robust-vo/deep_depth/monodepth2/checkpoint/kitti/flow/exp_2/0/10/M_640x192/models/weights_5/flow.pth
   batch_size: 1
   precomputed_flow: #tmp/result/flow/kitti_odom/liteflow_default/{}/npy
 
@@ -99,7 +103,7 @@ kp_selection:
     num_row: 10
     num_col: 10
     num_bestN: 2000
-    score_method: flow # [flow, flow_depth]
+    score_method: flow # [flow, flow_depth, flow_ratio]
   bestN:
     enable: False
     num_bestN: 2000
@@ -125,6 +129,7 @@ kp_selection:
 # Visualization
 # ----------------------------------------------------------------------------
 visualization:
+  enable: False
   save_img: True
   kp_src: kp_best
   flow: 
@@ -152,8 +157,9 @@ visualization:
 
 directory:
   img_seq_dir: dataset/kitti_odom/odom_data_jpg/
+  # img_seq_dir: dataset/kitti_odom/kitti_odom_rv/
   gt_pose_dir: dataset/kitti_odom/gt_poses/
-  depth_dir: ../robust-vo/dataset/kitti_odom/depth/
+  depth_dir: #../robust-vo/dataset/kitti_odom/depth/
   # img_seq_dir: dataset/kitti_raw
   # gt_pose_dir: dataset/kitti_raw
   # depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

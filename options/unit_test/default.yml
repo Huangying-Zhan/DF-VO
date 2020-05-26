@@ -36,6 +36,7 @@ depth:                                                                          
   min_depth: 0                                                                                       # | 
   pretrained_model: model_zoo/depth/kitti_odom/stereo/                                               # | 
 deep_flow:                                                                                           # |
+  finetuneOTR: False
   forward_backward: True                                                                             # | 
   num_kp: 2000                                                                                       # | 
   network: liteflow                                                                                  # | 

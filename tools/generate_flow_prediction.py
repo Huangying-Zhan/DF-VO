@@ -3,15 +3,14 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-07
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-21
 @LastEditors: Huangying Zhan
-@Description: This program generate optical flow prediction for KITTI Flow 2012/2015
+@Description: This program generates optical flow prediction for KITTI Flow 2012/2015
 '''
 
 import argparse
 import cv2
 from glob import glob
-# from matplotlib import pyplot as plt
 import numpy as np
 import os
 import scipy.misc
@@ -61,11 +60,13 @@ w = 1226
 
 def initialize_deep_flow_model(h, w, weight):
     """Initialize optical flow network
+
     Args:
         h (int): image height
         w (int): image width
+    
     Returns:
-        flow_net: optical flow network
+        flow_net (nn.Module): optical flow network
     """
     flow_net = LiteFlow(h, w)
     flow_net.initialize_network_model(
@@ -75,23 +76,26 @@ def initialize_deep_flow_model(h, w, weight):
 
 def read_image(path):
     """read image data and convert to RGB
+
     Args:
         path (str): image path
+    
     Returns:
-        img (HxWx3 array): image data
+        img (array, [HxWx3]): image data
     """
     img = cv2.imread(path, 1)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # img = cv2.resize(img, (w, h))
     return img
 
 def get_img_idxs(dataset, is_test):
     """Get image paths
+
     Args:
-        dataset: 
+        dataset (str): dataset type
             - kitti2012: All kitti-2012 image
             - kitti2015: All kitti-2015 image
         is_test (bool): Use testing set if true
+    
     Returns:
         img_idx (list): Indexs of test image
     """

@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-26
 @LastEditors: Huangying Zhan
 @Description: This is the Base class for deep flow network interface
 '''
@@ -20,14 +20,15 @@ import torch.nn.functional as F
 class DeepFlow():
     """DeepFlow is the Base class for deep flow network interface
     """
-    def __init__(self, h=None, w=None):
+    def __init__(self, cfg):
         """
         Args:
-           h (int): height
-           w (int): width 
+           cfg (edict): configuration dictionary
         """
-        self.height = h
-        self.width = w
+        self.cfg = cfg
+        self.flow_cfg = self.cfg.deep_flow
+        self.height = self.cfg.image.height
+        self.width = self.cfg.image.width
 
     def initialize_network_model(self, weight_path):
         """initialize flow_net model with weight_path

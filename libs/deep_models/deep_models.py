@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-25
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -60,10 +60,10 @@ class DeepModel():
         """Initialize optical flow network
         
         Returns:
-            flow_net (network): optical flow network
+            flow_net (nn.Module): optical flow network
         """
         if self.cfg.deep_flow.network == "liteflow":
-            flow_net = LiteFlow(self.cfg.image.height, self.cfg.image.width)
+            flow_net = LiteFlow(self.cfg)
             flow_net.initialize_network_model(
                     weight_path=self.cfg.deep_flow.flow_net_weight
                     )
@@ -77,7 +77,7 @@ class DeepModel():
         """Initialize single-view depth model
 
         Returns:
-            depth_net (network): single-view depth network
+            depth_net (nn.Module): single-view depth network
         """
         depth_net = Monodepth2DepthNet()
         depth_net.initialize_network_model(
@@ -89,7 +89,7 @@ class DeepModel():
         """Initialize two-view pose model
 
         Returns:
-            pose_net (network): two-view pose network
+            pose_net (nn.Module): two-view pose network
         """
         pose_net = Monodepth2PoseNet()
         pose_net.initialize_network_model(

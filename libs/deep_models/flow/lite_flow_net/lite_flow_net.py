@@ -319,5 +319,6 @@ class LiteFlowNet(torch.nn.Module):
 
         # post-processing flow
         for i in flows:
-            flows[i] = flows[i] * (20.0 * (0.5 ** (i-1)))
+            # flows[i] = flows[i] * (20.0 * (0.5 ** (i-1)))
+            flows[i] = flows[i] * (20.0 * (0.5 ** i))
         return flows

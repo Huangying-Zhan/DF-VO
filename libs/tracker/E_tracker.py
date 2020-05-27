@@ -14,7 +14,7 @@ from .gric import *
 from libs.geometry.camera_modules import SE3
 from libs.geometry.ops_3d import *
 from libs.general.utils import image_shape, image_grid
-from libs.matching.kp_selection import rigid_flow_kp, opt_rigid_flow_kp
+from libs.matching.kp_selection import opt_rigid_flow_kp
 
 # FIXME: For DOM
 import os
@@ -583,8 +583,10 @@ class EssTracker():
 
         return scale
 
-    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method="rigid_flow_kp"):
+    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method="uniform"):
         """Choose valid kp from a series of operations
+
+        rigid_kp_method : [uniform, best]
         """
         outputs = {}
 
@@ -619,26 +621,37 @@ class EssTracker():
             ref_data['rigid_flow_diff'] = rigid_flow_diff
 
             # get depth-flow consistent kp
-            if rigid_kp_method == "rigid_flow_kp":
-                outputs.update(
-                    rigid_flow_kp(
-                        kp1=kp1,
-                        kp2=kp2,
-                        ref_data=ref_data,
-                        cfg=self.cfg,
-                        outputs=outputs
-                        )
-                )
-            elif rigid_kp_method == "opt_rigid_flow_kp":
-                outputs.update(
+            outputs.update(
                     opt_rigid_flow_kp(
                         kp1=kp1,
                         kp2=kp2,
                         ref_data=ref_data,
                         cfg=self.cfg,
-                        outputs=outputs
+                        outputs=outputs,
+                        method=rigid_kp_method
                         )
                 )
+            # if rigid_kp_method == "uniform":
+            #     outputs.update(
+            #         rigid_flow_kp(
+            #             kp1=kp1,
+            #             kp2=kp2,
+            #             ref_data=ref_data,
+            #             cfg=self.cfg,
+            #             outputs=outputs,
+            #             method=rigid_kp_method
+            #             )
+            #     )
+            # elif rigid_kp_method == "best":
+            #     outputs.update(
+            #         opt_rigid_flow_kp(
+            #             kp1=kp1,
+            #             kp2=kp2,
+            #             ref_data=ref_data,
+            #             cfg=self.cfg,
+            #             outputs=outputs
+            #             )
+            #     )
                 
 
         return outputs

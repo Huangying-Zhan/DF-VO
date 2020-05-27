@@ -361,16 +361,16 @@ class EssTracker():
         outputs = {"pose": pose, "inliers": best_inliers[:, 0]==1}
         return outputs
 
-    def scale_recovery(self, cur_data, ref_data, E_pose, ref_id):
+    def scale_recovery(self, cur_data, ref_data, E_pose):
         """recover depth scale
         """
         outputs = {}
 
         if self.cfg.translation_scale.method == "single":
-            scale = self.scale_recovery_single(cur_data, ref_data, E_pose, ref_id)
+            scale = self.scale_recovery_single(cur_data, ref_data, E_pose)
         
         elif self.cfg.translation_scale.method == "iterative":
-            iter_outputs = self.scale_recovery_iterative(cur_data, ref_data, E_pose, ref_id)
+            iter_outputs = self.scale_recovery_iterative(cur_data, ref_data, E_pose)
             scale = iter_outputs['scale']
             outputs['cur_kp_depth'] = iter_outputs['cur_kp']
             outputs['ref_kp_depth'] = iter_outputs['ref_kp']
@@ -379,7 +379,7 @@ class EssTracker():
         outputs['scale'] = scale
         return outputs
 
-    def scale_recovery_single(self, cur_data, ref_data, E_pose, ref_id):
+    def scale_recovery_single(self, cur_data, ref_data, E_pose):
         """recover depth scale by comparing triangulated depths and CNN depths
         
         Args:
@@ -391,7 +391,7 @@ class EssTracker():
             scale (float)
         """
         ref_kp = cur_data[self.cfg.translation_scale.kp_src]
-        cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+        cur_kp = ref_data[self.cfg.translation_scale.kp_src]
 
         scale = self.find_scale_from_depth(
             ref_kp,
@@ -401,7 +401,7 @@ class EssTracker():
         )
         return scale
 
-    def scale_recovery_iterative(self, cur_data, ref_data, E_pose, ref_id):
+    def scale_recovery_iterative(self, cur_data, ref_data, E_pose):
         """recover depth scale by comparing triangulated depths and CNN depths
         Iterative scale recovery is applied
         
@@ -423,20 +423,19 @@ class EssTracker():
             rigid_flow_pose = copy.deepcopy(E_pose)
             rigid_flow_pose.t *= scale
 
-            ref_data['rigid_flow_pose'][ref_id] = SE3(rigid_flow_pose.inv_pose)
+            ref_data['rigid_flow_pose'] = SE3(rigid_flow_pose.inv_pose)
 
             # kp selection
             kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data)
             ref_data['kp_depth'] = {}
             cur_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
-            for ref_id in ref_data['id']:
-                ref_data['kp_depth'][ref_id] = kp_sel_outputs['kp2_depth'][ref_id][0]
+            ref_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
             
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
             # translation scale from triangulation v.s. CNN-depth
             ref_kp = cur_data[self.cfg.translation_scale.kp_src]
-            cur_kp = ref_data[self.cfg.translation_scale.kp_src][ref_id]
+            cur_kp = ref_data[self.cfg.translation_scale.kp_src]
 
             new_scale = self.find_scale_from_depth(
                 ref_kp,
@@ -591,24 +590,23 @@ class EssTracker():
 
         # initialization
         h, w = cur_data['depth'].shape
-        ref_id = ref_data['id'][0]
 
         kp1 = image_grid(h, w)
         kp1 = np.expand_dims(kp1, 0)
-        tmp_flow_data = np.transpose(np.expand_dims(ref_data['flow'][ref_id], 0), (0, 2, 3, 1))
+        tmp_flow_data = np.transpose(np.expand_dims(ref_data['flow'], 0), (0, 2, 3, 1))
         kp2 = kp1 + tmp_flow_data
 
         """ opt-rigid flow consistent kp selection """
         if self.cfg.kp_selection.rigid_flow_kp.enable:
             ref_data['rigid_flow_diff'] = {}
             # compute rigid flow
-            rigid_flow_pose = ref_data['rigid_flow_pose'][ref_id].pose
+            rigid_flow_pose = ref_data['rigid_flow_pose'].pose
             rigid_flow = self.compute_rigid_flow(
-                                        ref_data['raw_depth'][ref_id],  
+                                        ref_data['raw_depth'],  
                                         rigid_flow_pose
                                         )
             rigid_flow_diff = np.linalg.norm(
-                                rigid_flow - ref_data['flow'][ref_id].transpose(1,2,0),
+                                rigid_flow - ref_data['flow'].transpose(1,2,0),
                                 axis=2)
             # DEBUG
             # from matplotlib import pyplot as plt
@@ -618,7 +616,7 @@ class EssTracker():
             rigid_flow_diff = np.expand_dims(rigid_flow_diff, 2)
             
 
-            ref_data['rigid_flow_diff'][ref_id] = rigid_flow_diff
+            ref_data['rigid_flow_diff'] = rigid_flow_diff
 
             # get depth-flow consistent kp
             if rigid_kp_method == "rigid_flow_kp":

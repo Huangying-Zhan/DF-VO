@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-26
+@LastEditTime: 2020-05-27
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -111,39 +111,36 @@ class DeepModel():
         
         Returns:
             flows (dict): predicted flow data. flows[(id1, id2)] is flows from id1 to id2.
+
+                - **flows(id1, id2)** (array, 2xHxW): flows from id1 to id2
+                - **flows(id2, id1)** (array, 2xHxW): flows from id2 to id1
+                - **flows(id1, id2, 'diff)** (array, 1xHxW): flow difference of id1
         """
         # Preprocess image
-        ref_imgs = []
-        cur_imgs = []
-        cur_img = np.transpose((in_cur_data['img'])/255, (2, 0, 1))
-        for ref_id in in_ref_data['id']:
-            ref_img = np.transpose((in_ref_data['img'][ref_id])/255, (2, 0, 1))
-            ref_imgs.append(ref_img)
-            cur_imgs.append(cur_img)
+        cur_imgs = [np.transpose((in_cur_data['img'])/255, (2, 0, 1))]
+        ref_imgs = [np.transpose((in_ref_data['img'])/255, (2, 0, 1))]
         ref_imgs = np.asarray(ref_imgs)
         cur_imgs = np.asarray(cur_imgs)
 
         # Forward pass
         flows = {}
         batch_size = self.cfg.deep_flow.batch_size
-        num_forward = int(np.ceil(len(in_ref_data['id']) / batch_size))
-        for i in range(num_forward):
-            # Flow inference
-            batch_flows = self.flow.inference_flow(
-                                    img1=ref_imgs[i*batch_size: (i+1)*batch_size],
-                                    img2=cur_imgs[i*batch_size: (i+1)*batch_size],
-                                    flow_dir=self.cfg.deep_flow.precomputed_flow,
-                                    forward_backward=forward_backward,
-                                    dataset=self.cfg.dataset)
-            
-            # Save flows at current view
-            for j in range(batch_size):
-                src_id = in_ref_data['id'][i*batch_size: (i+1)*batch_size][j]
-                tgt_id = in_cur_data['id']
-                flows[(src_id, tgt_id)] = batch_flows['forward'][j].copy()
-                if forward_backward:
-                    flows[(tgt_id, src_id)] = batch_flows['backward'][j].copy()
-                    flows[(src_id, tgt_id, "diff")] = batch_flows['flow_diff'][j].copy()
+
+        # Flow inference
+        batch_flows = self.flow.inference_flow(
+                                img1=ref_imgs,
+                                img2=cur_imgs,
+                                flow_dir=self.cfg.deep_flow.precomputed_flow,
+                                forward_backward=forward_backward,
+                                dataset=self.cfg.dataset)
+        
+        # Save flows at current view
+        src_id = in_ref_data['id']
+        tgt_id = in_cur_data['id']
+        flows[(src_id, tgt_id)] = batch_flows['forward'].copy()[0]
+        if forward_backward:
+            flows[(tgt_id, src_id)] = batch_flows['backward'].copy()[0]
+            flows[(src_id, tgt_id, "diff")] = batch_flows['flow_diff'].copy()[0]
         return flows
 
     def forward_depth(self):

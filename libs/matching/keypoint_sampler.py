@@ -92,11 +92,10 @@ class KeypointSampler():
 
         # initialization
         h, w = cur_data['depth'].shape
-        ref_id = ref_data['id'][0]
 
         kp1 = image_grid(h, w)
         kp1 = np.expand_dims(kp1, 0)
-        tmp_flow_data = np.transpose(np.expand_dims(ref_data['flow'][ref_id], 0), (0, 2, 3, 1))
+        tmp_flow_data = np.transpose(np.expand_dims(ref_data['flow'], 0), (0, 2, 3, 1))
         kp2 = kp1 + tmp_flow_data
 
         """ best-N selection """
@@ -140,10 +139,8 @@ class KeypointSampler():
         # FIXME: reorganize this part
         # if self.cfg.kp_selection.rigid_flow_kp.enable:
         if False:
-            ref_data['rigid_flow_pose'] = {}
-            for ref_id in ref_data['id']:
-                rigid_flow_pose = ref_data['deep_pose'][ref_id]
-                ref_data['rigid_flow_pose'][ref_id] = SE3(np.linalg.inv(rigid_flow_pose))
+            rigid_flow_pose = ref_data['deep_pose']
+            ref_data['rigid_flow_pose'] = SE3(np.linalg.inv(rigid_flow_pose))
 
             # kp selection
             # FIXME: place kp_selection_good_depth in a better place
@@ -164,8 +161,7 @@ class KeypointSampler():
             # save selected kp
             ref_data['kp_best'] = {}
             cur_data['kp_best'] = kp_sel_outputs['kp1_best'][0]
-            for ref_id in ref_data['id']:
-                ref_data['kp_best'][ref_id] = kp_sel_outputs['kp2_best'][ref_id][0]
+            ref_data['kp_best'] = kp_sel_outputs['kp2_best'][0]
             
             # save mask
             cur_data['flow_mask'] = kp_sel_outputs['flow_mask']
@@ -175,8 +171,7 @@ class KeypointSampler():
         if self.cfg.kp_selection.sampled_kp.enable:
             ref_data['kp_list'] = {}
             cur_data['kp_list'] = kp_sel_outputs['kp1_list'][0]
-            for ref_id in ref_data['id']:
-                ref_data['kp_list'][ref_id] = kp_sel_outputs['kp2_list'][ref_id][0]
+            ref_data['kp_list'] = kp_sel_outputs['kp2_list'][0]
         
         # FIXME: disabled rigid flow mask
         if False:
@@ -185,8 +180,7 @@ class KeypointSampler():
             cur_data['kp_rigid'] = kp_sel_outputs['kp1_rigid'][0]
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
             cur_data['flow_mask'] = kp_sel_outputs['flow_mask']
-            for ref_id in ref_data['id']:
-                ref_data['kp_rigid'][ref_id] = kp_sel_outputs['kp2_rigid'][ref_id][0]
+            ref_data['kp_rigid'] = kp_sel_outputs['kp2_rigid'][0]
         
         if self.cfg.kp_selection.depth_consistency.enable:
             cur_data['depth_mask'] = kp_sel_outputs['depth_mask']

@@ -115,33 +115,29 @@ class DFVO():
 
     def initialize_data(self):
         self.ref_data = {
-                        'id': [], 
-                        'timestamp': {},
-                        'img': {},
-                        'depth': {},
-                        'raw_depth': {},
-                        'pose': {},
-                        'kp': {},
-                        'kp_best': {},
-                        'kp_list': {},
-                        'pose_back': {},
-                        'kp_back': {},
-                        'flow': {},  # from ref->cur
-                        'flow_diff': {},  # flow-consistency-error of ref->cur
-                        'inliers': {}
+                        'id': None, 
+                        'timestamp': None,
+                        'img': None,
+                        'depth': None,
+                        'raw_depth': None,
+                        'pose': None,
+                        # 'kp': None,
+                        'kp_best': None,
+                        'kp_list': None,
+                        'flow': None,  # from ref->cur
+                        'flow_diff': None,  # flow-consistency-error of ref->cur
+                        'inliers': None
                         }
         self.cur_data = {
-                        'id': 0,
-                        'timestamp': 0,
-                        'img': np.zeros(1),
-                        'depth': np.zeros(1),
-                        'pose': np.eye(4),
-                        'kp': np.zeros(1),
-                        'kp_best': np.zeros(1),
-                        'kp_list': np.zeros(1),
-                        'pose_back': np.eye(4),
-                        'kp_back': np.zeros(1),
-                        'flow': {},  # from cur->ref
+                        'id': None,
+                        'timestamp': None,
+                        'img': None,
+                        'depth': None,
+                        'pose': None,
+                        # 'kp': None,
+                        'kp_best': None,
+                        'kp_list': None,
+                        'flow': None,  # from cur->ref
                         }
 
     def get_tracking_method(self, method_idx):
@@ -211,85 +207,61 @@ class DFVO():
             self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
             self.timers.end('kp_sel')
 
-            # Pose estimation
-            for ref_id in self.ref_data['id']:
-                # Initialize hybrid pose
-                hybrid_pose = SE3()
-                E_pose = SE3()
+            ''' Pose estimation '''
+            # Initialize hybrid pose
+            hybrid_pose = SE3()
+            E_pose = SE3()
 
-                if self.tracking_method in ['hybrid']:
-                    # Essential matrix pose
-                    self.timers.start('E-tracker', 'tracking')
-                    e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
-                                    self.cur_data[self.cfg.compute_2d2d_pose.kp_src],
-                                    self.ref_data[self.cfg.compute_2d2d_pose.kp_src][ref_id]) # pose: from cur->ref
-                    E_pose = e_tracker_outputs['pose']
-                    self.timers.end('E-tracker')
+            if self.tracking_method in ['hybrid']:
+                # Essential matrix pose
+                self.timers.start('E-tracker', 'tracking')
+                e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
+                                self.cur_data[self.cfg.compute_2d2d_pose.kp_src],
+                                self.ref_data[self.cfg.compute_2d2d_pose.kp_src]) # pose: from cur->ref
+                E_pose = e_tracker_outputs['pose']
+                self.timers.end('E-tracker')
 
-                    # Rotation
-                    hybrid_pose.R = E_pose.R
+                # Rotation
+                hybrid_pose.R = E_pose.R
 
-                    # save inliers
-                    self.ref_data['inliers'][ref_id] = e_tracker_outputs['inliers']
+                # save inliers
+                self.ref_data['inliers'] = e_tracker_outputs['inliers']
 
-                    # scale recovery
-                    if np.linalg.norm(E_pose.t) != 0:
-                        # FIXME: for DOM
-                        self.e_tracker.cnt = self.cur_data['id']
+                # scale recovery
+                if np.linalg.norm(E_pose.t) != 0:
+                    # FIXME: for DOM
+                    self.e_tracker.cnt = self.cur_data['id']
 
-                        self.timers.start('scale_recovery', 'tracking')
-                        scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, ref_id)
-                        scale = scale_out['scale']
-                        if self.cfg.translation_scale.kp_src == 'kp_depth':
-                            self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
-                            self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
-                            self.cur_data['valid_mask'] *= scale_out['rigid_flow_mask']
-                        if scale != -1:
-                            hybrid_pose.t = E_pose.t * scale
-                        self.timers.end('scale_recovery')
+                    self.timers.start('scale_recovery', 'tracking')
+                    scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose)
+                    scale = scale_out['scale']
+                    if self.cfg.translation_scale.kp_src == 'kp_depth':
+                        self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
+                        self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
+                        self.cur_data['valid_mask'] *= scale_out['rigid_flow_mask']
+                    if scale != -1:
+                        hybrid_pose.t = E_pose.t * scale
+                    self.timers.end('scale_recovery')
 
-                if self.tracking_method in ['PnP', 'hybrid']:
-                    # PnP if Essential matrix fail
-                    if np.linalg.norm(E_pose.t) == 0 or scale == -1:
-                        self.timers.start('pnp', 'tracking')
-                        pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
-                                        self.cur_data[self.cfg.PnP.kp_src],
-                                        self.ref_data[self.cfg.PnP.kp_src][ref_id],
-                                        self.ref_data['depth'][ref_id]
-                                        ) # pose: from cur->ref
-                        self.timers.end('pnp')
-
-                        # use PnP pose instead of E-pose
-                        hybrid_pose = pnp_outputs['pose']
-                        self.tracking_mode = "PnP"
-
-                # DEBUG
-                # if self.tracking_method in ['PnP', 'hybrid']:
+            if self.tracking_method in ['PnP', 'hybrid']:
                 # PnP if Essential matrix fail
-                # pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
-                #                 self.cur_data[self.cfg.PnP.kp_src],
-                #                 self.ref_data[self.cfg.PnP.kp_src][ref_id],
-                #                 self.ref_data['depth'][ref_id]
-                #                 ) # pose: from cur->ref
+                if np.linalg.norm(E_pose.t) == 0 or scale == -1:
+                    self.timers.start('pnp', 'tracking')
+                    pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
+                                    self.cur_data[self.cfg.PnP.kp_src],
+                                    self.ref_data[self.cfg.PnP.kp_src],
+                                    self.ref_data['depth']
+                                    ) # pose: from cur->ref
+                    self.timers.end('pnp')
 
-                # if np.linalg.norm(E_pose.t) == 0 :
-                #     # use PnP pose instead of E-pose
-                #     hybrid_pose = pnp_outputs['pose']
-                #     self.tracking_mode = "PnP"
-                # else:
-                #     pnp_pose = pnp_outputs['pose']
-                #     pnp_scale = np.linalg.norm(pnp_pose.t)
-                #     hybrid_pose.t = E_pose.t * pnp_scale
+                    # use PnP pose instead of E-pose
+                    hybrid_pose = pnp_outputs['pose']
+                    self.tracking_mode = "PnP"
 
-                #     gt_rel = np.linalg.inv(self.dataset.gt_poses[self.cur_data['id']]) @ self.dataset.gt_poses[self.ref_data['id'][0]]
-                    # print("pnp scale: ", pnp_scale)
-                    # print("gt_scale: ", np.linalg.norm(gt_rel[:3, 3]))
-
-
-                self.ref_data['pose'][ref_id] = copy.deepcopy(hybrid_pose)
+            self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
 
             # update global poses
-            pose = self.ref_data['pose'][self.ref_data['id'][-1]]
+            pose = self.ref_data['pose']
 
             # FIXME: testing only
             # print(pose.pose)
@@ -323,16 +295,16 @@ class DFVO():
         """
         for key in cur_data:
             if key == "id":
-                ref_data['id'].append(cur_data['id'])
-                if len(ref_data['id']) > window_size - 1:
-                    del(ref_data['id'][0])
+                ref_data['id'] = cur_data['id']
+                # if len(ref_data['id']) > window_size - 1:
+                #     del(ref_data['id'][0])
             else:
-                if ref_data.get(key, -1) == -1:
+                if ref_data.get(key, -1) is -1:
                     ref_data[key] = {}
-                ref_data[key][cur_data['id']] = cur_data[key]
-                if len(ref_data[key]) > window_size - 1:
-                    drop_id = np.min(list(ref_data[key].keys()))
-                    del(ref_data[key][drop_id])
+                ref_data[key] = cur_data[key]
+                # if len(ref_data[key]) > window_size - 1:
+                #     drop_id = np.min(list(ref_data[key].keys()))
+                #     del(ref_data[key][drop_id])
         
         # Delete unused flow to avoid data leakage
         ref_data['flow'] = {}
@@ -374,14 +346,10 @@ class DFVO():
                                     forward_backward=self.cfg.deep_flow.forward_backward)
             
             # Store flow
-            batch_size = self.cfg.deep_flow.batch_size
-            num_forward = int(np.ceil(len(self.ref_data['id']) / batch_size))
-            for i in range(num_forward):
-                for ref_id in self.ref_data['id']:
-                    self.ref_data['flow'][ref_id] = flows[(self.ref_data['id'][i], self.cur_data['id'])].copy()
-                    if self.cfg.deep_flow.forward_backward:
-                        self.cur_data['flow'][ref_id] = flows[(self.cur_data['id'], self.ref_data['id'][i])].copy()
-                        self.ref_data['flow_diff'][ref_id] = flows[(self.ref_data['id'][i], self.cur_data['id'], "diff")].copy()
+            self.ref_data['flow'] = flows[(self.ref_data['id'], self.cur_data['id'])].copy()
+            if self.cfg.deep_flow.forward_backward:
+                self.cur_data['flow'] = flows[(self.cur_data['id'], self.ref_data['id'])].copy()
+                self.ref_data['flow_diff'] = flows[(self.ref_data['id'], self.cur_data['id'], "diff")].copy()
             
             self.timers.end('flow_cnn')
         
@@ -390,13 +358,12 @@ class DFVO():
             self.timers.start('pose_cnn', 'deep inference')
             # Deep pose prediction
             self.ref_data['deep_pose'] = {}
-            for ref_id in self.ref_data['id']:
-                # pose prediction
-                pose = self.deep_models.pose.inference(
-                                self.ref_data['img'][ref_id],
-                                self.cur_data['img'], 
-                                )
-                self.ref_data['deep_pose'][ref_id] = pose[0] # from cur->ref
+            # pose prediction
+            pose = self.deep_models.pose.inference(
+                            self.ref_data['img'],
+                            self.cur_data['img'], 
+                            )
+            self.ref_data['deep_pose'] = pose[0] # from cur->ref
             self.timers.end('pose_cnn')
 
     def main(self):
@@ -408,7 +375,7 @@ class DFVO():
             start_frame = int(input("Start with frame: "))
 
         # FIXME: testing only
-        # for img_id in tqdm(range(start_frame, 100)):
+        # for img_id in tqdm(range(start_frame, 3)):
         for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
             self.timers.start('DF-VO')
             self.tracking_mode = "Ess. Mat."

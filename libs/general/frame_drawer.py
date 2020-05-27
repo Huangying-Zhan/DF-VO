@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-21
+@LastEditTime: 2020-05-27
 @LastEditors: Huangying Zhan
 @Description: Frame drawer to display different visualizations
 '''
@@ -482,20 +482,19 @@ class FrameDrawer():
         # Draw correspondence
         start_time = time()
         if vo.tracking_stage > 1:
-            ref_id = vo.ref_data['id'][-1]
 
             # Set number of kp to be visualized
             if (vo.cur_data[vo.cfg.visualization.kp_src].shape[0] < vo.cfg.visualization.match.kp_num or \
-                    vo.ref_data[vo.cfg.visualization.kp_src][ref_id].shape[0] < vo.cfg.visualization.match.kp_num or\
+                    vo.ref_data[vo.cfg.visualization.kp_src].shape[0] < vo.cfg.visualization.match.kp_num or\
                         vo.cfg.visualization.match.kp_num == -1):
-                vis_kp_num = min(vo.cur_data[vo.cfg.visualization.kp_src].shape[0], vo.ref_data[vo.cfg.visualization.kp_src][ref_id].shape[0])
+                vis_kp_num = min(vo.cur_data[vo.cfg.visualization.kp_src].shape[0], vo.ref_data[vo.cfg.visualization.kp_src].shape[0])
             else:
                 vis_kp_num = vo.cfg.visualization.match.kp_num
 
             if vo.drawer.display['match_side'] and\
                 vo.cfg.visualization.match.vis_side.enable:
                 # Set keypoints
-                vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
+                vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src]
                 vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
 
                 # Draw 3D-2D correspondence
@@ -509,11 +508,11 @@ class FrameDrawer():
                     colormapped_im = (mapper.to_rgba(vis_depth)[:, :, :3] * 255).astype(np.uint8)
 
                 if vo.cfg.visualization.match.vis_side.inlier_plot:
-                    inliers=vo.ref_data['inliers'][ref_id]
+                    inliers=vo.ref_data['inliers']
                 else:
                     inliers=None
                 vis_match_side = draw_match_side(
-                    img2=vo.ref_data['img'][ref_id],
+                    img2=vo.ref_data['img'],
                     kp2=vis_kp_cur,
                     img1=vo.cur_data['img'],
                     # img1=colormapped_im,
@@ -531,11 +530,11 @@ class FrameDrawer():
                 vo.cfg.visualization.match.vis_temp.enable:
                 
                 # Set keypoints
-                vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src][ref_id]
+                vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src]
                 vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
 
                 vis_match_temp = draw_match_temporal(
-                        img1=vo.ref_data['img'][ref_id],
+                        img1=vo.ref_data['img'],
                         kp1=vis_kp_ref,
                         img2=vo.cur_data['img'],
                         kp2=vis_kp_cur,
@@ -550,7 +549,7 @@ class FrameDrawer():
         # Visualize flow (forward; backward) and flow inconsistency
         start_time = time()
         if vo.drawer.display['flow1'] and vo.cfg.visualization.flow.vis_full_flow and vo.tracking_stage > 1:
-            vis_flow = vo.ref_data['flow'][vo.ref_data['id'][0]].transpose(1,2,0)
+            vis_flow = vo.ref_data['flow'].transpose(1,2,0)
             vis_flow = flow_to_image(vis_flow)
             vo.drawer.update_data("flow1", vis_flow)
         else:
@@ -558,7 +557,7 @@ class FrameDrawer():
             vo.drawer.data["flow1"][...] = np.zeros((h,w,c))
 
         if vo.drawer.display['flow2'] and vo.cfg.visualization.flow.vis_back_flow and vo.tracking_stage > 1:
-            vis_flow = vo.cur_data['flow'][vo.ref_data['id'][0]].transpose(1,2,0)
+            vis_flow = vo.cur_data['flow'].transpose(1,2,0)
             vis_flow = flow_to_image(vis_flow)
             vo.drawer.update_data("flow2", vis_flow)
         else:

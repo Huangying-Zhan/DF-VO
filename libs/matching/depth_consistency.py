@@ -58,12 +58,11 @@ class DepthConsistency():
         data['cur_id'] = cur_data['id']
         data['ref_id'] = ref_data['id']
 
-        for ref_id in ref_data['id']:
-            # reference depth
-            data[('depth', ref_id)] = torch.from_numpy(ref_data['raw_depth'][ref_id]).unsqueeze(0).unsqueeze(0).float().cuda()
+        # reference depth
+        data[('depth', data['ref_id'])] = torch.from_numpy(ref_data['raw_depth']).unsqueeze(0).unsqueeze(0).float().cuda()
 
-            # pose
-            data[('pose_T', cur_data['id'], ref_id)] = torch.from_numpy(ref_data['deep_pose'][ref_id]).unsqueeze(0).float().cuda()
+        # pose
+        data[('pose_T', cur_data['id'], data['ref_id'])] = torch.from_numpy(ref_data['deep_pose']).unsqueeze(0).float().cuda()
         
         return data
 
@@ -84,8 +83,8 @@ class DepthConsistency():
         
         Returns:
             a dictionary containing
-                - **('warp_depth', 0, frame_id)** (tensor, [1x1xHxW]): warped depth map
-                - **('reproj_depth', 0, frame_id)** (tensor, [1x1xHxW]): reprojected depth map
+                - **('warp_depth', cur_id, ref_id)** (tensor, [1x1xHxW]): synthesized current depth map
+                - **('reproj_depth', cur_id, ref_id)** (tensor, [1x1xHxW]): transformed current depth map
         """
         outputs = {}
         K = inputs['K']
@@ -98,23 +97,22 @@ class DepthConsistency():
 
         n, _, h, w = cur_depth.shape
 
-        for frame_id in inputs['ref_id']:
-            T = inputs[("pose_T", inputs['cur_id'], frame_id)]
+        T = inputs[("pose_T", inputs['cur_id'], inputs['ref_id'])]
 
-            # reprojection
-            reproj_xy = self.reproj(cur_depth, T, K, inv_K)
+        # reprojection
+        reproj_xy = self.reproj(cur_depth, T, K, inv_K)
 
-            # Warp src depth to tgt ref view
-            outputs[('warp_depth', inputs['cur_id'], frame_id)] = nnFunc.grid_sample(
-                inputs[("depth",  frame_id)],
-                reproj_xy,
-                padding_mode="border")
-                
-            # Reproject cur_depth
-            transformed_cam_points = torch.matmul(T[:, :3, :], cam_points)
-            transformed_cam_points = transformed_cam_points.view(n, 3, h, w)
-            proj_depth = transformed_cam_points[:, 2:, :, :]
-            outputs[('reproj_depth', inputs['cur_id'], frame_id)] = proj_depth
+        # Warp src depth to tgt ref view
+        outputs[('warp_depth', inputs['cur_id'], inputs['ref_id'])] = nnFunc.grid_sample(
+            inputs[("depth",  inputs['ref_id'])],
+            reproj_xy,
+            padding_mode="border")
+            
+        # Reproject cur_depth
+        transformed_cam_points = torch.matmul(T[:, :3, :], cam_points)
+        transformed_cam_points = transformed_cam_points.view(n, 3, h, w)
+        proj_depth = transformed_cam_points[:, 2:, :, :]
+        outputs[('reproj_depth', inputs['cur_id'], inputs['ref_id'])] = proj_depth
         return outputs
 
     def compute_depth_diff(self, depth_data, inputs):
@@ -136,21 +134,20 @@ class DepthConsistency():
                 - **(depth_diff, cur_id, ref_id)** (array, [HxW]): depth difference
         """
         outputs = {}
-        for ref_id in inputs['ref_id']:
-            warp_depth = depth_data[('warp_depth', inputs['cur_id'], ref_id)]
-            reproj_depth = depth_data[('reproj_depth', inputs['cur_id'], ref_id)]
-            depth_diff = (warp_depth - reproj_depth).abs()
+        warp_depth = depth_data[('warp_depth', inputs['cur_id'], inputs['ref_id'])]
+        reproj_depth = depth_data[('reproj_depth', inputs['cur_id'], inputs['ref_id'])]
+        depth_diff = (warp_depth - reproj_depth).abs()
 
-            method = "depth_ratio"
-            if method == "sc":
-                depth_sum = (warp_depth + reproj_depth).abs()
-                depth_diff = (depth_diff / depth_sum).clamp(0, 1).cpu().numpy()[0,0]
-            elif method == "depth_ratio":
-                depth_diff = (depth_diff / reproj_depth).clamp(0, 1).cpu().numpy()[0,0]
-            else:
-                depth_diff = depth_diff.cpu().numpy()[0,0]
+        method = "depth_ratio"
+        if method == "sc":
+            depth_sum = (warp_depth + reproj_depth).abs()
+            depth_diff = (depth_diff / depth_sum).clamp(0, 1).cpu().numpy()[0,0]
+        elif method == "depth_ratio":
+            depth_diff = (depth_diff / reproj_depth).clamp(0, 1).cpu().numpy()[0,0]
+        else:
+            depth_diff = depth_diff.cpu().numpy()[0,0]
 
-            outputs[('depth_diff', inputs['cur_id'], ref_id)] = depth_diff
+        outputs[('depth_diff', inputs['cur_id'], inputs['ref_id'])] = depth_diff
         return outputs
 
     def compute(self, cur_data, ref_data):
@@ -163,6 +160,4 @@ class DepthConsistency():
         depth_outputs = self.warp_and_reproj_depth(inputs)
         depth_consistency = self.compute_depth_diff(depth_outputs, inputs)
 
-        ref_data['depth_diff'] = {}
-        for ref_id in ref_data['id']:
-            ref_data['depth_diff'][ref_id] = depth_consistency[('depth_diff', cur_data['id'], ref_id)]
+        ref_data['depth_diff'] = depth_consistency[('depth_diff', cur_data['id'], ref_data['id'])]

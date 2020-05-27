@@ -1,5 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: Backproject layer to backproject a depth image given the camera intrinsics
+'''
 
 import numpy as np
 import torch
@@ -8,10 +15,8 @@ import torch.nn as nn
 
 class Backprojection(nn.Module):
     """Layer to backproject a depth image given the camera intrinsics
-
-    Attributes
-        xy (Nx3x(HxW)): homogeneous pixel coordinates on regular grid
     """
+    
     def __init__(self, height, width):
         """
         Args:

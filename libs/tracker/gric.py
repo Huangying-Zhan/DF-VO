@@ -1,7 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
-
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2020-03-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: This file contains functions related to GRIC computation
+'''
 
 import numpy as np
 
@@ -11,11 +16,12 @@ def compute_fundamental_residual(F, kp1, kp2):
     Compute fundamental matrix residual
 
     Args:
-        F (3x3 array): Fundamental matrix (from view-1 to view-2)
-        kp1 (Nx2 array): keypoint 1
-        kp2 (Nx2 array): keypoint 2
+        F (array, [3x3]): Fundamental matrix (from view-1 to view-2)
+        kp1 (array, [Nx2]): keypoint 1
+        kp2 (array, [Nx2]): keypoint 2
+    
     Returns:
-        res (N array): residual
+        res (array, [N]): residual
     """
     # get homogeneous keypoints (3xN array)
     m0 = np.ones((3, kp1.shape[0]))
@@ -36,11 +42,12 @@ def compute_homography_residual(H_in, kp1, kp2):
     Compute homography matrix residual
 
     Args:
-        H (3x3 array): homography matrix (Transformation from view-1 to view-2)
-        kp1 (Nx2 array): keypoint 1
-        kp2 (Nx2 array): keypoint 2
+        H (array, [3x3]): homography matrix (Transformation from view-1 to view-2)
+        kp1 (array, [Nx2]): keypoint 1
+        kp2 (array, [Nx2]): keypoint 2
+    
     Returns:
-        res (N array): residual
+        res (array, [N]): residual
     """
     n = kp1.shape[0]
     H = H_in.flatten()
@@ -86,8 +93,9 @@ def compute_homography_residual(H_in, kp1, kp2):
 
 def calc_GRIC(res, sigma, n, model):
     """Calculate GRIC
+
     Args:
-        res (N array): residual
+        res (array, [N]): residual
         sigma (float): assumed variance of the error
         n (int): number of residuals
         model (str): model type
@@ -102,13 +110,11 @@ def calc_GRIC(res, sigma, n, model):
         "FMat": 7,
         "EMat": 5,
         "HMat": 8,
-        "pnp": 6
     }[model]
     D = {
         "FMat": 3,
         "EMat": 3,
         "HMat": 2,
-        "pnp": 3
     }[model]
     
     lam3RD=2.0 * (R-D)

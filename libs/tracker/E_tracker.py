@@ -416,8 +416,8 @@ class EssTracker():
         """recover depth scale
 
         Args:
-            cur_data (dict): data of current view
-            ref_data (dict): data of reference view
+            cur_data (dict): current data
+            ref_data (dict): reference data
             E_pose (SE3): SE3 pose
         
         Returns:
@@ -447,8 +447,8 @@ class EssTracker():
         """recover depth scale by comparing triangulated depths and CNN depths
         
         Args:
-            cur_data (dict): data of current view
-            ref_data (dict): data of reference view
+            cur_data (dict): current data
+            ref_data (dict): reference data
             E_pose (SE3): SE3 pose
         
         Returns:
@@ -477,8 +477,8 @@ class EssTracker():
         Iterative scale recovery is applied
         
         Args:
-            cur_data (dict): data of current view
-            ref_data (dict): data of reference view
+            cur_data (dict): current data
+            ref_data (dict): reference data
             E_pose (SE3): SE3 pose
         
         Returns:
@@ -663,8 +663,8 @@ class EssTracker():
         """Choose valid kp from a series of operations
 
         Args:
-            cur_data (dict): data of current view
-            ref_data (dict): data of reference view
+            cur_data (dict): current data
+            ref_data (dict): reference data
             rigid_kp_method (str) : [uniform, best]
         
         Returns:

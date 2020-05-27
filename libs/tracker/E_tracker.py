@@ -1,7 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
-
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: This file contains Essential matrix based tracker
+'''
 
 import cv2
 import copy
@@ -23,6 +28,25 @@ from libs.general.utils import mkdir_if_not_exists
 
 
 def find_Ess_mat(inputs):
+    """Find essetial matrix 
+
+    Args:
+        a dictionary containing
+
+            - **kp_cur** (array, [Nx2]): keypoints at current view
+            - **kp_ref** (array, [Nx2]): keypoints at reference view
+            - **H_inliers** (array, [N]): boolean inlier mask 
+            - **cfg** (edict): configuration dictionary related to pose estimation from 2D-2D matches
+            - **cam_intrinsics** (Intrinsics): camera intrinsics
+
+    Returns:
+        a dictionary containing
+            - **E** (array, [3x3]): essential matrix
+            - **valid_case** (bool): validity of the solution
+            - **inlier_cnt** (int): number of inliners
+            - **inlier** (array, [N]): boolean inlier mask
+        
+    """
     # inputs
     kp_cur = inputs['kp_cur']
     kp_ref = inputs['kp_ref']
@@ -79,9 +103,14 @@ def find_Ess_mat(inputs):
     return outputs
 
 
-
 class EssTracker():
-    def __init__(self, cfg, cam_intrinsics, vo):
+    def __init__(self, cfg, cam_intrinsics, timers):
+        """
+        Args:
+            cfg (edict): configuration dictionary
+            cam_intrinsics (Intrinsics): camera intrinsics
+            timers (Timer): timers
+        """
         self.cfg = cfg
         self.prev_scale = 0
         self.prev_pose = SE3()
@@ -94,18 +123,20 @@ class EssTracker():
         self.save_tri_depth = False
 
         # FIXME: For debug
-        self.vo = vo
+        self.timers = timers
 
     def compute_pose_2d2d(self, kp_ref, kp_cur):
         """Compute the pose from view2 to view1
+        
         Args:
-            kp_ref (Nx2 array): keypoints for reference view
-            kp_cur (Nx2 array): keypoints for current view
-            cam_intrinsics (Intrinsics)
+            kp_ref (array, [Nx2]): keypoints for reference view
+            kp_cur (array, [Nx2]): keypoints for current view
+            cam_intrinsics (Intrinsics): camera intrinsics
+        
         Returns:
-            outputs (dict):
-                - pose (SE3): relative pose from current to reference view
-                - best_inliers (N boolean array): inlier mask
+            a dictionary containing
+                - **pose** (SE3): relative pose from current to reference view
+                - **best_inliers** (array, [N]): boolean inlier mask
         """
         principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
 
@@ -135,8 +166,8 @@ class EssTracker():
                         ransacReprojThreshold=0.2,
                         )
         elif valid_cfg.method == "GRIC":
-            self.vo.timers.start('GRIC-H', 'E-tracker')
-            self.vo.timers.start('find H', 'E-tracker')
+            self.timers.start('GRIC-H', 'E-tracker')
+            self.timers.start('find H', 'E-tracker')
             H, H_inliers = cv2.findHomography(
                         kp_cur,
                         kp_ref,
@@ -145,7 +176,7 @@ class EssTracker():
                         confidence=0.99,
                         ransacReprojThreshold=1,
                         )
-            self.vo.timers.end('find H')
+            self.timers.end('find H')
 
             H_res = compute_homography_residual(H, kp_cur, kp_ref)
             H_gric = calc_GRIC(
@@ -154,12 +185,12 @@ class EssTracker():
                         n=kp_cur.shape[0],
                         model="HMat"
             )
-            self.vo.timers.end('GRIC-H')
+            self.timers.end('GRIC-H')
 
         
         if valid_case:
             num_valid_case = 0
-            self.vo.timers.start('find-Ess (full)', 'E-tracker')
+            self.timers.start('find-Ess (full)', 'E-tracker')
             for i in range(max_ransac_iter): # repeat ransac for several times for stable result
                 # shuffle kp_cur and kp_ref (only useful when random seed is fixed)	
                 new_list = np.arange(0, kp_cur.shape[0], 1)	
@@ -167,7 +198,7 @@ class EssTracker():
                 new_kp_cur = kp_cur.copy()[new_list]
                 new_kp_ref = kp_ref.copy()[new_list]
 
-                self.vo.timers.start('find-Ess', 'E-tracker')
+                self.timers.start('find-Ess', 'E-tracker')
                 E, inliers = cv2.findEssentialMat(
                             new_kp_cur,
                             new_kp_ref,
@@ -177,7 +208,7 @@ class EssTracker():
                             prob=0.99,
                             threshold=self.cfg.compute_2d2d_pose.ransac.reproj_thre,
                             )
-                self.vo.timers.end('find-Ess')
+                self.timers.end('find-Ess')
 
                 # check homography inlier ratio
                 if valid_cfg.method == "homo_ratio":
@@ -196,7 +227,7 @@ class EssTracker():
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt and cheirality_cnt > kp_cur.shape[0]*0.05               
                 elif valid_cfg.method == "GRIC":
-                    self.vo.timers.start('GRIC-E', 'E-tracker')
+                    self.timers.start('GRIC-E', 'E-tracker')
                     # get F from E
                     K = self.cam_intrinsics.mat
                     F = np.linalg.inv(K.T) @ E @ np.linalg.inv(K)
@@ -210,12 +241,9 @@ class EssTracker():
                     )
                     valid_case = H_gric > E_gric
 
-                    # print("H_gric: ", H_gric)
-                    # print("E_gric: ", E_gric)
-                    # input("debug")
                     # inlier check
                     inlier_check = inliers.sum() > best_inlier_cnt
-                    self.vo.timers.end('GRIC-E')
+                    self.timers.end('GRIC-E')
 
                 # save best_E
                 if inlier_check:
@@ -228,22 +256,20 @@ class EssTracker():
                     best_inliers = inliers[list(revert_new_list)]
                 num_valid_case += (valid_case * 1)
 
-            self.vo.timers.end('find-Ess (full)')
+            self.timers.end('find-Ess (full)')
             major_valid = num_valid_case > (max_ransac_iter/2)
             if major_valid:
-                self.vo.timers.start('recover pose', 'E-tracker')
+                self.timers.start('recover pose', 'E-tracker')
                 cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, kp_cur, kp_ref,
                                         focal=self.cam_intrinsics.fx,
                                         pp=principal_points,
                                         )
-                self.vo.timers.end('recover pose')
+                self.timers.end('recover pose')
 
                 # cheirality_check
                 if cheirality_cnt > kp_cur.shape[0]*0.1:
                     best_Rt = [R, t]
 
-        # print("H_gric: ", H_gric)
-        # print("E_gric: ", E_gric)
         R, t = best_Rt
         pose = SE3()
         pose.R = R
@@ -252,14 +278,17 @@ class EssTracker():
         return outputs
 
     def compute_pose_2d2d_mp(self, kp_ref, kp_cur):
-        """Compute the pose from view2 to view1 (multiprocessing ver)
+        """Compute the pose from view2 to view1 (multiprocessing version)
+        Speed doesn't change much
+        
         Args:
-            kp_ref (Nx2 array): keypoints for reference view
-            kp_cur (Nx2 array): keypoints for current view
+            kp_ref (array, [Nx2]): keypoints for reference view
+            kp_cur (array, [Nx2]): keypoints for current view
+        
         Returns:
-            outputs (dict):
-                - pose (SE3): relative pose from current to reference view
-                - best_inliers (N boolean array): inlier mask
+            a dictionary containing
+                - **pose** (SE3): relative pose from current to reference view
+                - **best_inliers** (array, [N]): boolean inlier mask
         """
         principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
 
@@ -289,8 +318,8 @@ class EssTracker():
                         )
 
         elif valid_cfg.method == "GRIC":
-            self.vo.timers.start('GRIC-H', 'E-tracker')
-            self.vo.timers.start('find H', 'E-tracker')
+            self.timers.start('GRIC-H', 'E-tracker')
+            self.timers.start('find H', 'E-tracker')
             H, H_inliers = cv2.findHomography(
                         kp_cur,
                         kp_ref,
@@ -299,7 +328,7 @@ class EssTracker():
                         confidence=0.99,
                         ransacReprojThreshold=1,
                         )
-            self.vo.timers.end('find H')
+            self.timers.end('find H')
 
             H_res = compute_homography_residual(H, kp_cur, kp_ref)
             H_gric = calc_GRIC(
@@ -308,7 +337,7 @@ class EssTracker():
                         n=kp_cur.shape[0],
                         model="HMat"
             )
-            self.vo.timers.end('GRIC-H')
+            self.timers.end('GRIC-H')
 
         if valid_case:
             inputs_mp = []
@@ -363,6 +392,19 @@ class EssTracker():
 
     def scale_recovery(self, cur_data, ref_data, E_pose):
         """recover depth scale
+
+        Args:
+            cur_data (dict): data of current view
+            ref_data (dict): data of reference view
+            E_pose (SE3): SE3 pose
+        
+        Returns:
+            a dictionary containing
+                - **scale** (float): estimated scaling factor
+                - **cur_kp_depth** (array, [Nx2]): keypoints at current view
+                - **ref_kp_depth** (array, [Nx2]): keypoints at referenceview
+                - **rigid_flow_mask** (array, [HxW]): rigid flow mask
+
         """
         outputs = {}
 
@@ -383,9 +425,16 @@ class EssTracker():
         """recover depth scale by comparing triangulated depths and CNN depths
         
         Args:
-            cur_data (dict)
-            ref_data (dict)
-            E_pose (SE3)
+            cur_data (dict): data of current view
+            ref_data (dict): data of reference view
+            E_pose (SE3): SE3 pose
+        
+        Returns:
+            a dictionary containing
+                - **scale** (float): estimated scaling factor
+                - **cur_kp_depth** (array, [Nx2]): keypoints at current view
+                - **ref_kp_depth** (array, [Nx2]): keypoints at referenceview
+                - **rigid_flow_mask** (array, [HxW]): rigid flow mask
 
         Returns:
             scale (float)
@@ -406,11 +455,16 @@ class EssTracker():
         Iterative scale recovery is applied
         
         Args:
-            cur_data (dict)
-            ref_data (dict)
-            E_pose (SE3)
+            cur_data (dict): data of current view
+            ref_data (dict): data of reference view
+            E_pose (SE3): SE3 pose
+        
         Returns:
-            scale (float)
+            a dictionary containing
+                - **scale** (float): estimated scaling factor
+                - **cur_kp** (array, [Nx2]): keypoints at current view
+                - **ref_kp** (array, [Nx2]): keypoints at referenceview
+                - **rigid_flow_mask** (array, [HxW]): rigid flow mask
         """
         outputs = {}
 
@@ -462,10 +516,10 @@ class EssTracker():
         """Compute VO scaling factor for T_21
 
         Args:
-            kp1 (Nx2 array): reference kp
-            kp2 (Nx2 array): current kp
-            T_21 (4x4 array): relative pose; from view 1 to view 2
-            depth2 (HxW array): depth 2
+            kp1 (array, [Nx2]): reference kp
+            kp2 (array, [Nx2]): current kp
+            T_21 (array, [4x4]): relative pose; from view 1 to view 2
+            depth2 (array, [HxW]): depth 2
         
         Returns:
             scale (float): scaling factor
@@ -484,13 +538,13 @@ class EssTracker():
         kp2_norm[:, 1] = \
             (kp2[:, 1] - self.cam_intrinsics.cy) / self.cam_intrinsics.fy
 
-        self.vo.timers.start('triangulation', 'scale_recovery')
+        self.timers.start('triangulation', 'scale_recovery')
         _, _, X2_tri = triangulation(kp1_norm, kp2_norm, np.eye(4), T_21)
 
         # Triangulation outlier removal
         depth2_tri = convert_sparse3D_to_depth(kp2, X2_tri, img_h, img_w)
         depth2_tri[depth2_tri < 0] = 0
-        self.vo.timers.end('triangulation')
+        self.timers.end('triangulation')
 
 
 
@@ -524,7 +578,7 @@ class EssTracker():
         # if (valid_mask1.sum() + valid_mask2.sum()) > 10:
         if valid_mask2.sum() > 10:
             # RANSAC scaling solver
-            self.vo.timers.start('scale ransac', 'scale_recovery')
+            self.timers.start('scale ransac', 'scale_recovery')
             ransac = linear_model.RANSACRegressor(
                         base_estimator=linear_model.LinearRegression(
                             fit_intercept=False),
@@ -547,7 +601,7 @@ class EssTracker():
 
             # print("scale: ", scale)
             # input("debug")
-            self.vo.timers.end('scale ransac')
+            self.timers.end('scale ransac')
 
 
             # # scale outlier
@@ -586,7 +640,17 @@ class EssTracker():
     def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method="uniform"):
         """Choose valid kp from a series of operations
 
-        rigid_kp_method : [uniform, best]
+        Args:
+            cur_data (dict): data of current view
+            ref_data (dict): data of reference view
+            rigid_kp_method (str) : [uniform, best]
+        
+        Returns:
+            a dictionary containing
+                
+                - **kp1_depth** (array, [Nx2]): keypoints in view-1
+                - **kp2_depth** (array, [Nx2]): keypoints in view-2
+                - **rigid_flow_mask** (array, [HxW]): rigid-optical flow consistency 
         """
         outputs = {}
 
@@ -610,10 +674,6 @@ class EssTracker():
             rigid_flow_diff = np.linalg.norm(
                                 rigid_flow - ref_data['flow'].transpose(1,2,0),
                                 axis=2)
-            # DEBUG
-            # from matplotlib import pyplot as plt
-            # plt.imshow(rigid_flow_diff)
-            # plt.show()
             
             rigid_flow_diff = np.expand_dims(rigid_flow_diff, 2)
             
@@ -631,38 +691,18 @@ class EssTracker():
                         method=rigid_kp_method
                         )
                 )
-            # if rigid_kp_method == "uniform":
-            #     outputs.update(
-            #         rigid_flow_kp(
-            #             kp1=kp1,
-            #             kp2=kp2,
-            #             ref_data=ref_data,
-            #             cfg=self.cfg,
-            #             outputs=outputs,
-            #             method=rigid_kp_method
-            #             )
-            #     )
-            # elif rigid_kp_method == "best":
-            #     outputs.update(
-            #         opt_rigid_flow_kp(
-            #             kp1=kp1,
-            #             kp2=kp2,
-            #             ref_data=ref_data,
-            #             cfg=self.cfg,
-            #             outputs=outputs
-            #             )
-            #     )
-                
 
         return outputs
 
     def unprojection(self, depth, cam_intrinsics):
         """Convert a depth map to XYZ
+        
         Args:
-            depth (HxW array): depth map
+            depth (array, [HxW]): depth map
             cam_intrinsics (Intrinsics): camera intrinsics
+        
         Returns:
-            XYZ (HxWx3): 3D coordinates
+            XYZ (array, [HxWx3]): 3D coordinates
         """
         height, width = depth.shape
 
@@ -692,11 +732,13 @@ class EssTracker():
 
     def projection(self, XYZ, proj_mat):
         """Convert XYZ to [u,v,d]
+        
         Args:
-            XYZ (HxWx3): 3D coordinates
-            proj_mat (3x3 array): camera intrinsics / projection matrix
+            XYZ (array, [HxWx3]): 3D coordinates
+            proj_mat (array, [3x3]): camera intrinsics / projection matrix
+        
         Returns:
-            xy (HxWx2 array): projected image coordinates
+            xy (array, [HxWx2]): projected image coordinates
         """
         if len(XYZ.shape) == 3:
             h, w, _ = XYZ.shape
@@ -727,11 +769,13 @@ class EssTracker():
 
     def transform_XYZ(self, XYZ, transformation):
         """Transform point cloud
+        
         Args:
-            XYZ (HxWx3 / Nx3): 3D coordinates
-            pose (4x4 array): tranformation matrix
+            XYZ (array, [HxWx3 / Nx3]): 3D coordinates
+            pose (array, [4x4]): tranformation matrix
+        
         Returns:
-            new_XYZ (HxWx3 / Nx3): 3D coordinates
+            new_XYZ (array, [HxWx3 / Nx3]): 3D coordinates
         """
         if len(XYZ.shape) == 3:
             h, w, _ = XYZ.shape
@@ -759,10 +803,12 @@ class EssTracker():
 
     def xy_to_uv(self, xy):
         """Convert image coordinates to optical flow
+        
         Args:
-            xy (HxWx2 array): image coordinates
+            xy (array, [HxWx2]): image coordinates
+        
         Returns:
-            uv (HxWx2 array): x-flow and y-flow
+            uv (array, [HxWx2]): x-flow and y-flow
         """
         h, w, _ = xy.shape
         img_grid = image_grid(h, w)
@@ -771,11 +817,13 @@ class EssTracker():
 
     def compute_rigid_flow(self, depth, pose):
         """Compute rigid flow 
+        
         Args:
-            depth (HxW array): depth map of reference view
-            pose (4x4 array): from reference to current
+            depth (array, [HxW]): depth map of reference view
+            pose (array, [4x4]): from reference to current
+        
         Returns:
-            rigid_flow (HxWx2): rigid flow [x-flow, y-flow]
+            rigid_flow (array, [HxWx2]): rigid flow [x-flow, y-flow]
         """
         XYZ_ref = self.unprojection(depth, self.cam_intrinsics)
         XYZ_cur = self.transform_XYZ(XYZ_ref, pose)

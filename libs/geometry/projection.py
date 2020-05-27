@@ -1,14 +1,27 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: Layer to project 3D points into a camera view given camera intrinsics
+'''
 
 import torch
 import torch.nn as nn
 
 
 class Projection(nn.Module):
-    """Layer which projects 3D points into a camera view
+    """Layer to project 3D points into a camera view given camera intrinsics
     """
     def __init__(self, height, width, eps=1e-7):
+        """
+        Args:
+            height (int): image height
+            width (int): image width
+            eps (float): small number to prevent division of zero
+        """
         super(Projection, self).__init__()
 
         self.height = height
@@ -16,15 +29,18 @@ class Projection(nn.Module):
         self.eps = eps
 
     def forward(self, points3d, K, normalized=True):
-        """
+        """Forward pass
+
         Args:
-            points3d (Nx4x(HxW)): 3D points in homogeneous coordinates
-            K (Nx4x4): camera intrinsics
+            points3d (tensor, [Nx4x(HxW)]): 3D points in homogeneous coordinates
+            K (tensor, [Nx4x4]): camera intrinsics
             normalized (bool): 
+                
                 - True: normalized to [-1, 1]
                 - False: [0, W-1] and [0, H-1]
+        
         Returns:
-            xy (NxHxWx2): pixel coordinates
+            xy (tensor, [NxHxWx2]): pixel coordinates
         """
         # projection
         points2d = torch.matmul(K[:, :3, :], points3d)

@@ -1,17 +1,18 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: Camera related classes
+'''
 
 import numpy as np
 
 
 class SE3():
     """SE3 object consists rotation and translation components
-    Attributes:
-        pose (4x4 numpy array): camera pose
-        inv_pose (4x4 numpy array): inverse camera pose
-        R (3x3 numpy array): Rotation component
-        t (3x1 numpy array): translation component,
     """
     def __init__(self, np_arr=None):
         if np_arr is None:
@@ -21,7 +22,8 @@ class SE3():
 
     @property
     def pose(self):
-        """ pose (4x4 numpy array): camera pose """
+        """ (array, [4x4]): camera pose 
+        """
         return self._pose
 
     @pose.setter
@@ -30,7 +32,8 @@ class SE3():
 
     @property
     def inv_pose(self):
-        """ inv_pose (4x4 numpy array): inverse camera pose """
+        """ (array, [4x4]): inverse camera pose 
+        """
         return np.linalg.inv(self._pose)
 
     @inv_pose.setter
@@ -39,6 +42,8 @@ class SE3():
 
     @property
     def R(self):
+        """ (array, [3x4]): rotation matrix
+        """
         return self._pose[:3, :3]
 
     @R.setter
@@ -47,6 +52,8 @@ class SE3():
 
     @property
     def t(self):
+        """ (array, [3x1]): translation vector
+        """
         return self._pose[:3, 3:]
 
     @t.setter
@@ -56,21 +63,11 @@ class SE3():
 
 class Intrinsics():
     """Camera intrinsics object
-    Attributes:
-        mat (3x3 numpy array): intrinsics matrix
-            [fx 0 cx]
-            [0 fy cy]
-            [0 0  1 ]
-        inv_mat (3x3 array): perspective transformation matrix
-        cx (float): principal point x
-        cy (float): principal point y
-        fx (float): focal length x
-        fy (float): focal length y
     """
     def __init__(self, param=None):
         """
         Args:
-            param: [cx, cy, fx, fy]
+            param (list): [cx, cy, fx, fy]
         """
         if param is None:
             self._mat = np.zeros((3, 3))
@@ -83,6 +80,7 @@ class Intrinsics():
 
     @property
     def mat(self):
+        """ (array, [3x3]): intrinsics matrix """
         return self._mat
 
     @mat.setter
@@ -91,6 +89,7 @@ class Intrinsics():
 
     @property
     def inv_mat(self):
+        """ (array, [3x3]): inverse intrinsics matrix """
         return np.linalg.inv(self._mat)
 
     @inv_mat.setter
@@ -99,6 +98,7 @@ class Intrinsics():
 
     @property
     def fx(self):
+        """ float: focal length in x-direction """
         return self._mat[0, 0]
 
     @fx.setter
@@ -107,6 +107,7 @@ class Intrinsics():
 
     @property
     def fy(self):
+        """ float: focal length in y-direction """
         return self._mat[1, 1]
 
     @fy.setter
@@ -115,6 +116,7 @@ class Intrinsics():
 
     @property
     def cx(self):
+        """ float: principal point in x-direction """
         return self._mat[0, 2]
 
     @cx.setter
@@ -123,6 +125,7 @@ class Intrinsics():
 
     @property
     def cy(self):
+        """ float: principal point in y-direction """
         return self._mat[1, 2]
 
     @cy.setter
@@ -141,8 +144,8 @@ class PinholeCamera():
     def __init__(self, pose=None, K=None):
         """
         Args:
-            pose (4x4 matrix): camera pose
-            K (float list): [cx, cy, fx, fy]
+            pose (array, [4x4]): camera pose
+            K (list): [cx, cy, fx, fy]
         """
         self._height = 0
         self._width = 0
@@ -151,6 +154,7 @@ class PinholeCamera():
 
     @property
     def height(self):
+        """ (int): image height """
         return self._height
 
     @height.setter
@@ -159,6 +163,7 @@ class PinholeCamera():
 
     @property
     def width(self):
+        """ (int): image width """
         return self._width
 
     @width.setter
@@ -167,6 +172,7 @@ class PinholeCamera():
 
     @property
     def SE3(self):
+        """ (SE3): pose """
         return self._SE3
 
     @SE3.setter
@@ -175,6 +181,7 @@ class PinholeCamera():
 
     @property
     def K(self):
+        """ (Intrinsics): camera intrinsics """
         return self._K
 
     @K.setter

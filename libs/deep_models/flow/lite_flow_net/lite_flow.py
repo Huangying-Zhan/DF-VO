@@ -30,28 +30,33 @@ class LiteFlow(DeepFlow):
 
     def __init__(self, *args, **kwargs):
         super(LiteFlow, self).__init__(*args, **kwargs)
+        # Basic configuration
+        self.batch_size = 1
+        self.device = torch.device('cuda')
         
+        # Layer setup
+        self.flow_to_pix = FlowToPix(self.batch_size, self.height, self.width) 
+        self.flow_to_pix.to(self.device)
         
         # FIXME: half-flow issue
         self.half_flow = False
-
+        
         # Online finetuning configuration
-        self.finetune = self.flow_cfg.online_finetune.enable
+        if self.flow_cfg is not None:
+            self.finetune = self.flow_cfg.online_finetune.enable
+        else:
+            self.finetune = False
     
     def setup_train(self):
         """Setup training configurations for online finetuning
         """
         # Basic configuration
-        self.batch_size = 1
         self.img_cnt = 0
-        self.device = torch.device('cuda')
         self.flow_scales = [1]
         self.num_flow_scale = len(self.flow_scales)
         self.frame_ids = [0, 1]
 
         # Layer setup
-        self.flow_to_pix = FlowToPix(self.batch_size, self.height, self.width) 
-        self.flow_to_pix.to(self.device)
         self.ssim = SSIM()
         self.ssim.to(self.device)
         
@@ -286,9 +291,9 @@ class LiteFlow(DeepFlow):
         
         Returns:
             a dictionary containing
-                - **forward** (array [Nx2xHxW]) : foward flow
-                - **backward** (array [Nx2xHxW]) : backward flow
-                - **flow_diff** (array [NxHxWx1]) : foward-backward flow inconsistency
+                - **forward** (array, [Nx2xHxW]) : foward flow
+                - **backward** (array, [Nx2xHxW]) : backward flow
+                - **flow_diff** (array, [NxHxWx1]) : foward-backward flow inconsistency
         """
         # flow net inference to get flows
         if forward_backward:

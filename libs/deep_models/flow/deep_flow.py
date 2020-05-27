@@ -20,15 +20,17 @@ import torch.nn.functional as F
 class DeepFlow():
     """DeepFlow is the Base class for deep flow network interface
     """
-    def __init__(self, cfg):
+    def __init__(self, height, width, cfg=None):
         """
         Args:
-           cfg (edict): configuration dictionary
+            height (int): image height
+            width (int): image width
+            cfg (edict): deep flow configuration dictionary (only required when online finetuning)
         """
-        self.cfg = cfg
-        self.flow_cfg = self.cfg.deep_flow
-        self.height = self.cfg.image.height
-        self.width = self.cfg.image.width
+        self.height = height
+        self.width = width
+        
+        self.flow_cfg = cfg
 
     def initialize_network_model(self, weight_path):
         """initialize flow_net model with weight_path

@@ -14,6 +14,7 @@ from glob import glob
 import numpy as np
 import os
 import scipy.misc
+import torch
 from tqdm import tqdm
 
 from libs.deep_models.flow.lite_flow_net.lite_flow import LiteFlow
@@ -101,8 +102,8 @@ def get_img_idxs(dataset, is_test):
 
 if __name__ == '__main__':
     # Basic setup
-    h = 370
-    w = 1226
+    ref_h = 370
+    ref_w = 1226
     
     # argument parsing
     args = argument_parsing()
@@ -126,7 +127,7 @@ if __name__ == '__main__':
     img_idxs = get_img_idxs(args.dataset, args.test)
 
     # initalize network
-    flow_net = initialize_deep_flow_model(h, w, args.model)
+    flow_net = initialize_deep_flow_model(ref_h, ref_w, args.model)
 
 
     for i in tqdm(img_idxs):
@@ -137,7 +138,12 @@ if __name__ == '__main__':
         # load image
         img1 = read_image(img1_path)
         img2 = read_image(img2_path)
+        h, w, _ = img1.shape
         
+        # resize image
+        img1 = cv2.resize(img1, (ref_w, ref_h))
+        img2 = cv2.resize(img2, (ref_w, ref_h))
+
         cur_imgs = [np.transpose((img1)/255, (2, 0, 1))]
         ref_imgs = [np.transpose((img2)/255, (2, 0, 1))]
         ref_imgs = np.asarray(ref_imgs)
@@ -153,18 +159,25 @@ if __name__ == '__main__':
                                 forward_backward=True,
                                 dataset="kitti")
             
-        flows = batch_flows['forward'][0].copy()
+        flows = batch_flows['forward']
+
+        # resie flows back to original size
+        flows = flow_net.resize_dense_flow(torch.from_numpy(flows), h, w)
+        flows = flows.detach().cpu().numpy()[0]
 
         ''' Save result '''
         _, h, w = flows.shape
         flows3 = np.ones((h, w, 3))
         
         if args.flow_mask_thre is not None:
-            flow_mask = (batch_flows['flow_diff'][0,:,:,0] < args.flow_mask_thre) * 1
+            resized_mask = cv2.resize(batch_flows['flow_diff'][0,:,:,0], (w, h))
+            flow_mask = (resized_mask < args.flow_mask_thre) * 1
             flows3[:, :, 0] = flow_mask
         flows3[:, :, 2] = flows[0] * 64 + 2**15
         flows3[:, :, 1] = flows[1] * 64 + 2**15
         flows3 = flows3.astype(np.uint16)
+
         
         out_png = os.path.join(dirs['result'], 'data', '{:06}_10.png'.format(i))
         cv2.imwrite(out_png, flows3)
+

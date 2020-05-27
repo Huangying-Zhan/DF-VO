@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-25
+@LastEditTime: 2020-05-26
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -63,7 +63,8 @@ class DeepModel():
             flow_net (nn.Module): optical flow network
         """
         if self.cfg.deep_flow.network == "liteflow":
-            flow_net = LiteFlow(self.cfg)
+            flow_net = LiteFlow(self.cfg.image.height, self.cfg.image.width,
+                                self.cfg.deep_flow)
             flow_net.initialize_network_model(
                     weight_path=self.cfg.deep_flow.flow_net_weight
                     )

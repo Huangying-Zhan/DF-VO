@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-27
 @LastEditors: Huangying Zhan
 @Description: utils.py contains varies methods for general purpose
 '''
@@ -181,6 +181,10 @@ def load_poses_from_oxts(oxts_dir):
     """
     poses = {}
     len_seq = len(glob(os.path.join(oxts_dir, "*.txt")))
+
+    # check if directory is correct
+    assert len_seq != 0, "Wrong path is given: [{}]".format(oxts_dir)
+
     for i in range(len_seq):
         poses[i] = generate_pose(oxts_dir, i, do_flip=False)
     return poses

@@ -325,7 +325,7 @@ def save_traj(txt, poses, format='kitti'):
         txt (str): pose text file path
         poses (dict): poses, each pose is a [4x4] array
         format (str): trajectory format [kitti, tum]. 
-            - **kitti**: 12 parameters; 
+            - **kitti**: timestamp [12 parameters]; 
             - **tum**: timestamp tx ty tz qx qy qz qw
     """
     with open(txt, 'w') as f:
@@ -333,7 +333,8 @@ def save_traj(txt, poses, format='kitti'):
             pose = poses[i]
             if format == 'kitti':
                 pose = pose.flatten()[:12]
-                line_to_write = " ".join([str(j) for j in pose])
+                line_to_write = str(i) + " "
+                line_to_write += " ".join([str(j) for j in pose])
             elif format == 'tum':
                 qw, qx, qy, qz = rot2quat(pose[:3, :3])
                 tx, ty, tz = pose[:3, 3]

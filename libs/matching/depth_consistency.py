@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-27
 @LastEditors: Huangying Zhan
 @Description: DepthConsistency computes depth consistency between depth maps
 '''
@@ -30,13 +30,15 @@ class DepthConsistency():
 
     def prepare_depth_consistency_data(self, cur_data, ref_data):
         """Prepare data for computing depth consistency
-        Returns
-            - data (dict): 
-                - inv_K
-                - K
-                - depth
-                - pose_T
-                - id
+        
+        Returns:
+            a dictionary containing
+                - **inv_K** (tensor, [1x4x4]): inverse camera intrinsics
+                - **K** (tensor, [1x4x4]): camera intrinsics
+                - **depth** (tensor, 1x1xHxW): depth map
+                - **pose_T** (tensor, [1x4x4]): relative pose
+                - **cur_id** (int): index of current frame
+                - **ref_id** (int): index of reference frame
         """
         data = {}
 
@@ -66,23 +68,24 @@ class DepthConsistency():
         return data
 
     def warp_and_reproj_depth(self, inputs):
-        """Get reprojected depths and warp depths
-        - reproj_depth: the reference depths in source view 
+        """Get reprojected depths and warp depths;
+        - reproj_depth: the reference depths in source view;
         - warp_depth: the warped reference depths in source view
 
         Args:
-            inputs:
-                - (inv_K) (Nx4x4)
-                - (K) (Nx4x4)
-                - (depth, 0) (Nx1xHxW): current depth
-                - (depth, ref_id) (Nx1xHxW): reference inv.depth
-                - (pose_T, 0, ref_id) (Nx4x4): rel. pose from 0 to ref_id
-                - cur_id
-                - ref_id
+            inputs (dict): a dictionary containing
+
+                - **inv_K** (tensor, [1x4x4]): inverse camera intrinsics
+                - **K** (tensor, [1x4x4]): camera intrinsics
+                - **depth** (tensor, 1x1xHxW): depth map
+                - **pose_T** (tensor, [1x4x4]): relative pose
+                - **cur_id** (int): index of current frame
+                - **ref_id** (int): index of reference frame
+        
         Returns:
-            outputs:
-                - ('warp_depth', 0, frame_id)
-                - ('reproj_depth', 0, frame_id)
+            a dictionary containing
+                - **('warp_depth', 0, frame_id)** (tensor, [1x1xHxW]): warped depth map
+                - **('reproj_depth', 0, frame_id)** (tensor, [1x1xHxW]): reprojected depth map
         """
         outputs = {}
         K = inputs['K']
@@ -115,24 +118,27 @@ class DepthConsistency():
         return outputs
 
     def compute_depth_diff(self, depth_data, inputs):
-        """
-        inputs:
-            depth_data:
-                - ('warp_depth', cur_id, ref_id)
-                - ('reproj_depth', cur_id, ref_id)
-            inputs:
-                - (inv_K) (Nx4x4)
-                - (K) (Nx4x4)
-                - (depth, 0) (Nx1xHxW): current depth
-                - (depth, ref_id) (Nx1xHxW): reference inv.depth
-                - (pose_T, 0, ref_id) (Nx4x4): rel. pose from 0 to ref_id
-                - cur_id
-                - ref_id
+        """Compute depth difference
+        
+        Args:
+            depth_data: a dictionary containing
+
+                - **('warp_depth', 0, frame_id)** (tensor, [1x1xHxW]): warped depth map
+                - **('reproj_depth', 0, frame_id)** (tensor, [1x1xHxW]): reprojected depth map
+            
+            inputs: a dictionary containing
+            
+                - **cur_id** (int): index of current frame
+                - **ref_id** (int): index of reference frame
+        
+        Returns:
+            outputs (dict), a dictionary containing
+                - **(depth_diff, cur_id, ref_id)** (array, [HxW]): depth difference
         """
         outputs = {}
         for ref_id in inputs['ref_id']:
-            warp_depth = depth_data[('warp_depth', inputs['cur_id'], ref_id)]#.cpu().numpy()[0,0]
-            reproj_depth = depth_data[('reproj_depth', inputs['cur_id'], ref_id)]#.cpu().numpy()[0,0]
+            warp_depth = depth_data[('warp_depth', inputs['cur_id'], ref_id)]
+            reproj_depth = depth_data[('reproj_depth', inputs['cur_id'], ref_id)]
             depth_diff = (warp_depth - reproj_depth).abs()
 
             method = "depth_ratio"
@@ -150,7 +156,7 @@ class DepthConsistency():
     def compute(self, cur_data, ref_data):
         """Compute depth consistency using CNN pose and CNN depths
         New data added to ref_data
-            - depth_diff
+            - **depth_diff** (array, [HxW]): depth consistency data
         """
         # compute depth consistency
         inputs = self.prepare_depth_consistency_data(cur_data, ref_data)

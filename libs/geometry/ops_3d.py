@@ -1,6 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: This file contains operations related 3D
+'''
 
 import cv2
 import numpy as np
@@ -8,13 +14,15 @@ import numpy as np
 
 def convert_sparse3D_to_depth(kp, XYZ, height, width):
     """Convert sparse 3D keypoint to depth map
+
     Args:
-        kp (Nx2): keypoints
-        XYZ (3xN): 3D coorindates for the keypoints
+        kp (array, [Nx2]): keypoints
+        XYZ (array, [3xN]): 3D coorindates for the keypoints
         height (int): image height
         width (int): image width
+    
     Returns:
-        depth (HxW array): depth map
+        depth (array, [HxW]): depth map
     """
     # initialize depth map
     depth = np.zeros((height, width))
@@ -35,15 +43,17 @@ def convert_sparse3D_to_depth(kp, XYZ, height, width):
 
 def triangulation(kp1, kp2, T_1w, T_2w):
     """Triangulation to get 3D points
+
     Args:
-        kp1 (Nx2): keypoint in view 1 (normalized)
-        kp2 (Nx2): keypoints in view 2 (normalized)
-        T_1w (4x4): pose of view 1 w.r.t  i.e. T_1w (from w to 1)
-        T_2w (4x4): pose of view 2 w.r.t world, i.e. T_2w (from w to 2)
+        kp1 (array, [Nx2]): keypoint in view 1 (normalized)
+        kp2 (array, [Nx2]): keypoints in view 2 (normalized)
+        T_1w (array, [4x4]): pose of view 1 w.r.t  i.e. T_1w (from w to 1)
+        T_2w (array, [4x4]): pose of view 2 w.r.t world, i.e. T_2w (from w to 2)
+    
     Returns:
-        X (3xN): 3D coordinates of the keypoints w.r.t world coordinate
-        X1 (3xN): 3D coordinates of the keypoints w.r.t view1 coordinate
-        X2 (3xN): 3D coordinates of the keypoints w.r.t view2 coordinate
+        X (array, [3xN]): 3D coordinates of the keypoints w.r.t world coordinate
+        X1 (array, [3xN]): 3D coordinates of the keypoints w.r.t view1 coordinate
+        X2 (array, [3xN]): 3D coordinates of the keypoints w.r.t view2 coordinate
     """
     kp1_3D = np.ones((3, kp1.shape[0]))
     kp2_3D = np.ones((3, kp2.shape[0]))
@@ -58,12 +68,14 @@ def triangulation(kp1, kp2, T_1w, T_2w):
 
 def unprojection_kp(kp, kp_depth, cam_intrinsics):
     """Convert kp to XYZ
+
     Args:
-        kp (Nx2 array): [x, y] keypoints
-        kp_depth (Nx2 array): keypoint depth
+        kp (array, [Nx2]): [x, y] keypoints
+        kp_depth (array, [Nx2]): keypoint depth
         cam_intrinsics (Intrinsics): camera intrinsics
+    
     Returns:
-        XYZ (Nx3): 3D coordinates
+        XYZ (array, [Nx3]): 3D coordinates
     """
     N = kp.shape[0]
     # initialize regular grid

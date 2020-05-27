@@ -1,6 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2020-03-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: KeypointSampler is an interface for keypoint sampling
+'''
 
 
 import numpy as np
@@ -10,7 +16,13 @@ from libs.general.utils import image_grid
 from libs.geometry.camera_modules import SE3
 
 class KeypointSampler():
+    """KeypointSampler is an interface for keypoint sampling 
+    """
     def __init__(self, cfg):
+        """
+        Args:
+            cfg (edict): configuration dictionary
+        """
         self.cfg = cfg
         self.kps = {}
 
@@ -30,9 +42,10 @@ class KeypointSampler():
 
     def get_feat_track_methods(self, method_idx):
         """Get feature tracking method
+        
         Args:
-            method_idx (int): feature tracking method index
-                - 1: deep_flow
+            method_idx (int): feature tracking method index 
+        
         Returns:
             feat_track_method (str): feature tracking method
         """
@@ -42,23 +55,25 @@ class KeypointSampler():
         return feat_track_methods[method_idx]
 
     def generate_kp_samples(self, img_h, img_w, crop, N):
-        """generate keypoint samples according to image height, width
+        """generate uniform keypoint samples according to image height, width
         and cropping scheme
 
         Args:
             img_h (int): image height
             img_w (int): image width
-            crop (list): normalized cropping ratio
-                - [[y0, y1],[x0, x1]]
+            crop (list): normalized cropping ratio, [[y0, y1],[x0, x1]]
             N (int): number of keypoint
 
         Returns:
-            kp_list (N array): keypoint list
+            kp_list (array, [N]): keypoint list
         """
+        # get cropped image shape
         y0, y1 = crop[0]
         y0, y1 = int(y0 * img_h), int(y1 * img_h)
         x0, x1 = crop[1]
         x0, x1 = int(x0 * img_w), int(x1 * img_w)
+
+        # uniform sampling keypoints
         total_num = (x1-x0) * (y1-y0) - 1
         kp_list = np.linspace(0, total_num, N, dtype=np.int)
         return kp_list
@@ -66,6 +81,12 @@ class KeypointSampler():
     # FIXME: E_tracker should not be here
     def kp_selection(self, cur_data, ref_data, E_tracker):
         """Choose valid kp from a series of operations
+
+        Args:
+            cur_data (dict): data of current frame
+            ref_data (dict): data of reference frame
+            E_tracker (EssTracker): Essential Matrix Tracker
+
         """
         outputs = {}
 
@@ -115,7 +136,8 @@ class KeypointSampler():
                     )
         )  
 
-        """ rigid-optical kp selection """
+        """ rigid-optical kp selection (using deep pose) """
+        # FIXME: reorganize this part
         # if self.cfg.kp_selection.rigid_flow_kp.enable:
         if False:
             ref_data['rigid_flow_pose'] = {}
@@ -126,19 +148,17 @@ class KeypointSampler():
             # kp selection
             # FIXME: place kp_selection_good_depth in a better place
             outputs.update(E_tracker.kp_selection_good_depth(cur_data, ref_data, "opt_rigid_flow_kp"))
-            # kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data)
-            # ref_data['kp_depth'] = {}
-            # cur_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
-            # for ref_id in ref_data['id']:
-            #     ref_data['kp_depth'][ref_id] = kp_sel_outputs['kp2_depth'][ref_id][0]
-            
-            # cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']          
 
         
         return outputs
 
     def update_kp_data(self, cur_data, ref_data, kp_sel_outputs):
         """update cur_data and ref_data with the kp_selection output
+
+        Args:
+            cur_data (dict): data of current frame
+            ref_data (dict): data of reference frame
+            kp_sel_outputs (dict): data of keypoint selection outputs
         """
         if self.cfg.kp_selection.uniform_filtered_bestN.enable or self.cfg.kp_selection.bestN.enable:
             # save selected kp
@@ -158,6 +178,7 @@ class KeypointSampler():
             for ref_id in ref_data['id']:
                 ref_data['kp_list'][ref_id] = kp_sel_outputs['kp2_list'][ref_id][0]
         
+        # FIXME: disabled rigid flow mask
         if False:
         # if self.cfg.kp_selection.rigid_flow_kp.enable:
             ref_data['kp_rigid'] = {}

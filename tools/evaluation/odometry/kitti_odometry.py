@@ -1,6 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: This file contains evaluation tool for KITTI odometry
+'''
 
 import copy
 from matplotlib import pyplot as plt
@@ -12,9 +18,11 @@ from glob import glob
 def scale_lse_solver(X, Y):
     """Least-sqaure-error solver
     Compute optimal scaling factor so that s(X)-Y is minimum
+
     Args:
-        X (KxN array): current data
-        Y (KxN array): reference data
+        X (array, [KxN]): current data
+        Y (array, [KxN]): reference data
+    
     Returns:
         scale (float): scaling factor
     """
@@ -74,9 +82,6 @@ def umeyama_alignment(x, y, with_scale=False):
 
 class KittiEvalOdom():
     """Evaluate odometry result
-    Usage example:
-        vo_eval = KittiEvalOdom()
-        vo_eval.eval(gt_pose_txt_dir, result_pose_txt_dir)
     """
     def __init__(self):
         self.lengths = [100, 200, 300, 400, 500, 600, 700, 800]
@@ -90,8 +95,9 @@ class KittiEvalOdom():
 
         Args:
             file_name (str): txt file path
+        
         Returns:
-            poses (dict): {idx: 4x4 array}
+            poses (dict): {idx: [4x4] array}
         """
         f = open(file_name, 'r')
         s = f.readlines()
@@ -113,10 +119,12 @@ class KittiEvalOdom():
 
     def trajectory_distances(self, poses):
         """Compute distance for each pose w.r.t frame-0
+
         Args:
             poses (dict): {idx: 4x4 array}
+        
         Returns:
-            dist (float list): distance of each pose w.r.t frame-0
+            dist (list): distance of each pose w.r.t frame-0
         """
         dist = [0]
         sort_frame_idx = sorted(poses.keys())
@@ -133,8 +141,10 @@ class KittiEvalOdom():
 
     def rotation_error(self, pose_error):
         """Compute rotation error
+        
         Args:
-            pose_error (4x4 array): relative pose error
+            pose_error (array, [4x4]): relative pose error
+        
         Returns:
             rot_error (float): rotation error
         """
@@ -147,8 +157,10 @@ class KittiEvalOdom():
 
     def translation_error(self, pose_error):
         """Compute translation error
+        
         Args:
-            pose_error (4x4 array): relative pose error
+            pose_error (array, [4x4]): relative pose error
+        
         Returns:
             trans_error (float): translation error
         """
@@ -161,12 +173,14 @@ class KittiEvalOdom():
     def last_frame_from_segment_length(self, dist, first_frame, length):
         """Find frame (index) that away from the first_frame with
         the required distance
+        
         Args:
-            dist (float list): distance of each pose w.r.t frame-0
+            dist (list): distance of each pose w.r.t frame-0
             first_frame (int): start-frame index
             length (float): required distance
+        
         Returns:
-            i (int) / -1: end-frame index. if not found return -1
+            i (int): end-frame index. if not found return -1
         """
         for i in range(first_frame, len(dist), 1):
             if dist[i] > (dist[first_frame] + length):
@@ -175,16 +189,18 @@ class KittiEvalOdom():
 
     def calc_sequence_errors(self, poses_gt, poses_result):
         """calculate sequence error
+        
         Args:
             poses_gt (dict): {idx: 4x4 array}, ground truth poses
             poses_result (dict): {idx: 4x4 array}, predicted poses
+        
         Returns:
-            err (list list): [first_frame, rotation error, translation error, length, speed]
-                - first_frame: frist frame index
-                - rotation error: rotation error per length
-                - translation error: translation error per length
-                - length: evaluation trajectory length
-                - speed: car speed (#FIXME: 10FPS is assumed)
+            a list of list containing [first_frame, rotation error, translation error, length, speed]
+                - **first_frame** (int): frist frame index
+                - **rotation error** (float): rotation error per length
+                - **translation error** (float): translation error per length
+                - **length** (float): evaluation trajectory length
+                - **speed** (float): car speed (#FIXME: 10FPS is assumed)
         """
         err = []
         dist = self.trajectory_distances(poses_gt)
@@ -229,8 +245,9 @@ class KittiEvalOdom():
         
     def save_sequence_errors(self, err, file_name):
         """Save sequence error
+        
         Args:
-            err (list list): error information
+            err (list): a list of list containing error information
             file_name (str): txt file for writing errors
         """
         fp = open(file_name, 'w')
@@ -241,6 +258,7 @@ class KittiEvalOdom():
 
     def save_RPE_errors(self, err, file_name):
         """Save sequence error
+        
         Args:
             err (dict): error information
             file_name (str): txt file for writing errors
@@ -255,13 +273,17 @@ class KittiEvalOdom():
 
     def compute_overall_err(self, seq_err):
         """Compute average translation & rotation errors
+        
         Args:
-            seq_err (list list): [[r_err, t_err],[r_err, t_err],...]
-                - r_err (float): rotation error
-                - t_err (float): translation error
+            seq_err (list), a list of list containing [r_err, t_err]
+                
+                - **r_err** (float): rotation error
+                - **t_err** (float): translation error
+        
         Returns:
-            ave_t_err (float): average translation error
-            ave_r_err (float): average rotation error
+            a tuple containing 
+                - **ave_t_err** (float): average translation error
+                - **ave_r_err** (float): average rotation error
         """
         t_err = 0
         r_err = 0
@@ -280,6 +302,7 @@ class KittiEvalOdom():
 
     def plot_trajectory(self, poses_gt, poses_result, seq):
         """Plot trajectory for both GT and prediction
+        
         Args:
             poses_gt (dict): {idx: 4x4 array}; ground truth poses
             poses_result (dict): {idx: 4x4 array}; predicted poses
@@ -319,6 +342,7 @@ class KittiEvalOdom():
 
     def plot_error(self, avg_segment_errs, seq):
         """Plot per-length error
+        
         Args:
             avg_segment_errs (dict): {100:[avg_t_err, avg_r_err],...}
             seq (int): sequence index.
@@ -365,13 +389,16 @@ class KittiEvalOdom():
 
     def compute_segment_error(self, seq_errs):
         """This function calculates average errors for different segment.
+        
         Args:
-            seq_errs (list list): list of errs; [first_frame, rotation error, translation error, length, speed]
-                - first_frame: frist frame index
-                - rotation error: rotation error per length
-                - translation error: translation error per length
-                - length: evaluation trajectory length
-                - speed: car speed (#FIXME: 10FPS is assumed)
+            seq_errs (list): a list of list containing [first_frame, rotation error, translation error, length, speed]
+            
+                - **first_frame** (int): frist frame index
+                - **rotation error** (float): rotation error per length
+                - **translation error** (float): translation error per length
+                - **length** (float): evaluation trajectory length
+                - **speed** (float): car speed (#FIXME: 10FPS is assumed)
+        
         Returns:
             avg_segment_errs (dict): {100:[avg_t_err, avg_r_err],...}    
         """
@@ -400,9 +427,10 @@ class KittiEvalOdom():
 
     def compute_ATE(self, gt, pred):
         """Compute RMSE of ATE
+        
         Args:
-            gt (4x4 array dict): ground-truth poses
-            pred (4x4 array dict): predicted poses
+            gt (dict): ground-truth poses as [4x4] array
+            pred (dict): predicted poses as [4x4] array
         """
         errors = []
         idx_0 = list(pred.keys())[0]
@@ -426,9 +454,11 @@ class KittiEvalOdom():
     
     def compute_RPE(self, gt, pred):
         """Compute RPE
+        
         Args:
-            gt (4x4 array dict): ground-truth poses
-            pred (4x4 array dict): predicted poses
+            gt (dict): ground-truth poses as [4x4] array
+            pred (dict): predicted poses as [4x4] array
+        
         Returns:
             trans_errors (list): list of rpe translation error
             rot_errors (list): list of RPE rotation error
@@ -451,11 +481,13 @@ class KittiEvalOdom():
 
     def scale_optimization(self, gt, pred):
         """ Optimize scaling factor
+        
         Args:
-            gt (4x4 array dict): ground-truth poses
-            pred (4x4 array dict): predicted poses
+            gt (dict): ground-truth poses as [4x4] array
+            pred (dict): predicted poses as [4x4] array
+        
         Returns:
-            new_pred (4x4 array dict): predicted poses after optimization
+            new_pred (dict): predicted poses after optimization as [4x4] array
         """
         pred_updated = copy.deepcopy(pred)
         xyz_pred = []
@@ -474,8 +506,10 @@ class KittiEvalOdom():
     
     def compute_trajectory_length(self, gt):
         """Compute trajectory length
+        
         Args:
-            gt (4x4 array dict): ground-truth poses
+            gt (dict): ground-truth poses as [4x4] array
+        
         Returns:
             length (float): trajectory length
         """
@@ -490,6 +524,7 @@ class KittiEvalOdom():
     
     def write_result(self, f, seq, errs):
         """Write result into a txt file
+        
         Args:
             f (IOWrapper)
             seq (int): sequence number
@@ -506,20 +541,23 @@ class KittiEvalOdom():
         for line in lines:
             f.writelines(line)
 
-
     def eval(self, gt_dir, result_dir, 
                 alignment=None,
                 seqs=None):
         """Evaulate required/available sequences
+        
         Args:
             gt_dir (str): ground truth poses txt files directory
             result_dir (str): pose predictions txt files directory
             alignment (str): if not None, optimize poses by
+
                 - scale: optimize scale factor for trajectory alignment and evaluation
                 - scale_7dof: optimize 7dof for alignment and use scale for trajectory evaluation
                 - 7dof: optimize 7dof for alignment and evaluation
                 - 6dof: optimize 6dof for alignment and evaluation
-            seqs (list/None):
+                
+            seqs (list): 
+            
                 - None: Evalute all available seqs in result_dir
                 - list: list of sequence indexs to be evaluated
         """

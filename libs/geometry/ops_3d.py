@@ -51,9 +51,10 @@ def triangulation(kp1, kp2, T_1w, T_2w):
         T_2w (array, [4x4]): pose of view 2 w.r.t world, i.e. T_2w (from w to 2)
     
     Returns:
-        X (array, [3xN]): 3D coordinates of the keypoints w.r.t world coordinate
-        X1 (array, [3xN]): 3D coordinates of the keypoints w.r.t view1 coordinate
-        X2 (array, [3xN]): 3D coordinates of the keypoints w.r.t view2 coordinate
+        a tuple containing
+            - **X** (array, [3xN]): 3D coordinates of the keypoints w.r.t world coordinate
+            - **X1** (array, [3xN]): 3D coordinates of the keypoints w.r.t view1 coordinate
+            - **X2** (array, [3xN]): 3D coordinates of the keypoints w.r.t view2 coordinate
     """
     kp1_3D = np.ones((3, kp1.shape[0]))
     kp2_3D = np.ones((3, kp2.shape[0]))

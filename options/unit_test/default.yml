@@ -41,7 +41,7 @@ deep_flow:                                                                      
   num_kp: 2000                                                                                       # | 
   network: liteflow                                                                                  # | 
   flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                        # | 
-  batch_size: 1                                                                                      # | 
+  # batch_size: 1                                                                                      # | 
   precomputed_flow:                                                                                  # | 
 crop:                                                                                                # |
   depth_crop: [[0.3, 1], [0, 1]]                                                                     # | 

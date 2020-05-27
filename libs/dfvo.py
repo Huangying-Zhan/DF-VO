@@ -1,6 +1,12 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-01-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: DF-VO core program
+'''
 
 import cv2
 import copy
@@ -22,23 +28,6 @@ from libs.matching.depth_consistency import DepthConsistency
 from libs.tracker import EssTracker, PnpTracker
 from libs.general.utils import *
 
-from libs.tracker.gric import *
-
-
-def get_E_from_pose(pose):
-    R = pose.R
-    t = pose.t / np.linalg.norm(pose.t)
-    t_ssym = np.zeros((3,3))
-    t_ssym[0, 1] = - t[2,0]
-    t_ssym[0, 2] = t[1,0]
-    t_ssym[1, 2] = - t[0,0]
-    t_ssym[2, 1] = t[0,0]
-    t_ssym[2, 0] = - t[1,0]
-    t_ssym[1, 0] = t[2,0]
-
-    E = t_ssym @ R
-    return E
-
 
 
 class DFVO():
@@ -56,10 +45,6 @@ class DFVO():
         # predicted global poses
         self.global_poses = {0: SE3()}
 
-        # window size and keyframe step
-        self.window_size = 2
-        self.keyframe_step = 1
-        
         # reference data and current data
         self.initialize_data()
 
@@ -67,14 +52,17 @@ class DFVO():
 
     def setup(self):
         """Reading configuration and setup, including
-        - Tracking method
-        - dataset
-        - Keypoint Sampler
-        - Deep networks
-        - Deep layers
-        - Display drawer
-        - Timer
+
+            - Timer
+            - Dataset
+            - Tracking method
+            - Keypoint Sampler
+            - Deep networks
+            - Deep layers
+            - Visualizer
         """
+        # timer
+        self.timers = Timer()
 
         # intialize dataset
         datasets = {
@@ -87,7 +75,7 @@ class DFVO():
             "adelaide2": Dataset.Adelaide2
         }
         self.dataset = datasets[self.cfg.dataset](self.cfg)
-
+        
         # get tracking method
         self.tracking_method = self.get_tracking_method(self.cfg.tracking_method)
         self.initialize_tracker()
@@ -110,44 +98,24 @@ class DFVO():
                         vis_w=self.drawer.w/5*2,
                         gt_poses=self.dataset.gt_poses)
         
-        # timer
-        self.timers = Timer()
-
     def initialize_data(self):
-        self.ref_data = {
-                        'id': None, 
-                        'timestamp': None,
-                        'img': None,
-                        'depth': None,
-                        'raw_depth': None,
-                        'pose': None,
-                        # 'kp': None,
-                        'kp_best': None,
-                        'kp_list': None,
-                        'flow': None,  # from ref->cur
-                        'flow_diff': None,  # flow-consistency-error of ref->cur
-                        'inliers': None
-                        }
-        self.cur_data = {
-                        'id': None,
-                        'timestamp': None,
-                        'img': None,
-                        'depth': None,
-                        'pose': None,
-                        # 'kp': None,
-                        'kp_best': None,
-                        'kp_list': None,
-                        'flow': None,  # from cur->ref
-                        }
+        """initialize data of current view and reference view
+        """
+        self.ref_data = {}
+        self.cur_data = {}
 
-    def get_tracking_method(self, method_idx):
+    def get_tracking_method(self, method_idx=3):
         """Get tracking method
+            P.S.Our Experiment version support 4 modes 
+                but Release version supports hybrid as reported in the paper`
+        
         Args:
             method_idx (int): tracking method index
                 - 0: 2d-2d
                 - 1: PnP
                 - 2: 3d-3d
                 - 3: hybrid
+        
         Returns:
             track_method (str): tracking method
         """
@@ -160,18 +128,21 @@ class DFVO():
         return tracking_method_cases[method_idx]
 
     def initialize_tracker(self):
+        """Initialize tracker
+        """
         if self.tracking_method == "hybrid":
-            self.e_tracker = EssTracker(self.cfg, self.dataset.cam_intrinsics, self)
+            self.e_tracker = EssTracker(self.cfg, self.dataset.cam_intrinsics, self.timers)
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
         elif self.tracking_method == "PnP":
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
         else:
             assert False, "Wrong tracker is selected"
 
-    def update_global_pose(self, new_pose, scale):
+    def update_global_pose(self, new_pose, scale=1.):
         """update estimated poses w.r.t global coordinate system
+
         Args:
-            new_pose (SE3)
+            new_pose (SE3): new pose
             scale (float): scaling factor
         """
         self.cur_data['pose'].t = self.cur_data['pose'].R @ new_pose.t * scale \
@@ -269,42 +240,24 @@ class DFVO():
 
             self.tracking_stage += 1
 
-    def update_ref_data(self, ref_data, cur_data, window_size, kf_step=1):
-        """Update reference data
+    def update_data(self, ref_data, cur_data):
+        """Update data
+        
         Args:
             ref_data (dict): reference data
-                - e.g.
-                    ref_data:
-                    {
-                        id: [0, 1, 2]
-                        img: {0: I0, 1:I1, 2:I2}
-                        ...
-                    }
             cur_data (dict): current data
-                - e.g.
-                    cur_data:
-                    {
-                        id: 3
-                        img: I3
-                        ...
-                    }
-            cur_id (int): current image id
-            window_size (int): number of frames in the window
+        
         Returns:
-            ref_data (dict): reference data
+            ref_data (dict): updated reference data
+            cur_data (dict): updated current data
         """
         for key in cur_data:
             if key == "id":
                 ref_data['id'] = cur_data['id']
-                # if len(ref_data['id']) > window_size - 1:
-                #     del(ref_data['id'][0])
             else:
                 if ref_data.get(key, -1) is -1:
                     ref_data[key] = {}
                 ref_data[key] = cur_data[key]
-                # if len(ref_data[key]) > window_size - 1:
-                #     drop_id = np.min(list(ref_data[key].keys()))
-                #     del(ref_data[key][drop_id])
         
         # Delete unused flow to avoid data leakage
         ref_data['flow'] = {}
@@ -367,6 +320,8 @@ class DFVO():
             self.timers.end('pose_cnn')
 
     def main(self):
+        """Main program
+        """
         print("==> Start DF-VO")
 
         if self.cfg.no_confirm:
@@ -407,11 +362,9 @@ class DFVO():
                 self.timers.end('visualization')
 
             """ Update reference and current data """
-            self.ref_data, self.cur_data = self.update_ref_data(
+            self.ref_data, self.cur_data = self.update_data(
                                     self.ref_data,
                                     self.cur_data,
-                                    self.window_size,
-                                    self.keyframe_step
             )
 
             self.timers.end('DF-VO')

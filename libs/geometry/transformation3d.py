@@ -1,23 +1,32 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file.
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-09-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: Layer to transform 3D points given transformation matrice
+'''
 
 import torch
 import torch.nn as nn
 
 
 class Transformation3D(nn.Module):
-    """Layer which transform 3D points
+    """Layer to transform 3D points given transformation matrice
     """
     def __init__(self):
         super(Transformation3D, self).__init__()
 
     def forward(self, points, T):
-        """
+        """Forward pass
+        
         Args:
-            points (Nx4x(HxW)): 3D points in homogeneous coordinates
-            T (Nx4x4): transformation matrice
+            points (tensor, [Nx4x(HxW)]): 3D points in homogeneous coordinates
+            T (tensor, [Nx4x4]): transformation matrice
+        
         Returns:
-            transformed_points (Nx4x(HxW)): 3D points in homogeneous coordinates
+            transformed_points (tensor, [Nx4x(HxW)]): 3D points in homogeneous coordinates
         """
         transformed_points = torch.matmul(T, points)
         return transformed_points

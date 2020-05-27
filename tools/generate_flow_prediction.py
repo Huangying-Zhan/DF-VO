@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-07
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-26
+@LastEditTime: 2020-05-27
 @LastEditors: Huangying Zhan
 @Description: This program generates optical flow prediction for KITTI Flow 2012/2015
 '''
@@ -27,7 +27,7 @@ def argument_parsing():
     Returns:
         args (args): arguments
     """
-    parser = argparse.ArgumentParser(description='VO system')
+    parser = argparse.ArgumentParser(description='Generate optical flow predictions for KITTI Flow 2012/2015')
     parser.add_argument("--result", type=str, required=True, 
                         help="Result output directory, RESULT/data will be created")
     parser.add_argument("--dataset", type=str, required=True,

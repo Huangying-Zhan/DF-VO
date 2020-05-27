@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-27
 @LastEditors: Huangying Zhan
 @Description: Dataset loaders for TUM RGB-D Sequence
 '''
@@ -227,7 +227,7 @@ class TUM(Dataset):
         return depth
 
     def save_result_traj(self, traj_txt, poses):
-        """Save trajectory (absolute poses) as KITTI odometry file format
+        """Save trajectory (absolute poses) as TUM odometry file format
 
         Args:
             txt (str): pose text file path

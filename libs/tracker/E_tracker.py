@@ -103,6 +103,28 @@ def find_Ess_mat(inputs):
     return outputs
 
 
+def get_E_from_pose(pose):
+    """Recover essential matrix from a pose
+    
+    Args:
+        pose (SE3): SE3
+    
+    Returns:
+        E (array, [3x3]): essential matrix
+    """
+    R = pose.R
+    t = pose.t / np.linalg.norm(pose.t)
+    t_ssym = np.zeros((3,3))
+    t_ssym[0, 1] = - t[2,0]
+    t_ssym[0, 2] = t[1,0]
+    t_ssym[1, 2] = - t[0,0]
+    t_ssym[2, 1] = t[0,0]
+    t_ssym[2, 0] = - t[1,0]
+    t_ssym[1, 0] = t[2,0]
+
+    E = t_ssym @ R
+    return E
+
 class EssTracker():
     def __init__(self, cfg, cam_intrinsics, timers):
         """

@@ -1,33 +1,44 @@
-# Copyright (C) Huangying Zhan 2019. All rights reserved.
-# This software is licensed under the terms in the LICENSE file 
-# which allows for non-commercial use only.
-
+''''''
+'''
+@Author: Huangying Zhan (huangying.zhan.work@gmail.com)
+@Date: 2019-01-01
+@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
+@LastEditTime: 2020-05-27
+@LastEditors: Huangying Zhan
+@Description: PnP Tracker to estimate camera motion from given 3D-2D correspondences
+'''
 
 import cv2
-# import multiprocessing as mp
 import numpy as np
-# from sklearn import linear_model
 
 from libs.geometry.camera_modules import SE3
 from libs.geometry.ops_3d import unprojection_kp
-# from libs.general.utils import image_shape
 
 class PnpTracker():
+    """ PnP Tracker to estimate camera motion from given 3D-2D correspondences 
+    """
     def __init__(self, cfg, cam_intrinsics):
+        """ 
+        Args:
+            cfg (edict): configuration dictionary
+            cam_intrinsics (Intrinsics): camera intrinsics
+        """
         self.cfg = cfg
         self.cam_intrinsics = cam_intrinsics
 
     def compute_pose_3d2d(self, kp1, kp2, depth_1):
         """Compute pose from 3d-2d correspondences
+
         Args:
-            kp1 (Nx2 array): keypoints for view-1
-            kp2 (Nx2 array): keypoints for view-2
-            depth_1 (HxW array): depths for view-1
+            kp1 (array, [Nx2]): keypoints for view-1
+            kp2 (array, [Nx2]): keypoints for view-2
+            depth_1 (array, [HxW]): depths for view-1
+        
         Returns:
-            outputs (dict):
-                - pose (SE3): relative pose from view-2 to view-1
-                - kp1 (Nx2 array): filtered keypoints for view-1
-                - kp2 (Nx2 array): filtered keypoints for view-2
+            a dictionary containing
+                - **pose** (SE3): relative pose from view-2 to view-1
+                - **kp1** (array, [Nx2]): filtered keypoints for view-1
+                - **kp2** (array, [Nx2]): filtered keypoints for view-2
         """
         outputs = {}
         height, width = depth_1.shape
@@ -58,7 +69,7 @@ class PnpTracker():
         best_inlier = 0
         max_ransac_iter = self.cfg.PnP.ransac.repeat
         
-        for i in range(max_ransac_iter):
+        for _ in range(max_ransac_iter):
             # shuffle kp (only useful when random seed is fixed)	
             new_list = np.arange(0, kp2.shape[0], 1)	
             np.random.shuffle(new_list)
@@ -66,6 +77,7 @@ class PnpTracker():
             new_kp2 = kp2.copy()[new_list]
 
             if new_kp2.shape[0] > 4:
+                # PnP solver
                 flag, r, t, inlier = cv2.solvePnPRansac(
                     objectPoints=new_XYZ,
                     imagePoints=new_kp2,
@@ -74,9 +86,13 @@ class PnpTracker():
                     iterationsCount=self.cfg.PnP.ransac.iter,
                     reprojectionError=self.cfg.PnP.ransac.reproj_thre,
                     )
+                
+                # save best pose estimation
                 if flag and inlier.shape[0] > best_inlier:
                     best_rt = [r, t]
                     best_inlier = inlier.shape[0]
+        
+        # format pose
         pose = SE3()
         if len(best_rt) != 0:
             r, t = best_rt
@@ -84,6 +100,7 @@ class PnpTracker():
             pose.t = t
         pose.pose = pose.inv_pose
 
+        # save output
         outputs['pose'] = pose
         outputs['kp1'] = kp1
         outputs['kp2'] = kp2

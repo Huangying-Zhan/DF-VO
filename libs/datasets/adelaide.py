@@ -23,6 +23,7 @@ class Adelaide(Dataset):
     def __init__(self, *args, **kwargs):
         super(Adelaide, self).__init__(*args, **kwargs)
     
+    ''' In general, you don't need to change this part ''' 
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
         
@@ -58,6 +59,7 @@ class Adelaide(Dataset):
         global_poses_arr = convert_SE3_to_arr(poses)
         save_traj(traj_txt, global_poses_arr, format='kitti')
 
+    ''' In general, you need to write the following functions for your own dataset''' 
     def get_intrinsics_param(self):
         """Read intrinsics parameters for each dataset
 
@@ -109,14 +111,6 @@ class Adelaide(Dataset):
  
         return data_dir
     
-    def get_gt_poses(self):
-        """Load ground-truth poses
-        
-        Returns:
-            gt_poses (dict): each pose is a [4x4] array
-        """
-        raise NotImplementedError
-    
     def get_image(self, timestamp):
         """Get image data given the image timestamp
 
@@ -132,6 +126,11 @@ class Adelaide(Dataset):
         img = read_image(img_path, self.cfg.image.height, self.cfg.image.width)
         return img
     
+    ''' 
+        These functions are not necessary to run DF-VO. 
+        However, if you want to use RGB-D data, get_depth() is required.
+        If you have gt poses as well for comparison, get_gt_poses() is required.
+    ''' 
     def get_depth(self, timestamp):
         """Get GT/precomputed depth data given the timestamp
 
@@ -142,3 +141,12 @@ class Adelaide(Dataset):
             depth (array, [HxW]): depth data
         """
         raise NotImplementedError
+
+    def get_gt_poses(self):
+        """Load ground-truth poses
+        
+        Returns:
+            gt_poses (dict): each pose is a [4x4] array
+        """
+        raise NotImplementedError
+    

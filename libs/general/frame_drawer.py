@@ -548,7 +548,7 @@ class FrameDrawer():
 
         # Visualize flow (forward; backward) and flow inconsistency
         start_time = time()
-        if vo.drawer.display['flow1'] and vo.cfg.visualization.flow.vis_full_flow and vo.tracking_stage > 1:
+        if vo.drawer.display['flow1'] and vo.cfg.visualization.flow.vis_forward_flow and vo.tracking_stage > 1:
             vis_flow = vo.ref_data['flow'].transpose(1,2,0)
             vis_flow = flow_to_image(vis_flow)
             vo.drawer.update_data("flow1", vis_flow)
@@ -556,7 +556,7 @@ class FrameDrawer():
             h, w, c = vo.drawer.data["flow1"][...].shape
             vo.drawer.data["flow1"][...] = np.zeros((h,w,c))
 
-        if vo.drawer.display['flow2'] and vo.cfg.visualization.flow.vis_back_flow and vo.tracking_stage > 1:
+        if vo.drawer.display['flow2'] and vo.cfg.visualization.flow.vis_backward_flow and vo.tracking_stage > 1:
             vis_flow = vo.cur_data['flow'].transpose(1,2,0)
             vis_flow = flow_to_image(vis_flow)
             vo.drawer.update_data("flow2", vis_flow)

@@ -140,8 +140,9 @@ class EssTracker():
         self.prev_pose = SE3()
         self.cam_intrinsics = cam_intrinsics
 
-        if self.cfg.use_multiprocessing:
-            self.p = mp.Pool(2)
+        # multiprocessing (not used since doesn't speed up much)
+        # if self.cfg.use_multiprocessing:
+        #     self.p = mp.Pool(2)
         
         # Rigid flow data
         if self.cfg.kp_selection.rigid_flow_kp.enable:
@@ -622,13 +623,13 @@ class EssTracker():
         if self.save_tri_depth:
             # save triangulated depths
             depth2_tri *= scale
-            png_dir = os.path.join(self.cfg.result_dir, "depth_tri_{}".format(self.cfg.seq))
+            png_dir = os.path.join(self.cfg.directory.result_dir, "depth_tri_{}".format(self.cfg.seq))
             mkdir_if_not_exists(png_dir)
             png_path = os.path.join(png_dir, "{:06}.png".format(self.cnt))
             save_depth_png(depth2_tri, png_path, 500)
 
             # save cnn depth
-            png_dir = os.path.join(self.cfg.result_dir, "depth_cnn_{}".format(self.cfg.seq))
+            png_dir = os.path.join(self.cfg.directory.result_dir, "depth_cnn_{}".format(self.cfg.seq))
             mkdir_if_not_exists(png_dir)
             png_path = os.path.join(png_dir, "{:06}.png".format(self.cnt))
             save_depth_png(depth2, png_path, 500)

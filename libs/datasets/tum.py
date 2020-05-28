@@ -89,7 +89,7 @@ class TUM(Dataset):
             del(self.rgb_d_pose_pair[rgb_stamp])
         
         # timestep
-        timestep = 5
+        timestep = 1
         to_del_pair = []
         for cnt, rgb_stamp in enumerate(self.rgb_d_pose_pair):
             if cnt % timestep != 0:

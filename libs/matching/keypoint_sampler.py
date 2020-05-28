@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-03-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: KeypointSampler is an interface for keypoint sampling
 '''
@@ -78,14 +78,23 @@ class KeypointSampler():
         kp_list = np.linspace(0, total_num, N, dtype=np.int)
         return kp_list
 
-    # FIXME: E_tracker should not be here
-    def kp_selection(self, cur_data, ref_data, E_tracker):
+    def kp_selection(self, cur_data, ref_data):
         """Choose valid kp from a series of operations
 
         Args:
             cur_data (dict): data of current frame
             ref_data (dict): data of reference frame
-            E_tracker (EssTracker): Essential Matrix Tracker
+        
+        Returns:
+            outputs (dict): a dictionary containing some of the following items
+
+                - **kp1_best** (array, [Nx2]): keypoints on view-1
+                - **kp2_best** (array, [Nx2]): keypoints on view-2
+                - **kp1_list** (array, [Nx2]): keypoints on view-1
+                - **kp2_list** (array, [Nx2]): keypoints on view-2  
+                - **kp1_depth** (array, [Nx2]): keypoints in view-1
+                - **kp2_depth** (array, [Nx2]): keypoints in view-2
+                - **rigid_flow_mask** (array, [HxW]): rigid-optical flow consistency 
 
         """
         outputs = {}
@@ -135,18 +144,7 @@ class KeypointSampler():
                     )
         )  
 
-        """ rigid-optical kp selection (using deep pose) """
-        # FIXME: reorganize this part
-        # if self.cfg.kp_selection.rigid_flow_kp.enable:
-        if False:
-            rigid_flow_pose = ref_data['deep_pose']
-            ref_data['rigid_flow_pose'] = SE3(np.linalg.inv(rigid_flow_pose))
-
-            # kp selection
-            # FIXME: place kp_selection_good_depth in a better place
-            outputs.update(E_tracker.kp_selection_good_depth(cur_data, ref_data, "opt_rigid_flow_kp"))
-
-        
+       
         return outputs
 
     def update_kp_data(self, cur_data, ref_data, kp_sel_outputs):

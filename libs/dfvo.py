@@ -68,7 +68,7 @@ class DFVO():
         self.dataset = Dataset.datasets[self.cfg.dataset](self.cfg)
         
         # get tracking method
-        self.tracking_method = self.get_tracking_method(self.cfg.tracking_method)
+        self.tracking_method = self.cfg.tracking_method
         self.initialize_tracker()
 
         # initialize keypoint sampler
@@ -94,29 +94,6 @@ class DFVO():
         """
         self.ref_data = {}
         self.cur_data = {}
-
-    def get_tracking_method(self, method_idx=3):
-        """Get tracking method
-            P.S.Our Experiment version support 4 modes 
-                but Release version supports hybrid as reported in the paper`
-        
-        Args:
-            method_idx (int): tracking method index
-                - 0: 2d-2d
-                - 1: PnP
-                - 2: 3d-3d
-                - 3: hybrid
-        
-        Returns:
-            track_method (str): tracking method
-        """
-        tracking_method_cases = {
-            0: "2d-2d",
-            1: "PnP",
-            2: "3d-3d",
-            3: "hybrid"
-        }
-        return tracking_method_cases[method_idx]
 
     def initialize_tracker(self):
         """Initialize tracker
@@ -165,7 +142,7 @@ class DFVO():
 
             # kp_selection
             self.timers.start('kp_sel', 'tracking')
-            kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data, self.e_tracker)
+            kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data)
             self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
             self.timers.end('kp_sel')
 
@@ -226,7 +203,7 @@ class DFVO():
             pose = self.ref_data['pose']
 
             # FIXME: testing only
-            # print(pose.pose)
+            print(pose.pose)
             self.update_global_pose(pose, 1)
 
             self.tracking_stage += 1
@@ -321,8 +298,8 @@ class DFVO():
             start_frame = int(input("Start with frame: "))
 
         # FIXME: testing only
-        # for img_id in tqdm(range(start_frame, 3)):
-        for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
+        for img_id in tqdm(range(start_frame, 3)):
+        # for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
             self.timers.start('DF-VO')
             self.tracking_mode = "Ess. Mat."
 

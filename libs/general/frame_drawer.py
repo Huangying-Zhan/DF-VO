@@ -484,15 +484,15 @@ class FrameDrawer():
         if vo.tracking_stage > 1:
 
             # Set number of kp to be visualized
-            if (vo.cur_data[vo.cfg.visualization.kp_src].shape[0] < vo.cfg.visualization.match.kp_num or \
-                    vo.ref_data[vo.cfg.visualization.kp_src].shape[0] < vo.cfg.visualization.match.kp_num or\
-                        vo.cfg.visualization.match.kp_num == -1):
+            if (vo.cur_data[vo.cfg.visualization.kp_src].shape[0] < vo.cfg.visualization.kp_match.kp_num or \
+                    vo.ref_data[vo.cfg.visualization.kp_src].shape[0] < vo.cfg.visualization.kp_match.kp_num or\
+                        vo.cfg.visualization.kp_match.kp_num == -1):
                 vis_kp_num = min(vo.cur_data[vo.cfg.visualization.kp_src].shape[0], vo.ref_data[vo.cfg.visualization.kp_src].shape[0])
             else:
-                vis_kp_num = vo.cfg.visualization.match.kp_num
+                vis_kp_num = vo.cfg.visualization.kp_match.kp_num
 
             if vo.drawer.display['match_side'] and\
-                vo.cfg.visualization.match.vis_side.enable:
+                vo.cfg.visualization.kp_match.vis_side.enable:
                 # Set keypoints
                 vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src]
                 vis_kp_cur = vo.cur_data[vo.cfg.visualization.kp_src]
@@ -507,7 +507,7 @@ class FrameDrawer():
                     mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='magma')
                     colormapped_im = (mapper.to_rgba(vis_depth)[:, :, :3] * 255).astype(np.uint8)
 
-                if vo.cfg.visualization.match.vis_side.inlier_plot:
+                if vo.cfg.visualization.kp_match.vis_side.inlier_plot:
                     inliers=vo.ref_data['inliers']
                 else:
                     inliers=None
@@ -527,7 +527,7 @@ class FrameDrawer():
 
             # Draw temporal flow
             if vo.drawer.display['match_temp'] and \
-                vo.cfg.visualization.match.vis_temp.enable:
+                vo.cfg.visualization.kp_match.vis_temp.enable:
                 
                 # Set keypoints
                 vis_kp_ref = vo.ref_data[vo.cfg.visualization.kp_src]
@@ -569,13 +569,13 @@ class FrameDrawer():
         # Visualize full depth
         start_time = time()
         if vo.drawer.display['depth'] and \
-              (vo.cfg.visualization.depth.vis_full_depth or vo.cfg.visualization.depth.vis_full_disp):
+              (vo.cfg.visualization.depth.depth_disp is not None):
             if vo.cfg.visualization.depth.use_tracking_depth:
                 tmp_vis_depth = vo.cur_data['depth']
             else:
                 tmp_vis_depth = vo.cur_data['raw_depth']
                     
-            if vo.cfg.visualization.depth.vis_full_depth:
+            if vo.cfg.visualization.depth.depth_disp == 'depth':
                 vis_depth = tmp_vis_depth
                 normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.depth.max_depth)
                 mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='magma')
@@ -583,7 +583,7 @@ class FrameDrawer():
                 vo.drawer.update_data("depth", colormapped_im)
             
             # Visualize full inverse depth
-            if vo.cfg.visualization.depth.vis_full_disp:
+            if vo.cfg.visualization.depth.depth_disp == 'disp':
                 vis_depth = 1/(tmp_vis_depth+1e-3)
                 vis_depth[tmp_vis_depth==0] = 0
                 if "kitti" in vo.cfg.dataset:

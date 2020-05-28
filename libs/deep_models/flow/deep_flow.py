@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-26
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: This is the Base class for deep flow network interface
 '''
@@ -107,66 +107,6 @@ class DeepFlow():
         flow[..., 0] *= resize_width / w
         flow[..., 1] *= resize_height / h
         return flow
-
-    # FIXME: move this function to dataset loader
-    def load_precomputed_flow(self, img1, img2, flow_dir, dataset, forward_backward):
-        """Load precomputed optical flow
-
-        Args:
-            img1 (list): list of img1 id
-            img2 (list): list of img2 id
-            flow_dir (str): directory to read flow
-            dataset (str): dataset type [kitti, tum-1/2/3]
-            forward_backward (bool): load backward flow if True
-        """
-        flow_data = []
-        for i in range(len(img1)):
-            # Get flow npy file
-            if "kitti" in dataset:
-                flow_path = os.path.join(
-                            flow_dir,
-                            "{:06d}".format(img2[i]),
-                            "{:06d}.npy".format(img1[i]),
-                            )
-            elif "tum" in dataset:
-                flow_path = os.path.join(
-                            flow_dir,
-                            "{:.6f}".format(img2[i]),
-                            "{:.6f}.npy".format(img1[i]),
-                            )
-            assert os.path.isfile(flow_path), "wrong flow path: [{}]".format(flow_path)
-
-            # Load and process flow data
-            flow = self.load_flow_file(flow_path)
-            flow_data.append(flow)
-        flow_data = np.asarray(flow_data)
-        flow_data = np.transpose(flow_data, (0, 3, 1, 2))
-
-        # get backward flow data
-        if forward_backward:
-            back_flow_data = []
-            for i in range(len(img1)):
-                if "kitti" in dataset:
-                    flow_path = os.path.join(
-                                    flow_dir,
-                                    "{:06d}".format(img1[i]),
-                                    "{:06d}.npy".format(img2[i]),
-                                    )
-                elif "tum" in dataset:
-                    flow_path = os.path.join(
-                                    flow_dir,
-                                    "{:.6f}".format(img1[i]),
-                                    "{:.6f}.npy".format(img2[i]),
-                                    )
-                assert os.path.isfile(flow_path), "wrong flow path"
-
-                flow = self.load_flow_file(flow_path)
-                back_flow_data.append(flow)
-            back_flow_data = np.asarray(back_flow_data)
-            back_flow_data = np.transpose(back_flow_data, (0, 3, 1, 2))
-            return flow_data, back_flow_data
-        else:
-            return flow_data
 
     @torch.no_grad()
     def inference(self, img1, img2):

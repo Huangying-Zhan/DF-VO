@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -37,10 +37,6 @@ class DeepModel():
 
         ''' optical flow '''
         self.flow = self.initialize_deep_flow_model()
-
-        # allow reading precomputed flow instead of network inference for speeding up debug
-        if self.cfg.deep_flow.precomputed_flow is not None:
-            self.cfg.deep_flow.precomputed_flow = self.cfg.deep_flow.precomputed_flow.replace("{}", self.cfg.seq)
 
         ''' single-view depth '''
         if self.cfg.depth.depth_src is None:
@@ -124,13 +120,11 @@ class DeepModel():
 
         # Forward pass
         flows = {}
-        batch_size = self.cfg.deep_flow.batch_size
 
         # Flow inference
         batch_flows = self.flow.inference_flow(
                                 img1=ref_imgs,
                                 img2=cur_imgs,
-                                flow_dir=self.cfg.deep_flow.precomputed_flow,
                                 forward_backward=forward_backward,
                                 dataset=self.cfg.dataset)
         

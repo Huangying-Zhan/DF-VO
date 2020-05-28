@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-26
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: This is the interface for LiteFlowNet
 '''
@@ -277,7 +277,6 @@ class LiteFlow(DeepFlow):
 
     def inference_flow(self, 
                     img1, img2,
-                    flow_dir,
                     forward_backward=False,
                     dataset='kitti'):
         """Estimate flow (1->2) and form keypoints
@@ -285,7 +284,6 @@ class LiteFlow(DeepFlow):
         Args:
             img1 (array [Nx3xHxW]): image 1
             img2 (array [Nx3xHxW]): image 2
-            flow_dir (str): if directory is given, img1 and img2 become list of img ids
             foward_backward (bool): forward-backward flow consistency is used if True
             dataset (str): dataset type
         
@@ -325,8 +323,11 @@ class LiteFlow(DeepFlow):
                                 px1on2=px1on2)
         
         # online finetune
-        if self.finetune and self.img_cnt < self.flow_cfg.online_finetune.num_frames:
-            self.train_flow(combined_flow_data, flow_diff, img1, img2)
+        if self.finetune:
+            if self.flow_cfg.online_finetune.num_frames is None:
+                self.train_flow(combined_flow_data, flow_diff, img1, img2)
+            elif self.img_cnt < self.flow_cfg.online_finetune.num_frames:
+                self.train_flow(combined_flow_data, flow_diff, img1, img2)
             self.img_cnt += 1
         
         # summarize flow data and flow difference

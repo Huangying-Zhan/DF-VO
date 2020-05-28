@@ -26,11 +26,6 @@ class KeypointSampler():
         self.cfg = cfg
         self.kps = {}
 
-        # feature tracking method
-        self.feature_tracking_method = self.get_feat_track_methods(
-                                            self.cfg.kp_selection.feature_tracking_method
-                                            )
-
         # generate uniform kp list
         if self.cfg.kp_selection.sampled_kp.enable:
             self.kps['uniform'] = self.generate_kp_samples(

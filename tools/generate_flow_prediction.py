@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-07
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: This program generates optical flow prediction for KITTI Flow 2012/2015
 '''
@@ -80,6 +80,7 @@ def get_img_idxs(dataset, is_test):
 
     Args:
         dataset (str): dataset type
+        
             - kitti2012: All kitti-2012 image
             - kitti2015: All kitti-2015 image
         is_test (bool): Use testing set if true

@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: Dataset loaders for KITTI Driving Sequence
 '''
@@ -101,23 +101,16 @@ class KittiOdom(KITTI):
         data_dir['img'] = os.path.join(img_seq_dir, "image_2")
 
         # get depth data directory
-        depth_src_cases = {
-            0: "gt",
-            1: "pred",
-            None: None
-            }
-        data_dir['depth_src'] = depth_src_cases[self.cfg.depth.depth_src]
+        data_dir['depth_src'] = self.cfg.depth.depth_src
 
         if data_dir['depth_src'] == "gt":
             data_dir['depth'] = "{}/gt/{}/".format(
                                 self.cfg.directory.depth_dir, self.cfg.seq
                             )
-        elif data_dir['depth_src'] == "pred":
-            data_dir['depth'] = "{}/{}/".format(
-                                self.cfg.directory.depth_dir, self.cfg.seq
-                            )
         elif data_dir['depth_src'] is None:
             data_dir['depth'] = None
+        else:
+            assert False, "Wrong depth src [{}] is given.".format(data_dir['depth_src'])
  
         return data_dir
     
@@ -220,17 +213,14 @@ class KittiRaw(KITTI):
         data_dir['img'] = os.path.join(img_seq_dir, "image_02/data")
         
         # get depth data directory
-        depth_src_cases = {
-            0: "gt",
-            1: "pred",
-            None: None
-            }
-        data_dir['depth_src'] = depth_src_cases[self.cfg.depth.depth_src]
+        data_dir['depth_src'] = self.cfg.depth.depth_src
 
         if data_dir['depth_src'] == "gt":
             data_dir['depth'] = os.path.join(self.cfg.directory.depth_dir, self.cfg.seq)
         elif data_dir['depth_src'] is None:
             data_dir['depth'] = None
+        else:
+            assert False, "Wrong depth src [{}] is given.".format(data_dir['depth_src'])
        
         return data_dir
 

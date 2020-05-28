@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: Dataset loaders for TUM RGB-D Sequence
 '''
@@ -148,12 +148,7 @@ class TUM(Dataset):
         data_dir['img'] = os.path.join(img_seq_dir, "rgb")
         
         # get depth data directory
-        depth_src_cases = {
-            0: "gt",
-            1: "pred",
-            None: None
-            }
-        data_dir['depth_src'] = depth_src_cases[self.cfg.depth.depth_src]
+        data_dir['depth_src'] = self.cfg.depth.depth_src
 
         if data_dir['depth_src'] == "gt":
             data_dir['depth'] = "{}/{}/depth".format(
@@ -161,6 +156,8 @@ class TUM(Dataset):
                                 )
         elif data_dir['depth_src'] is None:
             data_dir['depth'] = None
+        else:
+            assert False, "Wrong depth src [{}] is given.".format(data_dir['depth_src'])
  
         return data_dir
 

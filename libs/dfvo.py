@@ -71,8 +71,8 @@ class DFVO():
             "tum-1": Dataset.TUM,
             "tum-2": Dataset.TUM,
             "tum-3": Dataset.TUM,
-            "adelaide1": Dataset.Adelaide1,
-            "adelaide2": Dataset.Adelaide2
+            "adelaide1": Dataset.Adelaide,
+            "adelaide2": Dataset.Adelaide
         }
         self.dataset = datasets[self.cfg.dataset](self.cfg)
         

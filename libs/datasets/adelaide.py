@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-13
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: Dataset loaders for Adelaide Driving Sequence
 '''
@@ -22,7 +22,6 @@ class Adelaide(Dataset):
 
     def __init__(self, *args, **kwargs):
         super(Adelaide, self).__init__(*args, **kwargs)
-        return
     
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
@@ -59,29 +58,33 @@ class Adelaide(Dataset):
         global_poses_arr = convert_SE3_to_arr(poses)
         save_traj(traj_txt, global_poses_arr, format='kitti')
 
-
-class AdelaideHY1(Adelaide):
-    """Dataset loader for Adelaide Driving Sequence (HY's car camera 1)
-    """
-    
-    def __init__(self, *args, **kwargs):
-        self.height = 256
-        self.width = 832
-        super(AdelaideHY1, self).__init__(*args, **kwargs)
-    
     def get_intrinsics_param(self):
         """Read intrinsics parameters for each dataset
 
         Returns:
             intrinsics_param (list): [cx, cy, fx, fy]
         """
+        # Reference image size
+        # Camera one 
+        if self.cfg.dataset == "adelaide1":
+            self.height = 256
+            self.width = 832
+        
+        # Camera two 
+        elif self.cfg.dataset == "adelaide2":
+            self.height = 512
+            self.width = 1664
+        
+        else:
+            assert False, "Wrong dataset is given"
+
         img_seq_dir = os.path.join(
                             self.cfg.directory.img_seq_dir,
                             self.cfg.seq
                             )
         K = np.loadtxt(os.path.join(img_seq_dir, "cam.txt"))
-        K[0] /= (self.cfg.image.width / self.width)
-        K[1] /= (self.cfg.image.height / self.height)
+        K[0] *= (self.cfg.image.width / self.width)
+        K[1] *= (self.cfg.image.height / self.height)
 
         intrinsics_param = [K[0,2], K[1,2], K[0,0], K[1,1]]
         return intrinsics_param
@@ -139,85 +142,3 @@ class AdelaideHY1(Adelaide):
             depth (array, [HxW]): depth data
         """
         raise NotImplementedError
-
-
-class AdelaideHY2(Adelaide):
-    """Dataset loader for Adelaide Driving Sequence (HY's car camera 2)
-    """
-
-    def __init__(self, *args, **kwargs):
-        self.height = 512
-        self.width = 1664
-        super(AdelaideHY2, self).__init__(*args, **kwargs)
-    
-    def get_intrinsics_param(self):
-        """Read intrinsics parameters for each dataset
-
-        Returns:
-            intrinsics_param (list): [cx, cy, fx, fy]
-        """
-        img_seq_dir = os.path.join(
-                            self.cfg.directory.img_seq_dir,
-                            self.cfg.seq
-                            )
-        K = np.loadtxt(os.path.join(img_seq_dir, "cam.txt"))
-        K[0] *= (self.cfg.image.width / self.width)
-        K[1] *= (self.cfg.image.height / self.height)
-
-        intrinsics_param = [K[0,2], K[1,2], K[0,0], K[1,1]]
-        return intrinsics_param
-    
-    def get_data_dir(self):
-        """Get data directory
-
-        Returns:
-            a dictionary containing
-                - **img** (str) : image data directory
-                - (optional) **depth** (str) : depth data direcotry or None
-                - (optional) **depth_src** (str) : depth data type [gt/None]
-        """
-        data_dir = {"depth": None, "depth_src": None}
-
-        # get image data directory
-        img_seq_dir = os.path.join(
-                            self.cfg.directory.img_seq_dir,
-                            self.cfg.seq
-                            )
-        data_dir['img'] = os.path.join(img_seq_dir)
- 
-        return data_dir
-    
-    def get_gt_poses(self):
-        """Get ground-truth poses
-        
-        Returns:
-            gt_poses (dict): each pose is a [4x4] array
-        """
-        raise NotImplementedError
-    
-    def get_image(self, timestamp):
-        """Get image data given the image timestamp
-
-        Args:
-            timestamp (int): timestamp for the image
-            
-        Returns:
-            img (array, [CxHxW]): image data
-        """
-        img_path = os.path.join(self.data_dir['img'], 
-                            "{:06d}.{}".format(timestamp, self.cfg.image.ext)
-                            )
-        img = read_image(img_path, self.cfg.image.height, self.cfg.image.width)
-        return img
-    
-    def get_depth(self, timestamp):
-        """Get GT/precomputed depth data given the timestamp
-
-        Args:
-            timestamp (int): timestamp for the depth
-
-        Returns:
-            depth (array, [HxW]): depth data
-        """
-        raise NotImplementedError
-    

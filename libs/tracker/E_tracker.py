@@ -57,7 +57,7 @@ def find_Ess_mat(inputs):
     cam_intrinsics = inputs['cam_intrinsics']
 
     # initialization
-    valid_cfg = cfg.compute_2d2d_pose.validity
+    valid_cfg = cfg.e_tracker.validity
     principal_points = (cam_intrinsics.cx, cam_intrinsics.cy)
     fx = cam_intrinsics.fx
 
@@ -69,7 +69,7 @@ def find_Ess_mat(inputs):
                         pp=principal_points,
                         method=cv2.RANSAC,
                         prob=0.99,
-                        threshold=cfg.compute_2d2d_pose.ransac.reproj_thre,
+                        threshold=cfg.e_tracker.ransac.reproj_thre,
                         )
     # check homography inlier ratio
     if valid_cfg.method == "homo_ratio":
@@ -175,7 +175,7 @@ class EssTracker():
         principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
 
         # validity check
-        valid_cfg = self.cfg.compute_2d2d_pose.validity
+        valid_cfg = self.cfg.e_tracker.validity
         valid_case = True
 
         # initialize ransac setup
@@ -183,7 +183,7 @@ class EssTracker():
         t = np.zeros((3,1))
         best_Rt = [R, t]
         best_inlier_cnt = 0
-        max_ransac_iter = self.cfg.compute_2d2d_pose.ransac.repeat
+        max_ransac_iter = self.cfg.e_tracker.ransac.repeat
         best_inliers = np.ones((kp_ref.shape[0], 1)) == 1
 
         if valid_cfg.method == "flow":
@@ -240,7 +240,7 @@ class EssTracker():
                             pp=principal_points,
                             method=cv2.RANSAC,
                             prob=0.99,
-                            threshold=self.cfg.compute_2d2d_pose.ransac.reproj_thre,
+                            threshold=self.cfg.e_tracker.ransac.reproj_thre,
                             )
                 self.timers.end('find-Ess')
 
@@ -327,14 +327,14 @@ class EssTracker():
         principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
 
         # validity check
-        valid_cfg = self.cfg.compute_2d2d_pose.validity
+        valid_cfg = self.cfg.e_tracker.validity
         valid_case = True
 
         # initialize ransac setup
         R = np.eye(3)
         t = np.zeros((3,1))
         best_Rt = [R, t]
-        max_ransac_iter = self.cfg.compute_2d2d_pose.ransac.repeat
+        max_ransac_iter = self.cfg.e_tracker.ransac.repeat
 
         if valid_cfg.method == "flow":
             # check flow magnitude

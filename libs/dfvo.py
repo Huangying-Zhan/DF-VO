@@ -155,8 +155,8 @@ class DFVO():
                 # Essential matrix pose
                 self.timers.start('E-tracker', 'tracking')
                 e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
-                                self.cur_data[self.cfg.compute_2d2d_pose.kp_src],
-                                self.ref_data[self.cfg.compute_2d2d_pose.kp_src]) # pose: from cur->ref
+                                self.cur_data[self.cfg.e_tracker.kp_src],
+                                self.ref_data[self.cfg.e_tracker.kp_src]) # pose: from cur->ref
                 E_pose = e_tracker_outputs['pose']
                 self.timers.end('E-tracker')
 

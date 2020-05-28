@@ -56,13 +56,13 @@ def read_cfgs():
 
     ''' double check result directory '''
     if args.no_confirm:
-        mkdir_if_not_exists(cfg.result_dir)
+        mkdir_if_not_exists(cfg.directory.result_dir)
         cfg.no_confirm = True
     else:
         cfg.no_confirm = False
-        continue_flag = input("Save result in {}? [y/n]".format(cfg.result_dir))
+        continue_flag = input("Save result in {}? [y/n]".format(cfg.directory.result_dir))
         if continue_flag == "y":
-            mkdir_if_not_exists(cfg.result_dir)
+            mkdir_if_not_exists(cfg.directory.result_dir)
         else:
             exit()
     return args, cfg
@@ -81,5 +81,5 @@ if __name__ == '__main__':
     vo.main()
 
     # Save configuration file
-    cfg_path = os.path.join(cfg.result_dir, 'configuration_{}.yml'.format(cfg.seq))
+    cfg_path = os.path.join(cfg.directory.result_dir, 'configuration_{}.yml'.format(cfg.seq))
     config_loader.save_cfg([args.default_configuration, args.configuration], file_path=cfg_path)

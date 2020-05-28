@@ -340,14 +340,14 @@ class DFVO():
         print("=> Finish!")
 
         """ Display & Save result """
-        print("The result is saved in [{}].".format(self.cfg.result_dir))
+        print("The result is saved in [{}].".format(self.cfg.directory.result_dir))
         # Save trajectory map
         print("Save VO map.")
-        map_png = "{}/map.png".format(self.cfg.result_dir)
+        map_png = "{}/map.png".format(self.cfg.directory.result_dir)
         cv2.imwrite(map_png, self.drawer.data['traj'])
 
         # Save trajectory txt
-        traj_txt = "{}/{}.txt".format(self.cfg.result_dir, self.cfg.seq)
+        traj_txt = "{}/{}.txt".format(self.cfg.directory.result_dir, self.cfg.seq)
         self.dataset.save_result_traj(traj_txt, self.global_poses)
 
         # Output experiement information

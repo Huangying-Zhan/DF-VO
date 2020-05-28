@@ -643,7 +643,7 @@ class FrameDrawer():
         # Save visualization result
         if vo.cfg.visualization.save_img:
             img_dir_path = os.path.join(
-                vo.cfg.result_dir, "img_{}".format(vo.cfg.seq))
+                vo.cfg.directory.result_dir, "img_{}".format(vo.cfg.seq))
             mkdir_if_not_exists(img_dir_path)
             img_path = os.path.join(img_dir_path, "{:06d}.jpg".format(vo.cur_data['id']))
             cv2.imwrite(img_path, vo.drawer.img)

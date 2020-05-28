@@ -210,18 +210,22 @@ class FlowToPix(nn.Module):
         self.pix_coords = self.pix_coords.repeat(batch_size, 1, 1, 1)
         self.pix_coords = nn.Parameter(self.pix_coords)
 
-    def forward(self, flow):
-        """
+    def forward(self, flow, normalized=True):
+        """Forward 
         Args:
-            flow (Nx2xHxW): [x, y]
+            flow (tensor, [Nx2xHxW]): [x, y]
+            normalized (bool): normalized to [-1, 1] if True; otherwise [0, H-1 or W-1]
+
         Returns:
-            pix_coords (NxHxWx2): pixel coordinates
+            pix_coords (tensor, [NxHxWx2]): pixel coordinates
         """
         pix_coords = self.pix_coords + flow
         pix_coords = pix_coords.permute(0, 2, 3, 1)
-        pix_coords[..., 0] /= self.width - 1
-        pix_coords[..., 1] /= self.height - 1
-        pix_coords = (pix_coords - 0.5) * 2
+        
+        if normalized:
+            pix_coords[..., 0] /= self.width - 1
+            pix_coords[..., 1] /= self.height - 1
+            pix_coords = (pix_coords - 0.5) * 2
         return pix_coords
 
 
@@ -245,16 +249,20 @@ class PixToFlow(nn.Module):
         self.pix_coords = self.pix_coords.repeat(batch_size, 1, 1, 1)
         self.pix_coords = nn.Parameter(self.pix_coords)
 
-    def forward(self, pix_coords):
-        """a
+    def forward(self, pix_coords, normalized=False):
+        """Forward pass
+
         Args:
-            pix_coords (NxHxWx2): pixel coordinates
+            pix_coords (tensor, [NxHxWx2]): pixel coordinates (normalized)
+            normalized (bool):  flow vector normalized by image size
+        
         Returns:
-            flow (Nx2xHxW): [x, y]
+            flow (tensor, [Nx2xHxW]): [x, y] flow vector
         """
         flow = pix_coords.permute(0, 3, 1, 2) - self.pix_coords
-        flow[:, 0] = (flow[:, 0] + 1) / 2 * self.width
-        flow[:, 1] = (flow[:, 1] + 1) / 2 * self.height
+        if normalized:
+            flow[:, 0] /= self.width - 1
+            flow[:, 1] /= self.height - 1
         return flow
 
 def get_warp_flow(

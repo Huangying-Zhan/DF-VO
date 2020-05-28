@@ -187,8 +187,8 @@ class DFVO():
                 if np.linalg.norm(E_pose.t) == 0 or scale == -1:
                     self.timers.start('pnp', 'tracking')
                     pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
-                                    self.cur_data[self.cfg.PnP.kp_src],
-                                    self.ref_data[self.cfg.PnP.kp_src],
+                                    self.cur_data[self.cfg.pnp_tracker.kp_src],
+                                    self.ref_data[self.cfg.pnp_tracker.kp_src],
                                     self.ref_data['depth']
                                     ) # pose: from cur->ref
                     self.timers.end('pnp')

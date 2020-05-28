@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: PnP Tracker to estimate camera motion from given 3D-2D correspondences
 '''
@@ -67,7 +67,7 @@ class PnpTracker():
         # initialize ransac setup
         best_rt = []
         best_inlier = 0
-        max_ransac_iter = self.cfg.PnP.ransac.repeat
+        max_ransac_iter = self.cfg.pnp_tracker.ransac.repeat
         
         for _ in range(max_ransac_iter):
             # shuffle kp (only useful when random seed is fixed)	
@@ -83,8 +83,8 @@ class PnpTracker():
                     imagePoints=new_kp2,
                     cameraMatrix=self.cam_intrinsics.mat,
                     distCoeffs=None,
-                    iterationsCount=self.cfg.PnP.ransac.iter,
-                    reprojectionError=self.cfg.PnP.ransac.reproj_thre,
+                    iterationsCount=self.cfg.pnp_tracker.ransac.iter,
+                    reprojectionError=self.cfg.pnp_tracker.ransac.reproj_thre,
                     )
                 
                 # save best pose estimation

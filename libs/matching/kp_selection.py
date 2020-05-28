@@ -101,7 +101,7 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
     num_col = bestN_cfg.num_col
     N = bestN_cfg.num_bestN
     score_method = bestN_cfg.score_method
-    flow_diff_thre = kp_cfg.flow_consistency.thre
+    flow_diff_thre = bestN_cfg.thre
     depth_diff_thre = kp_cfg.depth_consistency.thre
 
     h, w, _ = ref_data['flow_diff'].shape
@@ -221,8 +221,8 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
     num_col = bestN_cfg.num_col
     N = bestN_cfg.num_bestN
     score_method = bestN_cfg.score_method
-    rigid_flow_diff_thre = kp_cfg.rigid_flow_kp.thre
-    opt_flow_diff_thre = kp_cfg.flow_consistency.thre
+    rigid_flow_diff_thre = kp_cfg.rigid_flow_kp.rigid_flow_thre
+    opt_flow_diff_thre = kp_cfg.rigid_flow_kp.optical_flow_thre
 
     outputs['kp1_depth'] = {}
     outputs['kp2_depth'] = {}

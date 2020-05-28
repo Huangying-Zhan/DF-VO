@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: this file contains different correspondence selection methods
 '''
@@ -71,7 +71,7 @@ def bestN_flow_kp(kp1, kp2, ref_data, cfg, outputs):
     return outputs
 
 
-def uniform_filtered_bestN(kp1, kp2, ref_data, cfg, outputs):
+def local_bestN(kp1, kp2, ref_data, cfg, outputs):
     """select best-N filtered keypoints from uniformly divided regions
     
     Args:
@@ -94,7 +94,7 @@ def uniform_filtered_bestN(kp1, kp2, ref_data, cfg, outputs):
     """
     # configuration setup
     kp_cfg = cfg.kp_selection
-    bestN_cfg = cfg.kp_selection.uniform_filtered_bestN
+    bestN_cfg = cfg.kp_selection.local_bestN
 
     # initialization
     num_row = bestN_cfg.num_row

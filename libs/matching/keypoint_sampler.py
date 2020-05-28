@@ -103,8 +103,8 @@ class KeypointSampler():
         kp2 = kp1 + tmp_flow_data
 
         """ best-N selection """
-        if self.cfg.kp_selection.uniform_filtered_bestN.enable:
-            kp_sel_method = uniform_filtered_bestN
+        if self.cfg.kp_selection.local_bestN.enable:
+            kp_sel_method = local_bestN
             outputs.update(
                 kp_sel_method(
                     kp1=kp1,
@@ -150,7 +150,7 @@ class KeypointSampler():
             ref_data (dict): data of reference frame
             kp_sel_outputs (dict): data of keypoint selection outputs
         """
-        if self.cfg.kp_selection.uniform_filtered_bestN.enable or self.cfg.kp_selection.bestN.enable:
+        if self.cfg.kp_selection.local_bestN.enable or self.cfg.kp_selection.bestN.enable:
             # save selected kp
             ref_data['kp_best'] = {}
             cur_data['kp_best'] = kp_sel_outputs['kp1_best'][0]
@@ -158,7 +158,7 @@ class KeypointSampler():
             
             # save mask
             cur_data['flow_mask'] = kp_sel_outputs['flow_mask']
-            if self.cfg.kp_selection.uniform_filtered_bestN.enable:
+            if self.cfg.kp_selection.local_bestN.enable:
                 cur_data['valid_mask'] = kp_sel_outputs['valid_mask']
             
         if self.cfg.kp_selection.sampled_kp.enable:

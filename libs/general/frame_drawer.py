@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: Frame drawer to display different visualizations
 '''
@@ -605,11 +605,12 @@ class FrameDrawer():
         if vo.tracking_stage > 1 and vo.cfg.visualization.mask.vis_masks:
             start_time = time()
 
-            if vo.cfg.kp_selection.flow_consistency.enable:
+            # if vo.cfg.kp_selection.flow_consistency.enable:
+            if vo.cfg.deep_flow.forward_backward:
                 # normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)
                 vmax = 1
-                if vo.cfg.kp_selection.uniform_filtered_bestN.enable:
-                    if vo.cfg.kp_selection.uniform_filtered_bestN.score_method == "flow_ratio":
+                if vo.cfg.kp_selection.local_bestN.enable:
+                    if vo.cfg.kp_selection.local_bestN.score_method == "flow_ratio":
                         vmax = 0.1
                 normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
                 mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
@@ -617,7 +618,7 @@ class FrameDrawer():
                 colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
                 vo.drawer.update_data("flow_mask", colormapped_im)
                 
-                # if vo.cfg.kp_selection.uniform_filtered_bestN.enable:
+                # if vo.cfg.kp_selection.local_bestN.enable:
                 #     normalizer = mpl.colors.Normalize(vmin=0, vmax=vo.cfg.kp_selection.flow_consistency.thre)
                 #     mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='gray_r')
                 #     mask = vo.cur_data['valid_mask']

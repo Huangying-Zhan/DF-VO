@@ -442,10 +442,10 @@ class EssTracker():
         """
         outputs = {}
 
-        if self.cfg.translation_scale.method == "single":
-            scale = self.scale_recovery_single(cur_data, ref_data, E_pose)
+        if self.cfg.scale_recovery.method == "simple":
+            scale = self.scale_recovery_simple(cur_data, ref_data, E_pose)
         
-        elif self.cfg.translation_scale.method == "iterative":
+        elif self.cfg.scale_recovery.method == "iterative":
             iter_outputs = self.scale_recovery_iterative(cur_data, ref_data, E_pose)
             scale = iter_outputs['scale']
             outputs['cur_kp_depth'] = iter_outputs['cur_kp']
@@ -455,7 +455,7 @@ class EssTracker():
         outputs['scale'] = scale
         return outputs
 
-    def scale_recovery_single(self, cur_data, ref_data, E_pose):
+    def scale_recovery_simple(self, cur_data, ref_data, E_pose):
         """recover depth scale by comparing triangulated depths and CNN depths
         
         Args:
@@ -473,8 +473,8 @@ class EssTracker():
         Returns:
             scale (float)
         """
-        ref_kp = cur_data[self.cfg.translation_scale.kp_src]
-        cur_kp = ref_data[self.cfg.translation_scale.kp_src]
+        ref_kp = cur_data[self.cfg.scale_recovery.kp_src]
+        cur_kp = ref_data[self.cfg.scale_recovery.kp_src]
 
         scale = self.find_scale_from_depth(
             ref_kp,
@@ -522,8 +522,8 @@ class EssTracker():
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
             # translation scale from triangulation v.s. CNN-depth
-            ref_kp = cur_data[self.cfg.translation_scale.kp_src]
-            cur_kp = ref_data[self.cfg.translation_scale.kp_src]
+            ref_kp = cur_data[self.cfg.scale_recovery.kp_src]
+            cur_kp = ref_data[self.cfg.scale_recovery.kp_src]
 
             new_scale = self.find_scale_from_depth(
                 ref_kp,
@@ -596,17 +596,17 @@ class EssTracker():
             ransac = linear_model.RANSACRegressor(
                         base_estimator=linear_model.LinearRegression(
                             fit_intercept=False),
-                        min_samples=self.cfg.translation_scale.ransac.min_samples,
-                        max_trials=self.cfg.translation_scale.ransac.max_trials,
-                        stop_probability=self.cfg.translation_scale.ransac.stop_prob,
-                        residual_threshold=self.cfg.translation_scale.ransac.thre
+                        min_samples=self.cfg.scale_recovery.ransac.min_samples,
+                        max_trials=self.cfg.scale_recovery.ransac.max_trials,
+                        stop_probability=self.cfg.scale_recovery.ransac.stop_prob,
+                        residual_threshold=self.cfg.scale_recovery.ransac.thre
                         )
-            if self.cfg.translation_scale.ransac.method == "depth_ratio":
+            if self.cfg.scale_recovery.ransac.method == "depth_ratio":
                 ransac.fit(
                     depth_ratio.reshape(-1, 1),
                     np.ones((depth_ratio.shape[0],1))
                     )
-            elif self.cfg.translation_scale.ransac.method == "abs_diff":
+            elif self.cfg.scale_recovery.ransac.method == "abs_diff":
                 ransac.fit(
                     depth_tri_non_zero.reshape(-1, 1),
                     depth_pred_non_zero.reshape(-1, 1),

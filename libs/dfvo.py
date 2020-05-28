@@ -174,7 +174,7 @@ class DFVO():
                     self.timers.start('scale_recovery', 'tracking')
                     scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose)
                     scale = scale_out['scale']
-                    if self.cfg.translation_scale.kp_src == 'kp_depth':
+                    if self.cfg.scale_recovery.kp_src == 'kp_depth':
                         self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
                         self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
                         self.cur_data['valid_mask'] *= scale_out['rigid_flow_mask']

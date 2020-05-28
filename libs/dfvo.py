@@ -65,16 +65,7 @@ class DFVO():
         self.timers = Timer()
 
         # intialize dataset
-        datasets = {
-            "kitti_odom": Dataset.KittiOdom,
-            "kitti_raw": Dataset.KittiRaw,
-            "tum-1": Dataset.TUM,
-            "tum-2": Dataset.TUM,
-            "tum-3": Dataset.TUM,
-            "adelaide1": Dataset.Adelaide,
-            "adelaide2": Dataset.Adelaide
-        }
-        self.dataset = datasets[self.cfg.dataset](self.cfg)
+        self.dataset = Dataset.datasets[self.cfg.dataset](self.cfg)
         
         # get tracking method
         self.tracking_method = self.get_tracking_method(self.cfg.tracking_method)

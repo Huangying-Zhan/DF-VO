@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-05-28
 @LastEditors: Huangying Zhan
 @Description: This file contains Essential matrix based tracker
 '''
@@ -13,11 +13,13 @@ import copy
 import multiprocessing as mp
 import numpy as np
 from sklearn import linear_model
+import torch
 
 
 from .gric import *
 from libs.geometry.camera_modules import SE3
 from libs.geometry.ops_3d import *
+from libs.geometry.rigid_flow import RigidFlow
 from libs.general.utils import image_shape, image_grid
 from libs.matching.kp_selection import opt_rigid_flow_kp
 
@@ -140,6 +142,16 @@ class EssTracker():
 
         if self.cfg.use_multiprocessing:
             self.p = mp.Pool(2)
+        
+        # Rigid flow data
+        if self.cfg.kp_selection.rigid_flow_kp.enable:
+            self.K = np.eye(4)
+            self.inv_K = np.eye(4)
+            self.K[:3, :3] = cam_intrinsics.mat
+            self.inv_K[:3, :3] = cam_intrinsics.inv_mat
+            self.K = torch.from_numpy(self.K).float().unsqueeze(0).cuda()
+            self.inv_K = torch.from_numpy(self.inv_K).float().unsqueeze(0).cuda()
+            self.rigid_flow_layer = RigidFlow(self.cfg.image.height, self.cfg.image.width).cuda()
         
         # FIXME: For DOM
         self.save_tri_depth = False
@@ -568,36 +580,16 @@ class EssTracker():
         depth2_tri[depth2_tri < 0] = 0
         self.timers.end('triangulation')
 
-
-
         # common mask filtering
         non_zero_mask_pred2 = (depth2 > 0)
         non_zero_mask_tri2 = (depth2_tri > 0)
         valid_mask2 = non_zero_mask_pred2 * non_zero_mask_tri2
 
-        # if self.cfg.debug and False:
-        #     # print("max: ", depth2_tri.max())
-        #     # print("median: ", np.median(depth2_tri))
-        #     f = plt.figure("depth2_tri")
-        #     plt.imshow(depth2_tri, vmin=0, vmax=200)
-        #     f,ax = plt.subplots(3,1, num="mask;depth2_tri, depth2")
-        #     ax[0].imshow(valid_mask2*1.)
-        #     ax[1].imshow(depth2_tri)
-        #     ax[2].imshow(depth2)
-        #     plt.show()
-
-        # depth_pred_non_zero = np.concatenate([depth2[valid_mask2], depth1[valid_mask1]])
-        # depth_tri_non_zero = np.concatenate([depth2_tri[valid_mask2], depth1_tri[valid_mask1]])
         depth_pred_non_zero = np.concatenate([depth2[valid_mask2]])
         depth_tri_non_zero = np.concatenate([depth2_tri[valid_mask2]])
         depth_ratio = depth_tri_non_zero / depth_pred_non_zero
-        # return 1/np.median(depth_ratio)
-        
-            
-
         
         # Estimate scale (ransac)
-        # if (valid_mask1.sum() + valid_mask2.sum()) > 10:
         if valid_mask2.sum() > 10:
             # RANSAC scaling solver
             self.timers.start('scale ransac', 'scale_recovery')
@@ -621,14 +613,8 @@ class EssTracker():
                 )
             scale = ransac.estimator_.coef_[0, 0]
 
-            # print("scale: ", scale)
-            # input("debug")
             self.timers.end('scale ransac')
 
-
-            # # scale outlier
-            # if ransac.inlier_mask_.sum() / depth_ratio.shape[0] < 0.2:
-            #     scale = -1
         else:
             scale = -1
 
@@ -648,15 +634,6 @@ class EssTracker():
             save_depth_png(depth2, png_path, 500)
             self.cnt += 1
             
-
-            # print(depth_pred_non_zero.shape)
-            # from matplotlib import pyplot as plt
-            # plt.figure("tri")
-            # plt.imshow(depth2_tri, vmin=np.percentile(depth_tri_non_zero*scale, 10), vmax=np.percentile(depth_tri_non_zero*scale, 90))
-            # plt.figure("cnn")
-            # plt.imshow(depth2, vmin=np.percentile(depth_tri_non_zero*scale, 10), vmax=np.percentile(depth_tri_non_zero*scale, 90))
-            # plt.show()
-
         return scale
 
     def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method="uniform"):
@@ -689,18 +666,24 @@ class EssTracker():
             ref_data['rigid_flow_diff'] = {}
             # compute rigid flow
             rigid_flow_pose = ref_data['rigid_flow_pose'].pose
-            rigid_flow = self.compute_rigid_flow(
-                                        ref_data['raw_depth'],  
-                                        rigid_flow_pose
-                                        )
-            rigid_flow_diff = np.linalg.norm(
-                                rigid_flow - ref_data['flow'].transpose(1,2,0),
-                                axis=2)
-            
-            rigid_flow_diff = np.expand_dims(rigid_flow_diff, 2)
-            
 
-            ref_data['rigid_flow_diff'] = rigid_flow_diff
+            # Compute rigid flow
+            pose_tensor = torch.from_numpy(rigid_flow_pose).float().unsqueeze(0).cuda()
+            depth = torch.from_numpy(ref_data['raw_depth']).float().unsqueeze(0).unsqueeze(0).cuda()
+            rigid_flow_tensor = self.rigid_flow_layer(
+                                depth,
+                                pose_tensor,
+                                self.K,
+                                self.inv_K,
+                                normalized=False,
+            )
+            rigid_flow = rigid_flow_tensor.detach().cpu().numpy()[0]
+
+            # compute optical-rigid flow difference
+            rigid_flow_diff = np.linalg.norm(
+                                rigid_flow - ref_data['flow'],
+                                axis=0)
+            ref_data['rigid_flow_diff'] = np.expand_dims(rigid_flow_diff, 2)
 
             # get depth-flow consistent kp
             outputs.update(
@@ -715,140 +698,3 @@ class EssTracker():
                 )
 
         return outputs
-
-    def unprojection(self, depth, cam_intrinsics):
-        """Convert a depth map to XYZ
-        
-        Args:
-            depth (array, [HxW]): depth map
-            cam_intrinsics (Intrinsics): camera intrinsics
-        
-        Returns:
-            XYZ (array, [HxWx3]): 3D coordinates
-        """
-        height, width = depth.shape
-
-        depth_mask = (depth != 0)
-        depth_mask = np.repeat(np.expand_dims(depth_mask, 2), 3, axis=2)
-
-        # initialize regular grid
-        XYZ = np.ones((height, width, 3, 1))
-        XYZ[:, :, 0, 0] = np.repeat(
-                            np.expand_dims(np.arange(0, width), 0),
-                            height, axis=0
-                            )
-        XYZ[:, :, 1, 0] = np.repeat(
-                            np.expand_dims(np.arange(0, height), 1),
-                            width, axis=1)
-
-        inv_K = np.ones((1, 1, 3, 3))
-        inv_K[0, 0] = cam_intrinsics.inv_mat
-        inv_K = np.repeat(inv_K, height, axis=0)
-        inv_K = np.repeat(inv_K, width, axis=1)
-
-        XYZ = np.matmul(inv_K, XYZ)[:, :, :, 0]
-        XYZ[:, :, 0] = XYZ[:, :, 0] * depth
-        XYZ[:, :, 1] = XYZ[:, :, 1] * depth
-        XYZ[:, :, 2] = XYZ[:, :, 2] * depth
-        return XYZ
-
-    def projection(self, XYZ, proj_mat):
-        """Convert XYZ to [u,v,d]
-        
-        Args:
-            XYZ (array, [HxWx3]): 3D coordinates
-            proj_mat (array, [3x3]): camera intrinsics / projection matrix
-        
-        Returns:
-            xy (array, [HxWx2]): projected image coordinates
-        """
-        if len(XYZ.shape) == 3:
-            h, w, _ = XYZ.shape
-            tmp_XYZ = XYZ.copy()
-            tmp_XYZ[:, :, 0] /= tmp_XYZ[:, :, 2]
-            tmp_XYZ[:, :, 1] /= tmp_XYZ[:, :, 2]
-            tmp_XYZ[:, :, 2] /= tmp_XYZ[:, :, 2]
-            tmp_XYZ = np.expand_dims(tmp_XYZ, axis=3)
-            K = np.ones((1, 1, 3, 3))
-            K[0, 0] = proj_mat
-            K = np.repeat(K, h, axis=0)
-            K = np.repeat(K, w, axis=1)
-
-            xy = np.matmul(K, tmp_XYZ)[:, :, :2, 0]
-        elif len(XYZ.shape) == 2:
-            n, _ = XYZ.shape
-            tmp_XYZ = XYZ.copy()
-            tmp_XYZ[:, 0] /= tmp_XYZ[:, 2]
-            tmp_XYZ[:, 1] /= tmp_XYZ[:, 2]
-            tmp_XYZ[:, 2] /= tmp_XYZ[:, 2]
-            tmp_XYZ = np.expand_dims(tmp_XYZ, axis=2)
-            K = np.ones((1, 3, 3))
-            K[0] = proj_mat
-            K = np.repeat(K, n, axis=0)
-
-            xy = np.matmul(K, tmp_XYZ)[:, :2, 0]
-        return xy
-
-    def transform_XYZ(self, XYZ, transformation):
-        """Transform point cloud
-        
-        Args:
-            XYZ (array, [HxWx3 / Nx3]): 3D coordinates
-            pose (array, [4x4]): tranformation matrix
-        
-        Returns:
-            new_XYZ (array, [HxWx3 / Nx3]): 3D coordinates
-        """
-        if len(XYZ.shape) == 3:
-            h, w, _ = XYZ.shape
-            new_XYZ = np.ones((h, w, 4, 1))
-            new_XYZ[:, :, :3, 0] = XYZ
-
-            T = np.ones((1, 1, 4, 4))
-            T[0, 0] = transformation
-            T = np.repeat(T, h, axis=0)
-            T = np.repeat(T, w, axis=1)
-
-            new_XYZ = np.matmul(T, new_XYZ)[:, :, :3, 0]
-        elif len(XYZ.shape) == 2:
-            n, _ = XYZ.shape
-            new_XYZ = np.ones((n, 4, 1))
-            new_XYZ[:, :3, 0] = XYZ
-
-            T = np.ones((1, 4, 4))
-            T[0] = transformation
-            T = np.repeat(T, n, axis=0)
-
-            new_XYZ = np.matmul(T, new_XYZ)[:, :3, 0]
-
-        return new_XYZ
-
-    def xy_to_uv(self, xy):
-        """Convert image coordinates to optical flow
-        
-        Args:
-            xy (array, [HxWx2]): image coordinates
-        
-        Returns:
-            uv (array, [HxWx2]): x-flow and y-flow
-        """
-        h, w, _ = xy.shape
-        img_grid = image_grid(h, w)
-        uv = xy - img_grid
-        return uv
-
-    def compute_rigid_flow(self, depth, pose):
-        """Compute rigid flow 
-        
-        Args:
-            depth (array, [HxW]): depth map of reference view
-            pose (array, [4x4]): from reference to current
-        
-        Returns:
-            rigid_flow (array, [HxWx2]): rigid flow [x-flow, y-flow]
-        """
-        XYZ_ref = self.unprojection(depth, self.cam_intrinsics)
-        XYZ_cur = self.transform_XYZ(XYZ_ref, pose)
-        xy = self.projection(XYZ_cur, self.cam_intrinsics.mat)
-        rigid_flow = self.xy_to_uv(xy)
-        return rigid_flow

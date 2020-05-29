@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-05-29
 @LastEditors: Huangying Zhan
 @Description: this file contains different correspondence selection methods
 '''
@@ -67,7 +67,7 @@ def bestN_flow_kp(kp1, kp2, ref_data, cfg, outputs):
 
     outputs['kp1_best'] = kp1_best
     outputs['kp2_best'] = kp2_best
-    outputs['flow_mask'] = flow_diff[0,:,:,0]
+    outputs['fb_flow_mask'] = flow_diff[0,:,:,0]
     return outputs
 
 
@@ -178,16 +178,9 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
         flow = np.expand_dims(ref_data['flow'], 0)
         flow = np.transpose(flow, (0, 2, 3, 1))
         flow_diff_ratio = flow_diff / np.linalg.norm(flow, axis=3, keepdims=True)
-        outputs['flow_mask'] = flow_diff_ratio[0,:,:,0]
+        outputs['fb_flow_mask'] = flow_diff_ratio[0,:,:,0]
     elif score_method == 'flow':
-        outputs['flow_mask'] = flow_diff[0,:,:,0]
-    valid_mask = (flow_diff < flow_diff_thre) * 1
-
-    if kp_cfg.depth_consistency.enable:
-        outputs['depth_mask'] = depth_diff[0,:,:,0]
-        valid_mask = (flow_diff < flow_diff_thre) * (depth_diff < depth_diff_thre) * 1
-    valid_mask = valid_mask[0,:,:,0]
-    outputs['valid_mask'] = flow_diff[0,:,:,0] * (1/(valid_mask+1e-4))
+        outputs['fb_flow_mask'] = flow_diff[0,:,:,0]
     return outputs
 
 

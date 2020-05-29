@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-03-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-05-29
 @LastEditors: Huangying Zhan
 @Description: KeypointSampler is an interface for keypoint sampling
 '''
@@ -157,9 +157,7 @@ class KeypointSampler():
             ref_data['kp_best'] = kp_sel_outputs['kp2_best'][0]
             
             # save mask
-            cur_data['flow_mask'] = kp_sel_outputs['flow_mask']
-            if self.cfg.kp_selection.local_bestN.enable:
-                cur_data['valid_mask'] = kp_sel_outputs['valid_mask']
+            cur_data['fb_flow_mask'] = kp_sel_outputs['fb_flow_mask']
             
         if self.cfg.kp_selection.sampled_kp.enable:
             ref_data['kp_list'] = {}

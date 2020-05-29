@@ -15,8 +15,8 @@ frame_step: 1                                             # frame step
 #-------------------------------------
 directory:
     result_dir: result/tmp/0                              # directory to save result
-    img_seq_dir: dataset/kitti_odom/odom_data_jpg/          # image data directory
-    gt_pose_dir: dataset/kitti_odom/gt_poses/               # (optional) ground-truth pose data directory
+    img_seq_dir: dataset/kitti_odom/odom_data_jpg/        # image data directory
+    gt_pose_dir: dataset/kitti_odom/gt_poses/             # (optional) ground-truth pose data directory
     depth_dir:                                            # (optional) external depth data, e.g. ground-truth depths
 
 #-------------------------------------
@@ -24,8 +24,6 @@ directory:
 #-------------------------------------
 depth:                                                    # Depth configuration
     depth_src:                                            # depth source [None, gt]
-                                                              # None - depth model predition
-                                                              # gt - use ground truth depth
     pretrained_model: model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
     max_depth: 50                                         # maximum depth 
     min_depth: 0                                          # minimum depth 
@@ -70,8 +68,6 @@ kp_selection:                                             # correspondence selec
         num_row: 10                                       # number of divided rows
         num_col: 10                                       # number of divided columns
         score_method: flow                                # selection score, [flow, flow_ratio]
-                                                              # flow: L2 distance of forward-backward flow 
-                                                              # flow_ratio: relative flow difference ratio
         thre: 0.1                                         # flow consistency masking threshold
     bestN:
         enable: False                                     # enable/disable best-N selection
@@ -94,9 +90,6 @@ kp_selection:                                             # correspondence selec
 #- Tracking
 #-------------------------------------
 tracking_method: hybrid                                   # tracking method [hybrid, PnP]
-                                                              # hybrid - E-tracker + PnP-tracker; 
-                                                              # PnP - PnP-tracker
-
 e_tracker:                                                # E-tracker configuration
     ransac:                                               # Ransac configuration
         reproj_thre: 0.2                                  # inlier threshold value
@@ -105,25 +98,16 @@ e_tracker:                                                # E-tracker configurat
         method: GRIC                                      # method of validating E-tracker, [flow, GRIC]
         thre:                                             # threshold value for model selection, only used in [flow]
     kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best]
-                                                              # kp_list - uniformaly sampled keypoints
-                                                              # kp_best - keypoints sampled from best-N / local best method
 
 scale_recovery:                                           # scale recovery configuration
     method: simple                                        # scale recovery method [simple, iterative]
-                                                            # simple - simple depth aligment
-                                                            # iterative - iterative scale recovery
     ransac:                                               # Ransac configuration
         method: depth_ratio                               # fitting target [depth_ratio, abs_diff]
-                                                              # depth_ratio: find a scale s.t. most triangulated_depth/cnn_depth close to 1
-                                                              # abs_diff: find a scale s.t. abs(triangulated_depth - cnn_depth) close to 0
         min_samples: 3                                    # minimum number of min_samples
         max_trials: 100                                   # maximum number of trials
         stop_prob: 0.99                                   # The probability that the algorithm produces a useful result
         thre: 0.1                                         # inlier threshold value
     kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
-                                                              # kp_list - uniformaly sampled keypoints
-                                                              # kp_best - keypoints sampled from best-N / local best method
-                                                              # kp_depth - keypoints sampled after optical-rigid flow consistency masking
 
 pnp_tracker:                                              # PnP-tracker configuration
     ransac:                                               # Ransac configuration
@@ -131,9 +115,6 @@ pnp_tracker:                                              # PnP-tracker configur
         reproj_thre: 1                                    # inlier threshold value
         repeat: 5                                         # number of repeated Ransac
     kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
-                                                              # kp_list - uniformaly sampled keypoints
-                                                              # kp_best - keypoints sampled from best-N / local best method
-                                                              # kp_depth - keypoints sampled after optical-rigid flow consistency masking
 
 #-------------------------------------
 #- Visualization
@@ -141,13 +122,14 @@ pnp_tracker:                                              # PnP-tracker configur
 visualization:                                            # visualization configuration
     enable: True                                          # enable/disable frame drawer
     save_img: True                                        # enable/disable save frames
-    window_h: 900                                         # frame window height
-    window_w: 1500                                        # frame window width
+    window_h: 600                                         # frame window height
+    window_w: 1000                                        # frame window width
     kp_src: kp_best                                       # type of correspondences to be drawn
     flow:                                                 # optical flow visualization configuration
         vis_forward_flow: True                            # enable/disable forward flow visualization
         vis_backward_flow: True                           # enable/disable backward flow visualization
         vis_flow_diff: True                               # enable/disable forward-backward flow consistency visualization
+        vis_rigid_diff: False                             # enable/disable optical-rigid flow consistency visualization
     kp_match:                                             # keypoint matching visualization
         kp_num: 100                                       # number of selected keypoints to be visualized
         vis_temp:                                         # keypoint matching in temporal 
@@ -157,11 +139,8 @@ visualization:                                            # visualization config
             inlier_plot: False                            # enable/disable inlier plot
     trajectory:                                           # trajectory visualization configuration
         vis_traj: True                                    # enable/disable predicted trajectory visualization
-        vis_gt_traj: False                                # enable/disable ground truth trajectory visualization
-        draw_scale: 1                                     # map scaling factor 
+        vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
         mono_scale: 1                                     # monocular prediction scaling factor
     depth:                                                # depth visualization configuration
         use_tracking_depth: False                         # enable/disable visualizing depth map used for tracking (preprocessed, e.g. range capping)
-        depth_disp: disp                                  # visualize depth or disparity map [depth, disp]
-    mask:
-        vis_masks: True                                   # enable/disable masks visualization
+        depth_disp: disp                                  # visualize depth or disparity map [depth, disp, None]

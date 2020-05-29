@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-05-29
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -84,10 +84,10 @@ class DFVO():
 
         # visualization interface
         self.drawer = FrameDrawer(self.cfg.visualization)
-        self.drawer.get_traj_init_xy(
-                        vis_h=self.drawer.h,
-                        vis_w=self.drawer.w/5*2,
-                        gt_poses=self.dataset.gt_poses)
+        # self.drawer.get_traj_init_xy(
+        #                 vis_h=self.drawer.h,
+        #                 vis_w=self.drawer.w/5*2,
+        #                 gt_poses=self.dataset.gt_poses)
         
     def initialize_data(self):
         """initialize data of current view and reference view
@@ -177,7 +177,7 @@ class DFVO():
                     if self.cfg.scale_recovery.kp_src == 'kp_depth':
                         self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
                         self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
-                        self.cur_data['valid_mask'] *= scale_out['rigid_flow_mask']
+                        self.cur_data['rigid_flow_mask'] = scale_out['rigid_flow_mask']
                     if scale != -1:
                         hybrid_pose.t = E_pose.t * scale
                     self.timers.end('scale_recovery')
@@ -203,7 +203,7 @@ class DFVO():
             pose = self.ref_data['pose']
 
             # FIXME: testing only
-            print(pose.pose)
+            # print(pose.pose)
             self.update_global_pose(pose, 1)
 
             self.tracking_stage += 1
@@ -298,8 +298,8 @@ class DFVO():
             start_frame = int(input("Start with frame: "))
 
         # FIXME: testing only
-        for img_id in tqdm(range(start_frame, 3)):
-        # for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
+        # for img_id in tqdm(range(start_frame, 3)):
+        for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
             self.timers.start('DF-VO')
             self.tracking_mode = "Ess. Mat."
 

@@ -285,13 +285,6 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
 
     # mask generation
     outputs['rigid_flow_mask'] = rigid_flow_diff[0,:,:,0]
-    # valid_mask = (flow_diff < flow_diff_thre) * 1
-
-    # if kp_cfg.depth_consistency.enable:
-    #     outputs['depth_mask'] = depth_diff[0,:,:,0]
-    #     valid_mask = (flow_diff < flow_diff_thre) * (depth_diff < depth_diff_thre) * 1
-    # valid_mask = valid_mask[0,:,:,0]
-    # outputs['valid_mask'] = flow_diff[0,:,:,0] * (1/(valid_mask+1e-4))
     return outputs
 
 

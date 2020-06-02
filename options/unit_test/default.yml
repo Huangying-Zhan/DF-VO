@@ -41,10 +41,10 @@ deep_flow:                                                # Deep optical flow co
     forward_backward: True                                # predict both forward/backward flows and compute forward-backward flow consistency
     num_kp: 2000                                          # number of keypoints to be extracted
     online_finetune:                                      # online fine-tuning configuration
-        enable: True                                      # enable/disable online fine-tuning
-        scale: multi                                      # single/multi-scale training [single, multi]
+        enable: True                                     # enable/disable online fine-tuning
+        scale: single
         lr: 0.00001                                       # learning rate
-        num_frames: 50                                    # number of frames to be fine-tuned, [None, int]
+        num_frames:                                     # number of frames to be fine-tuned, [None, int]
         loss:                                             # loss configuration
             flow_consistency: 0.005                       # forward-backward flow consistency loss weight
             flow_smoothness: 0.1                          # flow smoothness weight

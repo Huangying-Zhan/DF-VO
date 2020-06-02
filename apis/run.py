@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-06-02
 @LastEditors: Huangying Zhan
 @Description: This API runs DF-VO.
 '''
@@ -11,6 +11,8 @@
 import argparse
 import numpy as np
 import os
+import random
+import torch
 
 from libs.dfvo import DFVO
 from libs.general.utils import mkdir_if_not_exists
@@ -75,6 +77,8 @@ if __name__ == '__main__':
     # Set random seed
     SEED = cfg.seed
     np.random.seed(SEED)
+    torch.cuda.manual_seed(SEED)
+    torch.manual_seed(SEED)
 
     # setup DFVO
     vo = DFVO(cfg)

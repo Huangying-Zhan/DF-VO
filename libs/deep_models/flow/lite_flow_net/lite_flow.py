@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-06-02
 @LastEditors: Huangying Zhan
 @Description: This is the interface for LiteFlowNet
 '''
@@ -52,9 +52,13 @@ class LiteFlow(DeepFlow):
         """
         # Basic configuration
         self.img_cnt = 0
-        self.flow_scales = [1]
-        self.num_flow_scale = len(self.flow_scales)
         self.frame_ids = [0, 1]
+
+        if self.flow_cfg.online_finetune.scale == 'single':
+            self.flow_scales = [1]
+        elif self.flow_cfg.online_finetune.scale == 'multi':
+            self.flow_scales = [1, 2, 3, 4, 5]
+        self.num_flow_scale = len(self.flow_scales)
 
         # Layer setup
         self.ssim = SSIM()
@@ -103,7 +107,8 @@ class LiteFlow(DeepFlow):
             img2 (array, [Nx3xHxW]): image 2; intensity [0-1]
         
         Returns:
-            flow (tensor, [Nx2xHxW]): flow from img1 to img2
+            a dictionary containing flows at different scales, resized back to input scale 
+                - **scale-N** (tensor, [Nx2xHxW]): flow from img1 to img2 at scale level-N
         """
         return self.inference(img1, img2)
 
@@ -115,7 +120,8 @@ class LiteFlow(DeepFlow):
             img2 (array, [Nx3xHxW]): image 2; intensity [0-1]
         
         Returns:
-            flow (tensor, [Nx2xHxW]): flow from img1 to img2
+            a dictionary containing flows at different scales, resized back to input scale 
+                - **scale-N** (tensor, [Nx2xHxW]): flow from img1 to img2 at scale level-N
         """
         # Convert to torch array:cuda
         img1 = torch.from_numpy(img1).float().cuda()
@@ -134,22 +140,25 @@ class LiteFlow(DeepFlow):
         output = self.model(resized_img_list)
 
         # Post-process output
-        flow = self.resize_dense_flow(
-                                output[1],
+        flows = {}
+        for s in self.flow_scales:
+            flows[s] = self.resize_dense_flow(
+                                output[s],
                                 h, w)
-        if self.half_flow:
-            flow /= 2.
-        return flow
+            if self.half_flow:
+                flows[s] /= 2.
+        return flows
     
-    def train_flow(self, combined_flow_data, flow_diff, img1, img2):
+    def train_flow(self, forward_flow, backward_flow, flow_diff, img1, img2):
         """Train flow model using 
         - photometric loss
         - flow smoothness loss
         - flow consistency loss
 
         Args:
-            combined_flow_data (tensor, [Nx2xHxW]): forward and backward flow
-            flow_diff (tensor, [1xHxWx1]): forward-backward flow differnce
+            forward_flow (dict): forward flows at different scales. Each element is a [Nx2xHxW] tensor
+            backward_flow (dict): backward flows at different scales. Each element is a [Nx2xHxW] tensor
+            flow_diff (dict): forward-backward flow differnce at different scales. Each element is a [1xHxWx1] tensor
             img1 (array, [1x3xHxW]): image 1
             img2 (array, [1x3xHxW]): image 2
         """
@@ -158,11 +167,13 @@ class LiteFlow(DeepFlow):
             ('color', 0, 0): torch.from_numpy(img1).float().cuda(),
             ('color', 1, 0): torch.from_numpy(img2).float().cuda(),
         }
-        outputs = {
-            ('flow', 0, 1, 1):  combined_flow_data[0:1],
-            ('flow', 1, 0, 1):  combined_flow_data[1:2],
-            ('flow_diff', 0, 1, 1):  combined_flow_data[0:1],
-        }
+        outputs = {}
+        for s in self.flow_scales:
+            outputs.update(
+                {('flow', 0, 1, s):  forward_flow[s],
+                ('flow', 1, 0, s):  backward_flow[s],
+                ('flow_diff', 0, 1, s):  flow_diff[s],}
+                )
         self.generate_images_pred_flow(inputs, outputs)
 
         losses.update(self.compute_flow_losses(inputs, outputs))
@@ -182,7 +193,7 @@ class LiteFlow(DeepFlow):
                 for scale in self.flow_scales:
                     # Warp image using forward flow
                     flow = outputs[("flow", 0, f_i, scale)]
-                    flow = self.resize_dense_flow(flow, self.height, self.width)
+                    # flow = self.resize_dense_flow(flow, self.height, self.width) # have been resized in inference()
                     pix_coords = self.flow_to_pix(flow)
                     outputs[("sample_flow", 0, f_i, scale)] = pix_coords
                     outputs[("color_flow", 0, f_i, scale)] = F.grid_sample(
@@ -193,7 +204,7 @@ class LiteFlow(DeepFlow):
                     if self.flow_forward_backward:
                         # Warp image using backward flow
                         flow = outputs[("flow", f_i, 0, scale)]
-                        flow = self.resize_dense_flow(flow, self.height, self.width)
+                        # flow = self.resize_dense_flow(flow, self.height, self.width) # have been resized in inference()
                         pix_coords = self.flow_to_pix(flow)
                         outputs[("sample_flow", f_i, 0, scale)] = pix_coords
                         outputs[("color_flow", f_i, 0, scale)] = F.grid_sample(
@@ -269,7 +280,6 @@ class LiteFlow(DeepFlow):
         abs_diff = torch.abs(target - pred)
         l1_loss = abs_diff.mean(1, True)
 
-        
         ssim_loss = self.ssim(pred, target).mean(1, True)
         reprojection_loss = 0.85 * ssim_loss + 0.15 * l1_loss
 
@@ -306,36 +316,45 @@ class LiteFlow(DeepFlow):
             combined_flow_data = self.inference(input_img1, input_img2)
         else:
             combined_flow_data = self.inference_no_grad(input_img1, input_img2)
-        flow_data = combined_flow_data[0:1]
-        if forward_backward:
-            back_flow_data = combined_flow_data[1:2]
+        
+        forward_flow = {}
+        backward_flow = {}
+        px1on2 = {}
+        flow_diff = {}
+        for s in self.flow_scales:
+            forward_flow[s] = combined_flow_data[s][0:1]
+            if forward_backward:
+                backward_flow[s] = combined_flow_data[s][1:2]
 
-        # sampled flow
-        # Get sampling pixel coordinates
-        px1on2 = self.flow_to_pix(flow_data)
+            # sampled flow
+            # Get sampling pixel coordinates
+            px1on2[s] = self.flow_to_pix(forward_flow[s])
 
-        # Forward-Backward flow consistency check
-        if forward_backward:
-            # get flow-consistency error map
-            flow_diff = self.forward_backward_consistency(
-                                flow1=flow_data,
-                                flow2=back_flow_data,
-                                px1on2=px1on2)
+            # Forward-Backward flow consistency check
+            if forward_backward:
+                # get flow-consistency error map
+                flow_diff[s] = self.forward_backward_consistency(
+                                    flow1=forward_flow[s],
+                                    flow2=backward_flow[s],
+                                    px1on2=px1on2[s])
         
         # online finetune
         if self.finetune:
-            if self.flow_cfg.online_finetune.num_frames is None:
-                self.train_flow(combined_flow_data, flow_diff, img1, img2)
-            elif self.img_cnt < self.flow_cfg.online_finetune.num_frames:
-                self.train_flow(combined_flow_data, flow_diff, img1, img2)
+            assert forward_backward, "forward-backward option has to be True for finetuning"
+            if self.flow_cfg.online_finetune.num_frames is None or self.img_cnt < self.flow_cfg.online_finetune.num_frames:
+                self.train_flow(forward_flow, backward_flow, flow_diff, img1, img2)
             self.img_cnt += 1
+        
+        # from matplotlib import pyplot as plt
+        # plt.imshow(forward_flow[1][0,0].detach().cpu().numpy())
+        # plt.show()
         
         # summarize flow data and flow difference
         flows = {}
-        flows['forward'] = flow_data.detach().cpu().numpy()
+        flows['forward'] = forward_flow[1].detach().cpu().numpy()
         if forward_backward:
-            flows['backward'] = back_flow_data.detach().cpu().numpy()
-            flows['flow_diff'] = flow_diff.detach().cpu().numpy()
+            flows['backward'] = backward_flow[1].detach().cpu().numpy()
+            flows['flow_diff'] = flow_diff[1].detach().cpu().numpy()
         return flows
     
     def forward_backward_consistency(self, flow1, flow2, px1on2):

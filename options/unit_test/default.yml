@@ -34,7 +34,7 @@ depth:                                                    # Depth configuration
 deep_flow:                                                # Deep optical flow configuration
     network: liteflow                                     # optical flow network, [liteflow]
     flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                         # optical flow model path
-    forward_backward: True                                # predict both forward/backward flows and compute forward\-backward flow consistency
+    forward_backward: True                                # predict both forward/backward flows and compute forward-backward flow consistency
     num_kp: 2000                                          # number of keypoints to be extracted
     online_finetune:                                      # online fine-tuning configuration
         enable: False                                     # enable/disable online fine-tuning

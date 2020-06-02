@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-06-02
 @LastEditors: Huangying Zhan
 @Description: This is the interface for Monodepth2 pose network
 '''
@@ -24,6 +24,14 @@ from libs.deep_models.depth.monodepth2.layers import transformation_from_paramet
 class Monodepth2PoseNet(DeepPose):
     """This is the interface for Monodepth2 pose network
     """
+    def __init__(self, *args, **kwargs):
+        super(Monodepth2PoseNet, self).__init__(*args, **kwargs)
+
+        # Online finetuning configuration
+        if self.pose_cfg is not None:
+            self.finetune = self.pose_cfg.online_finetune.enable
+        else:
+            self.finetune = False
     
     def initialize_network_model(self, weight_path, height, width, dataset='kitti'):
         """initialize network and load pretrained model
@@ -72,34 +80,29 @@ class Monodepth2PoseNet(DeepPose):
             self.stereo_baseline = 5.4
 
     @torch.no_grad()
-    def inference(self, img1, img2):
+    def inference_no_grad(self, imgs):
         """Pose prediction
 
         Args:
-            img1 (array, [HxWx3]): image 1
-            img2 (array, [HxWx3]): image 2
+            imgs (tensor, Nx2CxHxW): concatenated image pair
         
         Returns:
-            pose (array, [4x4]): relative pose from img2 to img1
+            pose (tensor, [Nx4x4]): relative pose from img2 to img1
         """
-        device = torch.device('cuda')
-        feed_width = self.feed_width
-        feed_height = self.feed_height
+        return self.inference(imgs)
 
-        # Preprocess
-        input_image1 = pil.fromarray(img1)
-        input_image1 = input_image1.resize((feed_width, feed_height), pil.LANCZOS)
-        input_image1 = transforms.ToTensor()(input_image1).unsqueeze(0)
+    def inference(self, imgs):
+        """Pose prediction
 
-        input_image2 = pil.fromarray(img2)
-        input_image2 = input_image2.resize((feed_width, feed_height), pil.LANCZOS)
-        input_image2 = transforms.ToTensor()(input_image2).unsqueeze(0)
-
-        # Prediction
-        input_images = torch.cat([input_image1, input_image2], dim=1).to(device)
-        features = self.encoder(input_images)
+        Args:
+            imgs (tensor, Nx2CxHxW): concatenated image pair
+        
+        Returns:
+            pose (tensor, [Nx4x4]): relative pose from img2 to img1
+        """
+        features = self.encoder(imgs)
         axisangle, translation = self.pose_decoder([features])
-        pose = transformation_from_parameters(axisangle[:, 0], translation[:, 0], invert=True).cpu().numpy()
+        pose = transformation_from_parameters(axisangle[:, 0], translation[:, 0], invert=True)
         pose[:, :3, 3] = self.stereo_baseline * pose[:, :3, 3]
 
         return pose

@@ -84,10 +84,6 @@ class DFVO():
 
         # visualization interface
         self.drawer = FrameDrawer(self.cfg.visualization)
-        # self.drawer.get_traj_init_xy(
-        #                 vis_h=self.drawer.h,
-        #                 vis_w=self.drawer.w/5*2,
-        #                 gt_poses=self.dataset.gt_poses)
         
     def initialize_data(self):
         """initialize data of current view and reference view
@@ -98,13 +94,15 @@ class DFVO():
     def initialize_tracker(self):
         """Initialize tracker
         """
-        if self.tracking_method == "hybrid":
+        if self.tracking_method == 'hybrid':
             self.e_tracker = EssTracker(self.cfg, self.dataset.cam_intrinsics, self.timers)
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
-        elif self.tracking_method == "PnP":
+        elif self.tracking_method == 'PnP':
             self.pnp_tracker = PnpTracker(self.cfg, self.dataset.cam_intrinsics)
+        elif self.tracking_method == 'deep_pose':
+            return
         else:
-            assert False, "Wrong tracker is selected"
+            assert False, "Wrong tracker is selected, choose from [hybrid, PnP, deep_pose]"
 
     def update_global_pose(self, new_pose, scale=1.):
         """update estimated poses w.r.t global coordinate system
@@ -136,15 +134,16 @@ class DFVO():
 
         # Second to last frames
         elif self.tracking_stage >= 1:
-            # Depth consistency (CNN depths + CNN pose)
-            if self.cfg.kp_selection.depth_consistency.enable:
-                self.depth_consistency_computer.compute(self.cur_data, self.ref_data)
+            if self.tracking_method in ['hybrid', 'PnP']:
+                # Depth consistency (CNN depths + CNN pose)
+                if self.cfg.kp_selection.depth_consistency.enable:
+                    self.depth_consistency_computer.compute(self.cur_data, self.ref_data)
 
-            # kp_selection
-            self.timers.start('kp_sel', 'tracking')
-            kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data)
-            self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
-            self.timers.end('kp_sel')
+                # kp_selection
+                self.timers.start('kp_sel', 'tracking')
+                kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data)
+                self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
+                self.timers.end('kp_sel')
 
             ''' Pose estimation '''
             # Initialize hybrid pose
@@ -197,6 +196,9 @@ class DFVO():
                     hybrid_pose = pnp_outputs['pose']
                     self.tracking_mode = "PnP"
 
+            if self.tracking_method in ['deep_pose']:
+                hybrid_pose = SE3(self.cur_data['deep_pose'])
+
             self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
 
             # update global poses
@@ -246,46 +248,45 @@ class DFVO():
     def deep_model_inference(self):
         """deep model prediction
         """
-        # Single-view Depth prediction
-        if self.dataset.data_dir['depth_src'] is None:
-            self.timers.start('depth_cnn', 'deep inference')
-            self.cur_data['raw_depth'] = \
-                    self.deep_models.forward_depth(imgs=[self.cur_data['img']])
-                    # self.deep_models.depth.inference(img=self.cur_data['img'])
-            self.cur_data['raw_depth'] = cv2.resize(self.cur_data['raw_depth'],
-                                                (self.cfg.image.width, self.cfg.image.height),
-                                                interpolation=cv2.INTER_NEAREST
-                                                )
-            self.timers.end('depth_cnn')
-        self.cur_data['depth'] = preprocess_depth(self.cur_data['raw_depth'], self.cfg.crop.depth_crop, [self.cfg.depth.min_depth, self.cfg.depth.max_depth])
+        if self.tracking_method in ['hybrid', 'PnP']:
+            # Single-view Depth prediction
+            if self.dataset.data_dir['depth_src'] is None:
+                self.timers.start('depth_cnn', 'deep inference')
+                self.cur_data['raw_depth'] = \
+                        self.deep_models.forward_depth(imgs=[self.cur_data['img']])
+                self.cur_data['raw_depth'] = cv2.resize(self.cur_data['raw_depth'],
+                                                    (self.cfg.image.width, self.cfg.image.height),
+                                                    interpolation=cv2.INTER_NEAREST
+                                                    )
+                self.timers.end('depth_cnn')
+            self.cur_data['depth'] = preprocess_depth(self.cur_data['raw_depth'], self.cfg.crop.depth_crop, [self.cfg.depth.min_depth, self.cfg.depth.max_depth])
 
-        # Two-view flow
-        if self.tracking_stage >= 1:
-            self.timers.start('flow_cnn', 'deep inference')
-            flows = self.deep_models.forward_flow(
-                                    self.cur_data,
-                                    self.ref_data,
-                                    forward_backward=self.cfg.deep_flow.forward_backward)
+            # Two-view flow
+            if self.tracking_stage >= 1:
+                self.timers.start('flow_cnn', 'deep inference')
+                flows = self.deep_models.forward_flow(
+                                        self.cur_data,
+                                        self.ref_data,
+                                        forward_backward=self.cfg.deep_flow.forward_backward)
+                
+                # Store flow
+                self.ref_data['flow'] = flows[(self.ref_data['id'], self.cur_data['id'])].copy()
+                if self.cfg.deep_flow.forward_backward:
+                    self.cur_data['flow'] = flows[(self.cur_data['id'], self.ref_data['id'])].copy()
+                    self.ref_data['flow_diff'] = flows[(self.ref_data['id'], self.cur_data['id'], "diff")].copy()
+                
+                self.timers.end('flow_cnn')
             
-            # Store flow
-            self.ref_data['flow'] = flows[(self.ref_data['id'], self.cur_data['id'])].copy()
-            if self.cfg.deep_flow.forward_backward:
-                self.cur_data['flow'] = flows[(self.cur_data['id'], self.ref_data['id'])].copy()
-                self.ref_data['flow_diff'] = flows[(self.ref_data['id'], self.cur_data['id'], "diff")].copy()
-            
-            self.timers.end('flow_cnn')
-        
         # Relative camera pose
-        if self.tracking_stage >= 1 and self.cfg.pose_net.enable:
+        if self.tracking_stage >= 1 and self.cfg.deep_pose.enable:
             self.timers.start('pose_cnn', 'deep inference')
             # Deep pose prediction
             self.ref_data['deep_pose'] = {}
             # pose prediction
-            pose = self.deep_models.pose.inference(
-                            self.ref_data['img'],
-                            self.cur_data['img'], 
-                            )
-            self.ref_data['deep_pose'] = pose[0] # from cur->ref
+            pose = self.deep_models.forward_pose(
+                        [self.ref_data['img'], self.cur_data['img']] 
+                        )
+            self.cur_data['deep_pose'] = pose # from cur->ref
             self.timers.end('pose_cnn')
 
     def main(self):

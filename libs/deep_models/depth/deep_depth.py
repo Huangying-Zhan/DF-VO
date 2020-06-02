@@ -26,3 +26,6 @@ class DeepDepth():
             weight_path (str): weight path
         """
         raise NotImplementedError
+    
+    def inference(self, img):
+        raise NotImplementedError

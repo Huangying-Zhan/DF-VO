@@ -130,16 +130,19 @@ class Monodepth2DepthNet(DeepDepth):
             a dictionary containing depths at different scales, resized back to input scale
                 - **scale-N** (tensor, [Nx1xHxW]): depth predictions at scale-N
         """
-        # device = torch.device('cuda')
-        # feed_width = self.feed_width
-        # feed_height = self.feed_height
+        return self.inference(img)
 
-        # # Preprocess
-        # input_image = pil.fromarray(img)
+    def inference(self, img):
+        """Depth prediction
+
+        Args:
+            img (tensor, [Nx3HxW]): image 
+
+        Returns:
+            a dictionary containing depths at different scales, resized back to input scale
+                - **scale-N** (tensor, [Nx1xHxW]): depth predictions at scale-N
+        """
         _, _, original_height, original_width = img.shape
-        # input_image = input_image.resize((feed_width, feed_height), pil.LANCZOS)
-        # input_image = transforms.ToTensor()(input_image).unsqueeze(0)
-        # input_image = input_image.to(device)
 
         # Prediction
         features = self.encoder(img)

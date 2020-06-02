@@ -48,8 +48,8 @@ class DeepModel():
                 assert False, "No precomputed depths nor pretrained depth model"
         
         ''' two-view pose '''
-        if self.cfg.pose_net.enable:
-            if self.cfg.pose_net.pretrained_model is not None:
+        if self.cfg.deep_pose.enable:
+            if self.cfg.deep_pose.pretrained_model is not None:
                 self.pose = self.initialize_deep_pose_model()
             else:
                 assert False, "No pretrained pose model"
@@ -95,9 +95,9 @@ class DeepModel():
         Returns:
             pose_net (nn.Module): two-view pose network
         """
-        pose_net = Monodepth2PoseNet()
+        pose_net = Monodepth2PoseNet(self.cfg.deep_pose)
         pose_net.initialize_network_model(
-            weight_path=self.cfg.pose_net.pretrained_model,
+            weight_path=self.cfg.deep_pose.pretrained_model,
             height=self.cfg.image.height,
             width=self.cfg.image.width,
             dataset=self.cfg.dataset
@@ -151,7 +151,7 @@ class DeepModel():
             imgs (list): list of images, each element is a [HxWx3] array
 
         Returns:
-            depth (array, [HxW]): depth map
+            depth (array, [HxW]): depth map of imgs[0]
         """
         img_tensor = []
         for img in imgs:
@@ -171,7 +171,32 @@ class DeepModel():
         depth = pred_depths[0].detach().cpu().numpy()[0,0]
         return depth
 
-    def forward_pose(self):
-        """Not implemented
+    def forward_pose(self, imgs):
+        """Depth network forward interface, a forward inference.
+
+        Args:
+            imgs (list): list of images, each element is a [HxWx3] array
+
+        Returns:
+            pose (array, [4x4]): relative pose from img2 to img1
         """
-        raise NotImplementedError
+        img_tensor = []
+        for img in imgs:
+            # Preprocess
+            input_image = pil.fromarray(img)
+            input_image = input_image.resize((self.depth.feed_width, self.depth.feed_height), pil.LANCZOS)
+            input_image = transforms.ToTensor()(input_image).unsqueeze(0)
+            img_tensor.append(input_image)
+
+        # Prediction
+        img_tensor = torch.cat(img_tensor, 1)
+        img_tensor = img_tensor.cuda()
+
+        if self.pose.finetune:
+            pred_poses = self.pose.inference(img_tensor)
+        else:
+            pred_poses = self.pose.inference_no_grad(img_tensor)
+        
+        pose = pred_poses.detach().cpu().numpy()[0]
+        return pose
+

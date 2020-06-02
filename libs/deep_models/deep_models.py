@@ -3,12 +3,15 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-06-02
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
 
 import numpy as np
+import PIL.Image as pil
+import torch
+from torchvision import transforms
 
 from .depth.monodepth2.monodepth2 import Monodepth2DepthNet
 from .flow.lite_flow_net.lite_flow import LiteFlow
@@ -18,7 +21,6 @@ class DeepModel():
     """DeepModel initializes different deep networks and provide forward interfaces.
 
     TODO:
-        add forward_depth()
         
         add forward_pose()
 
@@ -40,7 +42,7 @@ class DeepModel():
 
         ''' single-view depth '''
         if self.cfg.depth.depth_src is None:
-            if self.cfg.depth.pretrained_model is not None:
+            if self.cfg.depth.deep_depth.pretrained_model is not None:
                 self.depth = self.initialize_deep_depth_model()
             else:
                 assert False, "No precomputed depths nor pretrained depth model"
@@ -58,7 +60,7 @@ class DeepModel():
         Returns:
             flow_net (nn.Module): optical flow network
         """
-        if self.cfg.deep_flow.network == "liteflow":
+        if self.cfg.deep_flow.network == 'liteflow':
             flow_net = LiteFlow(self.cfg.image.height, self.cfg.image.width,
                                 self.cfg.deep_flow)
             flow_net.initialize_network_model(
@@ -76,10 +78,15 @@ class DeepModel():
         Returns:
             depth_net (nn.Module): single-view depth network
         """
-        depth_net = Monodepth2DepthNet()
-        depth_net.initialize_network_model(
-                weight_path=self.cfg.depth.pretrained_model,
-                dataset=self.cfg.dataset)
+        if self.cfg.depth.deep_depth.network == 'monodepth2':
+            depth_net = Monodepth2DepthNet(self.cfg.depth.deep_depth)
+            depth_net.initialize_network_model(
+                    weight_path=self.cfg.depth.deep_depth.pretrained_model,
+                    dataset=self.cfg.dataset)
+        else:
+            assert False, "Invalid depth network [{}] is provided.".format(
+                                self.cfg.depth.deep_depth.network
+                                )
         return depth_net
     
     def initialize_deep_pose_model(self):
@@ -137,10 +144,32 @@ class DeepModel():
             flows[(src_id, tgt_id, "diff")] = batch_flows['flow_diff'].copy()[0]
         return flows
 
-    def forward_depth(self):
-        """Not implemented
+    def forward_depth(self, imgs):
+        """Depth network forward interface, a forward inference.
+
+        Args:
+            imgs (list): list of images, each element is a [HxWx3] array
+
+        Returns:
+            depth (array, [HxW]): depth map
         """
-        raise NotImplementedError
+        img_tensor = []
+        for img in imgs:
+            # Preprocess
+            input_image = pil.fromarray(img)
+            input_image = input_image.resize((self.depth.feed_width, self.depth.feed_height), pil.LANCZOS)
+            input_image = transforms.ToTensor()(input_image).unsqueeze(0)
+            img_tensor.append(input_image)
+        img_tensor = torch.cat(img_tensor, 0)
+        img_tensor = img_tensor.cuda()
+        
+        if self.depth.finetune:
+            pred_depths = self.depth.inference(img_tensor)
+        else:
+            pred_depths = self.depth.inference_no_grad(img_tensor)
+
+        depth = pred_depths[0].detach().cpu().numpy()[0,0]
+        return depth
 
     def forward_pose(self):
         """Not implemented

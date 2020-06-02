@@ -41,6 +41,8 @@ class LiteFlow(DeepFlow):
         # FIXME: half-flow issue
         self.half_flow = False
         
+        self.flow_scales = [1]
+
         # Online finetuning configuration
         if self.flow_cfg is not None:
             self.finetune = self.flow_cfg.online_finetune.enable

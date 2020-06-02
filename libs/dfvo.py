@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-29
+@LastEditTime: 2020-06-02
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -250,7 +250,8 @@ class DFVO():
         if self.dataset.data_dir['depth_src'] is None:
             self.timers.start('depth_cnn', 'deep inference')
             self.cur_data['raw_depth'] = \
-                    self.deep_models.depth.inference(img=self.cur_data['img'])
+                    self.deep_models.forward_depth(imgs=[self.cur_data['img']])
+                    # self.deep_models.depth.inference(img=self.cur_data['img'])
             self.cur_data['raw_depth'] = cv2.resize(self.cur_data['raw_depth'],
                                                 (self.cfg.image.width, self.cfg.image.height),
                                                 interpolation=cv2.INTER_NEAREST
@@ -352,4 +353,3 @@ class DFVO():
 
         # Output experiement information
         self.timers.time_analysis()
-

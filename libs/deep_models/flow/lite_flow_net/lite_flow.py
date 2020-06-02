@@ -289,7 +289,7 @@ class LiteFlow(DeepFlow):
                     img1, img2,
                     forward_backward=False,
                     dataset='kitti'):
-        """Estimate flow (1->2) and form keypoints
+        """Estimate flow (1->2) and compute flow consistency
         
         Args:
             img1 (array [Nx3xHxW]): image 1
@@ -344,10 +344,6 @@ class LiteFlow(DeepFlow):
             if self.flow_cfg.online_finetune.num_frames is None or self.img_cnt < self.flow_cfg.online_finetune.num_frames:
                 self.train_flow(forward_flow, backward_flow, flow_diff, img1, img2)
             self.img_cnt += 1
-        
-        # from matplotlib import pyplot as plt
-        # plt.imshow(forward_flow[1][0,0].detach().cpu().numpy())
-        # plt.show()
         
         # summarize flow data and flow difference
         flows = {}

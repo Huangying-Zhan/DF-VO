@@ -105,8 +105,8 @@ class LiteFlow(DeepFlow):
         """Predict optical flow for the given pairs (no grad)
         
         Args:
-            img1 (array, [Nx3xHxW]): image 1; intensity [0-1]
-            img2 (array, [Nx3xHxW]): image 2; intensity [0-1]
+            img1 (tensor, [Nx3xHxW]): image 1; intensity [0-1]
+            img2 (tensor, [Nx3xHxW]): image 2; intensity [0-1]
         
         Returns:
             a dictionary containing flows at different scales, resized back to input scale 
@@ -118,17 +118,14 @@ class LiteFlow(DeepFlow):
         """Predict optical flow for the given pairs
         
         Args:
-            img1 (array, [Nx3xHxW]): image 1; intensity [0-1]
-            img2 (array, [Nx3xHxW]): image 2; intensity [0-1]
+            img1 (tensor, [Nx3xHxW]): image 1; intensity [0-1]
+            img2 (tensor, [Nx3xHxW]): image 2; intensity [0-1]
         
         Returns:
             a dictionary containing flows at different scales, resized back to input scale 
                 - **scale-N** (tensor, [Nx2xHxW]): flow from img1 to img2 at scale level-N
         """
-        # Convert to torch array:cuda
-        img1 = torch.from_numpy(img1).float().cuda()
-        img2 = torch.from_numpy(img2).float().cuda()
-
+        # get shape
         _, _, h, w = img1.shape
         th, tw = self.get_target_size(h, w)
 
@@ -161,13 +158,13 @@ class LiteFlow(DeepFlow):
             forward_flow (dict): forward flows at different scales. Each element is a [Nx2xHxW] tensor
             backward_flow (dict): backward flows at different scales. Each element is a [Nx2xHxW] tensor
             flow_diff (dict): forward-backward flow differnce at different scales. Each element is a [1xHxWx1] tensor
-            img1 (array, [1x3xHxW]): image 1
-            img2 (array, [1x3xHxW]): image 2
+            img1 (tensor, [1x3xHxW]): image 1
+            img2 (tensor, [1x3xHxW]): image 2
         """
         losses = {'loss': 0}
         inputs = {
-            ('color', 0, 0): torch.from_numpy(img1).float().cuda(),
-            ('color', 1, 0): torch.from_numpy(img2).float().cuda(),
+            ('color', 0, 0): img1,
+            ('color', 1, 0): img2,
         }
         outputs = {}
         for s in self.flow_scales:
@@ -294,21 +291,21 @@ class LiteFlow(DeepFlow):
         """Estimate flow (1->2) and compute flow consistency
         
         Args:
-            img1 (array [Nx3xHxW]): image 1
-            img2 (array [Nx3xHxW]): image 2
+            img1 (tensor, [Nx3xHxW]): image 1
+            img2 (tensor [Nx3xHxW]): image 2
             foward_backward (bool): forward-backward flow consistency is used if True
             dataset (str): dataset type
         
         Returns:
             a dictionary containing
-                - **forward** (array, [Nx2xHxW]) : foward flow
-                - **backward** (array, [Nx2xHxW]) : backward flow
-                - **flow_diff** (array, [NxHxWx1]) : foward-backward flow inconsistency
+                - **forward** (tensor, [Nx2xHxW]) : foward flow
+                - **backward** (tensor, [Nx2xHxW]) : backward flow
+                - **flow_diff** (tensor, [NxHxWx1]) : foward-backward flow inconsistency
         """
         # flow net inference to get flows
         if forward_backward:
-            input_img1 = np.concatenate([img1, img2], axis=0)
-            input_img2 = np.concatenate([img2, img1], axis=0)
+            input_img1 = torch.cat((img1, img2), dim=0)
+            input_img2 = torch.cat((img2, img1), dim=0)
         else:
             input_img1 = img1
             input_img2 = img2
@@ -349,10 +346,10 @@ class LiteFlow(DeepFlow):
         
         # summarize flow data and flow difference
         flows = {}
-        flows['forward'] = forward_flow[1].detach().cpu().numpy()
+        flows['forward'] = forward_flow[1]
         if forward_backward:
-            flows['backward'] = backward_flow[1].detach().cpu().numpy()
-            flows['flow_diff'] = flow_diff[1].detach().cpu().numpy()
+            flows['backward'] = backward_flow[1]
+            flows['flow_diff'] = flow_diff[1]
         return flows
     
     def forward_backward_consistency(self, flow1, flow2, px1on2):
@@ -364,7 +361,7 @@ class LiteFlow(DeepFlow):
             px1on2 (tensor, [NxHxWx2]): projected pixel of view 1 on view 2
         
         Returns:
-            flow_diff (array, [NxHxWx1]): flow inconsistency error map
+            flow_diff (tensor, [NxHxWx1]): flow inconsistency error map
         """
         # Warp flow2 to flow1
         warp_flow1 = F.grid_sample(-flow2, px1on2)

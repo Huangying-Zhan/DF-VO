@@ -120,10 +120,10 @@ class DeepModel():
                 - **flows(id1, id2, 'diff)** (array, 1xHxW): flow difference of id1
         """
         # Preprocess image
-        cur_imgs = [np.transpose((in_cur_data['img'])/255, (2, 0, 1))]
-        ref_imgs = [np.transpose((in_ref_data['img'])/255, (2, 0, 1))]
-        ref_imgs = np.asarray(ref_imgs)
-        cur_imgs = np.asarray(cur_imgs)
+        cur_imgs = np.transpose((in_cur_data['img'])/255, (2, 0, 1))
+        ref_imgs = np.transpose((in_ref_data['img'])/255, (2, 0, 1))
+        cur_imgs = torch.from_numpy(cur_imgs).unsqueeze(0).float().cuda()
+        ref_imgs = torch.from_numpy(ref_imgs).unsqueeze(0).float().cuda()
 
         # Forward pass
         flows = {}
@@ -138,10 +138,10 @@ class DeepModel():
         # Save flows at current view
         src_id = in_ref_data['id']
         tgt_id = in_cur_data['id']
-        flows[(src_id, tgt_id)] = batch_flows['forward'].copy()[0]
+        flows[(src_id, tgt_id)] = batch_flows['forward'].detach().cpu().numpy()[0]
         if forward_backward:
-            flows[(tgt_id, src_id)] = batch_flows['backward'].copy()[0]
-            flows[(src_id, tgt_id, "diff")] = batch_flows['flow_diff'].copy()[0]
+            flows[(tgt_id, src_id)] = batch_flows['backward'].detach().cpu().numpy()[0]
+            flows[(src_id, tgt_id, "diff")] = batch_flows['flow_diff'].detach().cpu().numpy()[0]
         return flows
 
     def forward_depth(self, imgs):

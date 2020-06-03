@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-02
+@LastEditTime: 2020-06-03
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -77,6 +77,8 @@ class DFVO():
         # Deep networks
         self.deep_models = DeepModel(self.cfg)
         self.deep_models.initialize_models()
+        if self.cfg.online_finetune.enable:
+            self.deep_models.setup_train()
         
         # Depth consistency
         if self.cfg.kp_selection.depth_consistency.enable:
@@ -198,6 +200,7 @@ class DFVO():
 
             if self.tracking_method in ['deep_pose']:
                 hybrid_pose = SE3(self.cur_data['deep_pose'])
+                self.tracking_mode = "DeepPose"
 
             self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
 
@@ -288,6 +291,10 @@ class DFVO():
                         )
             self.cur_data['deep_pose'] = pose # from cur->ref
             self.timers.end('pose_cnn')
+        
+        # online-finetuning 
+        if self.tracking_stage >= 1 and self.cfg.online_finetune.enable:
+            self.deep_models.finetune(self.ref_data['img'], self.cur_data['img'])
 
     def main(self):
         """Main program

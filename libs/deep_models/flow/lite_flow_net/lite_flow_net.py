@@ -294,6 +294,7 @@ class LiteFlowNet(torch.nn.Module):
                 - **2** (tensor, [Nx2x(H/4)x(W/4)])
                 - **3** (tensor, [Nx2x(H/8)x(W/8)])
                 - **4** (tensor, [Nx2x(H/16)x(W/16)])
+                - **5** (tensor, [Nx2x(H/32)x(W/32)])
         """
         tensorFirst, tensorSecond = inputs
 

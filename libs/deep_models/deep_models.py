@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-03
+@LastEditTime: 2020-06-04
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -61,9 +61,10 @@ class DeepModel():
         """
         if self.cfg.deep_flow.network == 'liteflow':
             flow_net = LiteFlow(self.cfg.image.height, self.cfg.image.width)
+            enable_finetune = self.finetune_cfg.enable and self.finetune_cfg.flow.enable
             flow_net.initialize_network_model(
                     weight_path=self.cfg.deep_flow.flow_net_weight,
-                    finetune=self.finetune_cfg.flow.enable
+                    finetune=enable_finetune,
                     )
         else:
             assert False, "Invalid flow network [{}] is provided.".format(
@@ -78,10 +79,12 @@ class DeepModel():
             depth_net (nn.Module): single-view depth network
         """
         if self.cfg.depth.deep_depth.network == 'monodepth2':
-            depth_net = Monodepth2DepthNet(self.cfg.depth.deep_depth)
+            depth_net = Monodepth2DepthNet(self.cfg.image.height, self.cfg.image.width)
+            enable_finetune = self.finetune_cfg.enable and self.finetune_cfg.depth.enable
             depth_net.initialize_network_model(
                     weight_path=self.cfg.depth.deep_depth.pretrained_model,
-                    dataset=self.cfg.dataset)
+                    dataset=self.cfg.dataset,
+                    finetune=enable_finetune)
         else:
             assert False, "Invalid depth network [{}] is provided.".format(
                                 self.cfg.depth.deep_depth.network
@@ -94,12 +97,14 @@ class DeepModel():
         Returns:
             pose_net (nn.Module): two-view pose network
         """
-        pose_net = Monodepth2PoseNet(self.cfg.deep_pose)
+        pose_net = Monodepth2PoseNet()
+        enable_finetune = self.finetune_cfg.enable and self.finetune_cfg.pose.enable
         pose_net.initialize_network_model(
             weight_path=self.cfg.deep_pose.pretrained_model,
             height=self.cfg.image.height,
             width=self.cfg.image.width,
-            dataset=self.cfg.dataset
+            dataset=self.cfg.dataset,
+            enable_finetune=enable_finetune,
             )
         return pose_net
 
@@ -118,9 +123,9 @@ class DeepModel():
         if self.finetune_cfg.flow.enable:
             self.flow.setup_train(self, self.finetune_cfg.flow)
         
-        # # depth train setup
-        # if self.finetune_cfg.depth.enable:
-        #     self.setup_train_depth()
+        # depth train setup
+        if self.finetune_cfg.depth.enable:
+            self.depth.setup_train(self, self.finetune_cfg.depth)
         
         # # depth train setup
         # if self.finetune_cfg.depth.enable:
@@ -189,13 +194,8 @@ class DeepModel():
         img_tensor = img_tensor.cuda()
         
         # Inference
-        if self.depth.finetune:
-            pred_depths = self.depth.inference(img_tensor)
-        else:
-            pred_depths = self.depth.inference_no_grad(img_tensor)
-        
-        self.pred_depths = pred_depths
-        depth = pred_depths[0].detach().cpu().numpy()[0,0]
+        pred_depth = self.depth.inference_depth(img_tensor)
+        depth = pred_depth.detach().cpu().numpy()[0,0] * self.depth.stereo_baseline_multiplier
         return depth
 
     def forward_pose(self, imgs):
@@ -227,24 +227,42 @@ class DeepModel():
         pose = pred_poses.detach().cpu().numpy()[0]
         return pose
 
-    def finetune(self, img1, img2):
+    def finetune(self, img1, img2, pose, K, inv_K):
         """Finetuning deep models
 
         Args:
             img1 (array, [HxWx3]): image 1 (reference)
             img2 (array, [HxWx3]): image 2 (current)
+            pose (array, [4x4]): relative pose from view-2 to view-1
+            K (array, [3x3]): camera intrinsics
+            inv_K (array, [3x3]): inverse camera intrinsics
         """
+        # preprocess data
+        # images
         img1 = np.transpose((img1)/255, (2, 0, 1))
         img2 = np.transpose((img2)/255, (2, 0, 1))
         img1 = torch.from_numpy(img1).unsqueeze(0).float().cuda()
         img2 = torch.from_numpy(img2).unsqueeze(0).float().cuda()
 
+        # camera intrinsics
+        K44 = np.eye(4)
+        K44[:3, :3] = K.copy()
+        K = torch.from_numpy(K44).unsqueeze(0).float().cuda()
+        K44[:3, :3] = inv_K.copy()
+        inv_K = torch.from_numpy(K44).unsqueeze(0).float().cuda()
+
+        # pose
+        pose = torch.from_numpy(pose).unsqueeze(0).float().cuda()
+        pose[:, :3, 3] /= 54
+        
         if self.finetune_cfg.num_frames is None or self.img_cnt < self.finetune_cfg.num_frames:
             ''' data preparation '''
             losses = {'loss': 0}
             inputs = {
                 ('color', 0, 0): img1,
                 ('color', 1, 0): img2,
+                ('K', 0): K,
+                ('inv_K', 0): inv_K,
             }
             outputs = {}
 
@@ -254,13 +272,41 @@ class DeepModel():
                 assert self.cfg.deep_flow.forward_backward, "forward-backward option has to be True for finetuning"
                 for s in self.flow.flow_scales:
                     outputs.update(
-                        {('flow', 0, 1, s):  self.flow.forward_flow[s],
-                        ('flow', 1, 0, s):  self.flow.backward_flow[s],
-                        ('flow_diff', 0, 1, s):  self.flow.flow_diff[s]}
+                        {
+                            ('flow', 0, 1, s):  self.flow.forward_flow[s],
+                            ('flow', 1, 0, s):  self.flow.backward_flow[s],
+                            ('flow_diff', 0, 1, s):  self.flow.flow_diff[s]
+                        }
                     )
 
                 losses.update(self.flow.train(inputs, outputs))
                 losses["loss"] += losses["flow_loss"]
+            
+            # depth and pose
+            if self.finetune_cfg.depth.enable:
+                # add predicted depths
+                for s in self.depth.depth_scales:
+                    outputs.update(
+                        {
+                            ('depth', 1, s): self.depth.pred_depths[s][:1],
+                            ('disp', 1, s): self.depth.pred_disps[s][:1],
+                            ('depth', 0, s): self.depth.pred_depths[s][1:],
+                            ('disp', 0, s): self.depth.pred_disps[s][1:]
+                        }
+                    )
+
+                # add predicted poses
+                outputs.update(
+                    {
+                        # ('pose_T', 1, 0): self.pose.pred_pose
+                        ('pose_T', 1, 0): pose
+                    }
+                )
+                
+                losses.update(self.depth.train(inputs, outputs))
+                losses["loss"] += losses["reproj_sm_loss"]
+                if self.depth.depth_consistency != 0:
+                    losses["loss"] += losses["depth_consistency_loss"]
             
             ''' backward '''
             self.model_optimizer.zero_grad()
@@ -274,10 +320,10 @@ class DeepModel():
             if self.finetune_cfg.flow.enable:
                 self.flow.model.eval()
             
-            # # reset depth model to eval mode
-            # if self.finetune_cfg.depth.enable:
-            #     self.depth.model.eval()
+            # reset depth model to eval mode
+            if self.finetune_cfg.depth.enable:
+                self.depth.model.eval()
             
-            # # reset pose model to eval mode
-            # if self.finetune_cfg.pose.enable:
-            #     self.pose.model.eval()
+            # reset pose model to eval mode
+            if self.finetune_cfg.pose.enable:
+                self.pose.model.eval()

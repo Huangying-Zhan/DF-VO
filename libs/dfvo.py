@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-03
+@LastEditTime: 2020-06-04
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -131,7 +131,6 @@ class DFVO():
                 self.cur_data['pose'] = SE3(self.dataset.gt_poses[self.cur_data['id']])
             else:
                 self.cur_data['pose'] = SE3()
-            self.tracking_stage = 1
             return
 
         # Second to last frames
@@ -211,8 +210,6 @@ class DFVO():
             # print(pose.pose)
             self.update_global_pose(pose, 1)
 
-            self.tracking_stage += 1
-
     def update_data(self, ref_data, cur_data):
         """Update data
         
@@ -255,8 +252,13 @@ class DFVO():
             # Single-view Depth prediction
             if self.dataset.data_dir['depth_src'] is None:
                 self.timers.start('depth_cnn', 'deep inference')
+                if self.tracking_stage > 0 and self.cfg.online_finetune.depth.loss.depth_consistency != 0:
+                    img_list = [self.cur_data['img'], self.ref_data['img']]
+                else:
+                    img_list = [self.cur_data['img']]
+
                 self.cur_data['raw_depth'] = \
-                        self.deep_models.forward_depth(imgs=[self.cur_data['img']])
+                    self.deep_models.forward_depth(imgs=img_list)
                 self.cur_data['raw_depth'] = cv2.resize(self.cur_data['raw_depth'],
                                                     (self.cfg.image.width, self.cfg.image.height),
                                                     interpolation=cv2.INTER_NEAREST
@@ -292,10 +294,6 @@ class DFVO():
             self.cur_data['deep_pose'] = pose # from cur->ref
             self.timers.end('pose_cnn')
         
-        # online-finetuning 
-        if self.tracking_stage >= 1 and self.cfg.online_finetune.enable:
-            self.deep_models.finetune(self.ref_data['img'], self.cur_data['img'])
-
     def main(self):
         """Main program
         """
@@ -332,6 +330,13 @@ class DFVO():
             self.tracking()
             self.timers.end('tracking')
 
+            """ Online Finetuning """
+            if self.tracking_stage >= 1 and self.cfg.online_finetune.enable:
+                self.deep_models.finetune(self.ref_data['img'], self.cur_data['img'],
+                                      self.ref_data['pose'].pose,
+                                      self.dataset.cam_intrinsics.mat,
+                                      self.dataset.cam_intrinsics.inv_mat)
+
             """ Visualization """
             if self.cfg.visualization.enable:
                 self.timers.start('visualization')
@@ -343,6 +348,8 @@ class DFVO():
                                     self.ref_data,
                                     self.cur_data,
             )
+
+            self.tracking_stage += 1
 
             self.timers.end('DF-VO')
 

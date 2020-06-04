@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-02
+@LastEditTime: 2020-06-04
 @LastEditors: Huangying Zhan
 @Description: This is the interface for Monodepth2 depth network
 '''
@@ -27,15 +27,9 @@ class Monodepth2DepthNet(DeepDepth):
     def __init__(self, *args, **kwargs):
         super(Monodepth2DepthNet, self).__init__(*args, **kwargs)
 
-        self.scales = [0]
+        self.enable_finetune = False
         
-        # Online finetuning configuration
-        if self.depth_cfg is not None:
-            self.finetune = self.depth_cfg.online_finetune.enable
-        else:
-            self.finetune = False
-        
-    def initialize_network_model(self, weight_path, dataset='kitti'):
+    def initialize_network_model(self, weight_path, dataset, finetune):
         """initialize network and load pretrained model
         
         Args:
@@ -43,9 +37,8 @@ class Monodepth2DepthNet(DeepDepth):
                 - **encoder.pth**: encoder model
                 - **depth.pth**: depth decoder model
             dataset (str): dataset setup for min/max depth [kitti, tum]
+            finetune (bool): finetune model on the run if True
         """
-        device = torch.device("cuda")
-
         # initilize network
         self.encoder = ResnetEncoder(18, False)
         self.depth_decoder = DepthDecoder(
@@ -54,21 +47,23 @@ class Monodepth2DepthNet(DeepDepth):
         print("==> Initialize Depth-CNN with [{}]".format(weight_path))
         # loading pretrained model (encoder)
         encoder_path = os.path.join(weight_path, 'encoder.pth')
-        loaded_dict_enc = torch.load(encoder_path, map_location=device)
+        loaded_dict_enc = torch.load(encoder_path, map_location=self.device)
         filtered_dict_enc = {k: v for k, v in loaded_dict_enc.items() if k in self.encoder.state_dict()}
         self.encoder.load_state_dict(filtered_dict_enc)
-        self.encoder.to(device)
+        self.encoder.to(self.device)
 
         # loading pretrained model (depth-decoder)
         depth_decoder_path = os.path.join(weight_path, 'depth.pth')
-        loaded_dict = torch.load(depth_decoder_path, map_location=device)
+        loaded_dict = torch.load(depth_decoder_path, map_location=self.device)
         self.depth_decoder.load_state_dict(loaded_dict)
-        self.depth_decoder.to(device)
+        self.depth_decoder.to(self.device)
 
-        if self.finetune:
+        # concatenate encoders and decoders
+        self.model = torch.nn.Sequential(self.encoder, self.depth_decoder)
+
+        if finetune:
             self.encoder.train()
             self.depth_decoder.train()
-            self.setup_train()
         else:
             self.encoder.eval()
             self.depth_decoder.eval()
@@ -81,56 +76,15 @@ class Monodepth2DepthNet(DeepDepth):
         if 'kitti' in dataset:
             self.min_depth = 0.1
             self.max_depth = 100
-            self.stereo_baseline = 5.4
+            self.stereo_baseline_multiplier = 5.4
         elif 'tum' in dataset:
             self.min_depth = 0.1
             self.max_depth = 10
-            self.stereo_baseline = 1
+            self.stereo_baseline_multiplier = 1
         else:
             self.min_depth = 0.1
             self.max_depth = 100
-            self.stereo_baseline = 5.4
-
-    def setup_train(self):
-        """Setup training configurations for online finetuning
-        """
-        # Basic configuration
-        self.img_cnt = 0
-        self.frame_ids = [0, 1]
-
-        if self.depth_cfg.online_finetune.scale == 'single':
-            self.scales = [0]
-        elif self.depth_cfg.online_finetune.scale == 'multi':
-            self.scales = [0, 1, 2, 3]
-        # self.num_flow_scale = len(self.flow_scales)
-
-        # # Layer setup
-        # self.ssim = SSIM()
-        # self.ssim.to(self.device)
-        
-        # # Optimization
-        # self.learning_rate = self.flow_cfg.online_finetune.lr
-        # self.parameters_to_train = []
-        # self.parameters_to_train += list(self.model.parameters())
-        # self.model_optimizer = optim.Adam(self.parameters_to_train, self.learning_rate)
-
-        # # loss
-        # self.flow_forward_backward = True
-        # self.flow_consistency = self.flow_cfg.online_finetune.loss.flow_consistency
-        # self.flow_smoothness = self.flow_cfg.online_finetune.loss.flow_smoothness
-
-    @torch.no_grad()
-    def inference_no_grad(self, img):
-        """Depth prediction
-
-        Args:
-            img (tensor, [Nx3HxW]): image 
-
-        Returns:
-            a dictionary containing depths at different scales, resized back to input scale
-                - **scale-N** (tensor, [Nx1xHxW]): depth predictions at scale-N
-        """
-        return self.inference(img)
+            self.stereo_baseline_multiplier = 1
 
     def inference(self, img):
         """Depth prediction
@@ -139,8 +93,10 @@ class Monodepth2DepthNet(DeepDepth):
             img (tensor, [Nx3HxW]): image 
 
         Returns:
-            a dictionary containing depths at different scales, resized back to input scale
-                - **scale-N** (tensor, [Nx1xHxW]): depth predictions at scale-N
+            a dictionary containing depths and disparities at different scales, resized back to input scale
+
+                - **depth** (dict): depth predictions, each element is **scale-N** (tensor, [Nx1xHxW]): depth predictions at scale-N
+                - **disp** (dict): disparity predictions, each element is **scale-N** (tensor, [Nx1xHxW]): disparity predictions at scale-N
         """
         _, _, original_height, original_width = img.shape
 
@@ -148,13 +104,34 @@ class Monodepth2DepthNet(DeepDepth):
         features = self.encoder(img)
         pred_disps = self.depth_decoder(features)
 
-        outputs = {}
-        for s in self.scales:
+        outputs = {'depth': {}, 'disp': {}}
+        for s in self.depth_scales:
             disp = pred_disps[('disp', s)]
             disp_resized = torch.nn.functional.interpolate(
                 disp, (original_height, original_width), mode='bilinear', align_corners=False)
 
             scaled_disp, _ = disp_to_depth(disp_resized, self.min_depth, self.max_depth)
-            outputs[s] = self.stereo_baseline / scaled_disp
+            outputs['depth'][s] = 1. / scaled_disp # monodepth2 assumes 0.1 unit baseline
+            outputs['disp'][s] = scaled_disp
             
         return outputs
+
+    def inference_depth(self, img):
+        """Depth prediction
+
+        Args:
+            img (tensor, [Nx3HxW]): image 
+
+        Returns:
+            depth (tensor, [Nx1xHxW]): depth prediction at highest resolution
+        """
+        if self.enable_finetune:
+            predictions = self.inference(img)
+        else:
+            predictions = self.inference_no_grad(img)
+        self.pred_depths = predictions['depth']
+        self.pred_disps = predictions['disp']
+        
+        # summarize depth predictions for DF-VO
+        depth = self.pred_depths[0] * self.stereo_baseline_multiplier # monodepth2 assumes 0.1 unit baseline
+        return depth

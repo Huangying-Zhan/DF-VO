@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-29
+@LastEditTime: 2020-06-04
 @LastEditors: Huangying Zhan
 @Description: Frame drawer to display different visualizations
 '''
@@ -325,6 +325,9 @@ class FrameDrawer():
             vo (DFVO): DF-VO
         """
         if self.display['match_temp']:
+            # check if data available
+            if vo.cur_data.get(vo.cfg.visualization.kp_src, -1) is -1: return
+
             # Set number of kp to be visualized
             vis_kp_num = min(vo.cur_data[vo.cfg.visualization.kp_src].shape[0], 
                             vo.cfg.visualization.kp_match.kp_num)
@@ -355,6 +358,9 @@ class FrameDrawer():
             vo (DFVO): DF-VO
         """
         if self.display['match_side']:
+            # check if data available
+            if vo.cur_data.get(vo.cfg.visualization.kp_src, -1) is -1: return
+            
             # Set number of kp to be visualized
             vis_kp_num = min(vo.cur_data[vo.cfg.visualization.kp_src].shape[0], 
                             vo.cfg.visualization.kp_match.kp_num)
@@ -403,8 +409,10 @@ class FrameDrawer():
         if self.display['depth']:
             # choose depth source
             if vo.cfg.visualization.depth.use_tracking_depth:
+                if vo.cur_data.get('depth', -1) is -1: return
                 tmp_vis_depth = vo.cur_data['depth']
             else:
+                if vo.cur_data.get('raw_depth', -1) is -1: return
                 tmp_vis_depth = vo.cur_data['raw_depth']
             
             # visualize depth
@@ -449,6 +457,9 @@ class FrameDrawer():
         Args:
             vo (DFVO): DF-VO
         """
+        # check if data is available
+        if vo.cur_data.get('fb_flow_mask', -1) is -1: return
+
         # set vmax for different score method
         if vo.cfg.kp_selection.local_bestN.enable and \
             vo.cfg.kp_selection.local_bestN.score_method == "flow_ratio":
@@ -468,6 +479,9 @@ class FrameDrawer():
         Args:
             vo (DFVO): DF-VO
         """
+        # check if data is available
+        if vo.cur_data.get('rigid_flow_mask', -1) is -1: return
+        
         vmax = 3
         normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
         mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
@@ -506,13 +520,15 @@ class FrameDrawer():
 
         # Forward Flow
         if vo.cfg.visualization.flow.vis_forward_flow and \
-            vo.tracking_stage > 1:
-                self.draw_flow(vo.ref_data['flow'], 'flow1')
+            vo.tracking_stage > 1 and \
+                vo.ref_data.get('flow') is not None:
+                    self.draw_flow(vo.ref_data['flow'], 'flow1')
         
         # Backward Flow
         if vo.cfg.visualization.flow.vis_backward_flow and \
-            vo.tracking_stage > 1:
-                self.draw_flow(vo.cur_data['flow'], 'flow2')
+            vo.tracking_stage > 1 and \
+                vo.cur_data.get('flow') is not None:
+                    self.draw_flow(vo.cur_data['flow'], 'flow2')
         
         # Forward-backward flow consistency
         if vo.cfg.visualization.flow.vis_flow_diff and \

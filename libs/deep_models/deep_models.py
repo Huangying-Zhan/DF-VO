@@ -31,6 +31,9 @@ class DeepModel():
         self.cfg = cfg
         self.finetune_cfg = self.cfg.online_finetune
         self.device = torch.device('cuda')
+
+        # FIXME: debug
+        # self.losses = []
         
     def initialize_models(self):
         """intialize multiple deep models
@@ -101,10 +104,8 @@ class DeepModel():
         enable_finetune = self.finetune_cfg.enable and self.finetune_cfg.pose.enable
         pose_net.initialize_network_model(
             weight_path=self.cfg.deep_pose.pretrained_model,
-            height=self.cfg.image.height,
-            width=self.cfg.image.width,
             dataset=self.cfg.dataset,
-            enable_finetune=enable_finetune,
+            finetune=enable_finetune,
             )
         return pose_net
 
@@ -127,9 +128,9 @@ class DeepModel():
         if self.finetune_cfg.depth.enable:
             self.depth.setup_train(self, self.finetune_cfg.depth)
         
-        # # depth train setup
-        # if self.finetune_cfg.depth.enable:
-        #     self.setup_train_depth()
+        # pose train setup
+        if self.finetune_cfg.pose.enable:
+            self.pose.setup_train(self, self.finetune_cfg.pose)
         
         self.model_optimizer = optim.Adam(self.parameters_to_train, self.learning_rate)
 
@@ -195,7 +196,7 @@ class DeepModel():
         
         # Inference
         pred_depth = self.depth.inference_depth(img_tensor)
-        depth = pred_depth.detach().cpu().numpy()[0,0] * self.depth.stereo_baseline_multiplier
+        depth = pred_depth.detach().cpu().numpy()[0,0] 
         return depth
 
     def forward_pose(self, imgs):
@@ -218,12 +219,7 @@ class DeepModel():
         img_tensor = img_tensor.cuda()
 
         # Prediction
-        if self.pose.finetune:
-            pred_poses = self.pose.inference(img_tensor)
-        else:
-            pred_poses = self.pose.inference_no_grad(img_tensor)
-        
-        self.pred_poses = pred_poses
+        pred_poses = self.pose.inference_pose(img_tensor)
         pose = pred_poses.detach().cpu().numpy()[0]
         return pose
 
@@ -233,7 +229,7 @@ class DeepModel():
         Args:
             img1 (array, [HxWx3]): image 1 (reference)
             img2 (array, [HxWx3]): image 2 (current)
-            pose (array, [4x4]): relative pose from view-2 to view-1
+            pose (array, [4x4]): relative pose from view-2 to view-1 (from DF-VO)
             K (array, [3x3]): camera intrinsics
             inv_K (array, [3x3]): inverse camera intrinsics
         """
@@ -252,8 +248,16 @@ class DeepModel():
         inv_K = torch.from_numpy(K44).unsqueeze(0).float().cuda()
 
         # pose
-        pose = torch.from_numpy(pose).unsqueeze(0).float().cuda()
-        pose[:, :3, 3] /= 54
+        if self.finetune_cfg.depth.pose_src == 'DF-VO':
+            pose = torch.from_numpy(pose).unsqueeze(0).float().cuda()
+            pose[:, :3, 3] /= 5.4
+        elif self.finetune_cfg.depth.pose_src == 'deep_pose':
+            pose = self.pose.pred_pose
+        elif self.finetune_cfg.depth.pose_src == 'DF-VO2':
+            deep_pose_scale = torch.norm(self.pose.pred_pose[:, :3, 3].clone())
+            pose = torch.from_numpy(pose).unsqueeze(0).float().cuda()
+            pose[:, :3, 3] /= torch.norm(pose[:, :3, 3])
+            pose[:, :3, 3] *= deep_pose_scale
         
         if self.finetune_cfg.num_frames is None or self.img_cnt < self.finetune_cfg.num_frames:
             ''' data preparation '''
@@ -298,7 +302,6 @@ class DeepModel():
                 # add predicted poses
                 outputs.update(
                     {
-                        # ('pose_T', 1, 0): self.pose.pred_pose
                         ('pose_T', 1, 0): pose
                     }
                 )
@@ -314,6 +317,9 @@ class DeepModel():
             self.model_optimizer.step()
             
             self.img_cnt += 1
+
+            # # FIXME: debug
+            # self.losses.append(losses['loss'].item())
 
         else:
             # reset flow model to eval mode

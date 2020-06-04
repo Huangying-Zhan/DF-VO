@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-03
+@LastEditTime: 2020-06-04
 @LastEditors: Huangying Zhan
 @Description: This is the interface for LiteFlowNet
 '''
@@ -141,8 +141,8 @@ class LiteFlow(DeepFlow):
         
         # summarize flow data and flow difference for DF-VO
         flows = {}
-        flows['forward'] = self.forward_flow[1]
+        flows['forward'] = self.forward_flow[1].clone()
         if forward_backward:
-            flows['backward'] = self.backward_flow[1]
-            flows['flow_diff'] = self.flow_diff[1]
+            flows['backward'] = self.backward_flow[1].clone()
+            flows['flow_diff'] = self.flow_diff[1].clone()
         return flows

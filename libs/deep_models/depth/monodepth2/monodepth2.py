@@ -133,5 +133,5 @@ class Monodepth2DepthNet(DeepDepth):
         self.pred_disps = predictions['disp']
         
         # summarize depth predictions for DF-VO
-        depth = self.pred_depths[0] * self.stereo_baseline_multiplier # monodepth2 assumes 0.1 unit baseline
+        depth = self.pred_depths[0].clone() * self.stereo_baseline_multiplier # monodepth2 assumes 0.1 unit baseline
         return depth

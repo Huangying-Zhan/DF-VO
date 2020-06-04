@@ -139,6 +139,7 @@ class FrameDrawer():
             'flow2':            ([int(h/4*3), int(w/4*2)], [int(h/4*4), int(w/4*3)]),
             'rigid_flow_diff':  ([int(h/4*3), int(w/4*2)], [int(h/4*4), int(w/4*3)]),
             'opt_flow_diff':    ([int(h/4*3), int(w/4*3)], [int(h/4*4), int(w/4*4)]),
+            'warp_diff':  ([int(h/4*3), int(w/4*2)], [int(h/4*4), int(w/4*3)]),
         }
 
         for key, locs in drawer_layout.items():
@@ -473,6 +474,22 @@ class FrameDrawer():
         colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
         self.update_data("opt_flow_diff", colormapped_im)
 
+    def draw_warp_diff(self, vo):
+        """Draw warp diff 
+
+        Args:
+            vo (DFVO): DF-VO
+        """
+        # set vmax for different score method
+        vmax = 1
+        
+        normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
+        mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
+        mask = vo.deep_models.depth.warp_diff
+        colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
+        self.update_data("warp_diff", colormapped_im)
+
+
     def draw_rigid_flow_consistency(self, vo):
         """Draw optical-rigid flow consistency map
 
@@ -541,6 +558,11 @@ class FrameDrawer():
             vo.cfg.scale_recovery.method == 'iterative' and \
               vo.tracking_stage > 1 and vo.tracking_mode == 'Ess. Mat.':
                 self.draw_rigid_flow_consistency(vo)
+        
+        # FIXME: draw warp_diff
+        # warp_diff
+        if vo.tracking_stage > 1:
+            self.draw_warp_diff(vo)
 
         # Save visualization result
         if vo.cfg.visualization.save_img:

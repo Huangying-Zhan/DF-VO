@@ -198,9 +198,9 @@ class DFVO():
                     self.tracking_mode = "PnP"
 
             if self.tracking_method in ['deep_pose']:
-                hybrid_pose = SE3(self.cur_data['deep_pose'])
+                hybrid_pose = SE3(self.ref_data['deep_pose'])
                 self.tracking_mode = "DeepPose"
-
+            
             self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
 
             # update global poses
@@ -230,9 +230,9 @@ class DFVO():
                 ref_data[key] = cur_data[key]
         
         # Delete unused flow to avoid data leakage
-        ref_data['flow'] = {}
-        cur_data['flow'] = {}
-        ref_data['flow_diff'] = {}
+        ref_data['flow'] = None
+        cur_data['flow'] = None
+        ref_data['flow_diff'] = None
         return ref_data, cur_data
 
     def load_raw_data(self):
@@ -286,12 +286,10 @@ class DFVO():
         if self.tracking_stage >= 1 and self.cfg.deep_pose.enable:
             self.timers.start('pose_cnn', 'deep inference')
             # Deep pose prediction
-            self.ref_data['deep_pose'] = {}
-            # pose prediction
             pose = self.deep_models.forward_pose(
                         [self.ref_data['img'], self.cur_data['img']] 
                         )
-            self.cur_data['deep_pose'] = pose # from cur->ref
+            self.ref_data['deep_pose'] = pose # from cur->ref
             self.timers.end('pose_cnn')
         
     def main(self):
@@ -368,3 +366,8 @@ class DFVO():
 
         # Output experiement information
         self.timers.time_analysis()
+
+        # FIXME: save loss
+        # np.save("loss.npy", np.asarray(self.deep_models.losses))
+        # plt.plot(self.deep_models.losses)
+        # plt.show()

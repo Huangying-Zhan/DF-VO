@@ -1,7 +1,9 @@
 ############# Unit Testing #############
 # Reference 
-# python apis/run.py -d options/unit_test/default.yml --no_confirm
-python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_0.yml  --no_confirm
+# python apis/run.py -d options/kitti/tro_exp/4_0.yml 
+# python apis/run.py -d options/kitti/tro_exp/4_1.yml 
+python apis/run.py -d options/unit_test/default.yml --no_confirm
+# python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_0.yml  --no_confirm
 
 # python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_0.yml  --no_confirm
 
@@ -53,12 +55,16 @@ python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_0
 
 ############# Run odom seqs #############
 # for seq in \
-# 0 1 2 3 4 5 6 7 8 
+# 0 1 2 3 4 5 6 7 8 9 10
+# # 4
 # # 9 10
 # # 9 10 4 7 0 1 2 3 5 6 8 
 # # # 2 3 5 6 7 8
 # do
-    # python run.py -s $seq -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/kitti/tro_exp/reference.yml  --no_confirm
+#     # python apis/run.py -s $seq -d options/kitti/tro_exp/14_0.yml --no_confirm
+#     # python apis/run.py -s $seq -d options/kitti/tro_exp/13_1.yml --no_confirm
+#     python apis/run.py -s $seq -d options/kitti/tro_exp/13_2.yml --no_confirm
+#     # python run.py -s $seq -d result/dfvo2/tro_paper/0/0/configuration_09.yml -c options/kitti/tro_exp/reference.yml  --no_confirm
 #     # python run.py -s $seq -c options/kitti/dfvo_test.yml --no_confirm
 # done
 
@@ -75,7 +81,9 @@ python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_0
 # 2011_10_03_drive_0047_sync \
 
 # do
-#     python run.py -s $seq -c options/kitti/tro_exp/reference.yml --no_confirm
+#     python apis/run.py -s $seq -d options/kitti/tro_exp/15_0.yml --no_confirm
+#     python apis/run.py -s $seq -d options/kitti/tro_exp/15_1.yml --no_confirm
+#     # python run.py -s $seq -c options/kitti/tro_exp/reference.yml --no_confirm
 #     # python run.py -s $seq -c options/kitti/sampling_test.yml --no_confirm
 #     # python run.py -s $seq -c options/kitti/dfvo_test.yml --no_confirm
 # done
@@ -91,3 +99,9 @@ python apis/run.py -d options/unit_test/default.yml -c options/unit_test/kitti_0
 # --result result/flow/kitti2012/lfn_odom09/epoch9
 
 #  ./tools/evaluation/flow/kitti_flow_2012/evaluate_flow_train kitti2012/lfn_odom09/epoch9/
+
+############# Evaluation Odometry #############
+# python tools/evaluation/odometry/eval_odom.py \
+# --result result/dfvo2/tro_paper/15/1 \
+# --align 6dof \
+# --gt dataset/kitti_raw_pose

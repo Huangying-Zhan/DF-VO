@@ -561,8 +561,8 @@ class FrameDrawer():
         
         # FIXME: draw warp_diff
         # warp_diff
-        if vo.tracking_stage > 1:
-            self.draw_warp_diff(vo)
+        # if vo.tracking_stage > 1:
+        #     self.draw_warp_diff(vo)
 
         # Save visualization result
         if vo.cfg.visualization.save_img:

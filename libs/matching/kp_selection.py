@@ -184,7 +184,7 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
     return outputs
 
 
-def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
+def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method, score_method):
     """select best-N filtered keypoints from uniformly divided regions 
     with rigid-flow mask
     
@@ -198,12 +198,15 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
         cfg (edict): configuration dictionary
         outputs (dict): output data 
         method (str): [uniform, best]
+        score_method (str): [opt_flow, rigid_flow]
     
     Returns:
         outputs (dict): output data with the new data
 
-            - **kp1_depth** (array, [Nx2]): keypoints in view-1
-            - **kp2_depth** (array, [Nx2]): keypoints in view-2
+            - **kp1_depth** (array, [Nx2]): keypoints in view-1, best in terms of score_method
+            - **kp2_depth** (array, [Nx2]): keypoints in view-2, best in terms of score_method
+            - **kp1_depth_uniform** (array, [Nx2]): keypoints in view-1, uniformly sampled
+            - **kp2_depth_uniform** (array, [Nx2]): keypoints in view-2, uniformly sampled
             - **rigid_flow_mask** (array, [HxW]): rigid-optical flow consistency 
     """
     kp_cfg = cfg.kp_selection
@@ -213,15 +216,12 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
     num_row = bestN_cfg.num_row
     num_col = bestN_cfg.num_col
     N = bestN_cfg.num_bestN
-    score_method = bestN_cfg.score_method
     rigid_flow_diff_thre = kp_cfg.rigid_flow_kp.rigid_flow_thre
     opt_flow_diff_thre = kp_cfg.rigid_flow_kp.optical_flow_thre
 
-    outputs['kp1_depth'] = {}
-    outputs['kp2_depth'] = {}
-
     n_best = math.floor(N/(num_col*num_row))
     sel_kps = []
+    sel_kps_uniform = []
 
     # get data
     # flow diff
@@ -263,6 +263,10 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
                     sel_list = np.arange(0, len(tmp_kp_list[0]), step)[:num_to_pick]
                 else:
                     sel_list = []
+                # sel_global_coords = convert_idx_to_global_coord(sel_list, tmp_kp_list, x0)
+                # for i in range(sel_global_coords.shape[1]):
+                #     sel_kps_uniform.append(sel_global_coords[:, i:i+1])
+
             elif method == 'best':
                 if num_to_pick <= n_best:
                     sel_list = np.argpartition(score[tmp_kp_list], num_to_pick-1)[:num_to_pick]
@@ -273,6 +277,7 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
             for i in range(sel_global_coords.shape[1]):
                 sel_kps.append(sel_global_coords[:, i:i+1])
 
+    # best
     sel_kps = np.asarray(sel_kps)
     assert sel_kps.shape[0]!=0, "sampling threshold is too small."
     sel_kps = np.transpose(sel_kps, (1, 0, 2))
@@ -281,8 +286,22 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
     kp1_best = kp1[:, sel_kps[1], sel_kps[2]]
     kp2_best = kp2[:, sel_kps[1], sel_kps[2]]
 
-    outputs['kp1_depth'] = kp1_best
-    outputs['kp2_depth'] = kp2_best
+    outputs['kp1_depth'] = kp1_best.copy()
+    outputs['kp2_depth'] = kp2_best.copy()
+
+    # uniform
+    # sel_kps = np.asarray(sel_kps_uniform)
+    # assert sel_kps.shape[0]!=0, "sampling threshold is too small."
+    # sel_kps = np.transpose(sel_kps, (1, 0, 2))
+    # sel_kps = np.reshape(sel_kps, (4, -1))
+
+    # kp1_best = kp1[:, sel_kps[1], sel_kps[2]]
+    # kp2_best = kp2[:, sel_kps[1], sel_kps[2]]
+
+    # outputs['kp1_depth_uniform'] = kp1_best.copy()
+    # outputs['kp2_depth_uniform'] = kp2_best.copy()
+
+
 
     # mask generation
     outputs['rigid_flow_mask'] = rigid_flow_diff[0,:,:,0]

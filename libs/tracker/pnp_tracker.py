@@ -42,13 +42,14 @@ class PnpTracker():
             self.inv_K = torch.from_numpy(self.inv_K).float().unsqueeze(0).cuda()
             self.rigid_flow_layer = RigidFlow(self.cfg.image.height, self.cfg.image.width).cuda()
 
-    def compute_pose_3d2d(self, kp1, kp2, depth_1):
+    def compute_pose_3d2d(self, kp1, kp2, depth_1, is_iterative):
         """Compute pose from 3d-2d correspondences
 
         Args:
             kp1 (array, [Nx2]): keypoints for view-1
             kp2 (array, [Nx2]): keypoints for view-2
             depth_1 (array, [HxW]): depths for view-1
+            is_iterative (bool): is iterative stage
         
         Returns:
             a dictionary containing
@@ -83,6 +84,7 @@ class PnpTracker():
         # initialize ransac setup
         best_rt = []
         best_inlier = 0
+        # max_ransac_iter = self.cfg.pnp_tracker.ransac.repeat if is_iterative else 3
         max_ransac_iter = self.cfg.pnp_tracker.ransac.repeat
         
         for _ in range(max_ransac_iter):
@@ -135,25 +137,31 @@ class PnpTracker():
         ref_data['rigid_flow_pose'] = SE3(rigid_pose.inv_pose)
          # kp selection
         kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data, 
-                                self.cfg.kp_selection.rigid_flow_kp.kp_method)
+                                self.cfg.pnp_tracker.iterative_kp.score_method,
+                                )
         ref_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
         cur_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
+        ref_data['kp_depth_uniform'] = kp_sel_outputs['kp1_depth_uniform'][0]
+        cur_data['kp_depth_uniform'] = kp_sel_outputs['kp2_depth_uniform'][0]
         cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
 
-    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method):
+    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_score_method):
         """Choose valid kp from a series of operations
 
         Args:
             cur_data (dict): current data 
             ref_data (dict): reference data
             rigid_kp_method (str) : [uniform, best]
+            rigid_kp_score_method (str): [opt_flow, rigid_flow]
         
         Returns:
             a dictionary containing
                 
-                - **kp1_depth** (array, [Nx2]): keypoints in view-1
-                - **kp2_depth** (array, [Nx2]): keypoints in view-2
+                - **kp1_depth** (array, [Nx2]): keypoints in view-1, best in terms of score_method
+                - **kp2_depth** (array, [Nx2]): keypoints in view-2, best in terms of score_method
+                - **kp1_depth_uniform** (array, [Nx2]): keypoints in view-1, uniformly sampled
+                - **kp2_depth_uniform** (array, [Nx2]): keypoints in view-2, uniformly sampled
                 - **rigid_flow_mask** (array, [HxW]): rigid-optical flow consistency 
         """
         outputs = {}
@@ -198,7 +206,8 @@ class PnpTracker():
                         ref_data=ref_data,
                         cfg=self.cfg,
                         outputs=outputs,
-                        method=rigid_kp_method
+                        method='uniform',
+                        score_method=rigid_kp_score_method
                         )
                 )
 

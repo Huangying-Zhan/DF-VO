@@ -160,13 +160,14 @@ class EssTracker():
         # FIXME: For debug
         self.timers = timers
 
-    def compute_pose_2d2d(self, kp_ref, kp_cur):
+    def compute_pose_2d2d(self, kp_ref, kp_cur, is_iterative=False):
         """Compute the pose from view2 to view1
         
         Args:
             kp_ref (array, [Nx2]): keypoints for reference view
             kp_cur (array, [Nx2]): keypoints for current view
             cam_intrinsics (Intrinsics): camera intrinsics
+            is_iterative (bool): is iterative stage
         
         Returns:
             a dictionary containing
@@ -184,6 +185,7 @@ class EssTracker():
         t = np.zeros((3,1))
         best_Rt = [R, t]
         best_inlier_cnt = 0
+        # max_ransac_iter = self.cfg.e_tracker.ransac.repeat if is_iterative else 3
         max_ransac_iter = self.cfg.e_tracker.ransac.repeat
         best_inliers = np.ones((kp_ref.shape[0], 1)) == 1
 
@@ -312,126 +314,147 @@ class EssTracker():
         outputs = {"pose": pose, "inliers": best_inliers[:,0]==1}
         return outputs
 
-    def compute_pose_2d2d_mp(self, kp_ref, kp_cur):
-        """Compute the pose from view2 to view1 (multiprocessing version)
-        Speed doesn't change much
+    # def compute_pose_2d2d_mp(self, kp_ref, kp_cur):
+    #     """Compute the pose from view2 to view1 (multiprocessing version)
+    #     Speed doesn't change much
         
+    #     Args:
+    #         kp_ref (array, [Nx2]): keypoints for reference view
+    #         kp_cur (array, [Nx2]): keypoints for current view
+        
+    #     Returns:
+    #         a dictionary containing
+    #             - **pose** (SE3): relative pose from current to reference view
+    #             - **best_inliers** (array, [N]): boolean inlier mask
+    #     """
+    #     principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
+
+    #     # validity check
+    #     valid_cfg = self.cfg.e_tracker.validity
+    #     valid_case = True
+
+    #     # initialize ransac setup
+    #     R = np.eye(3)
+    #     t = np.zeros((3,1))
+    #     best_Rt = [R, t]
+    #     max_ransac_iter = self.cfg.e_tracker.ransac.repeat
+
+    #     if valid_cfg.method == "flow":
+    #         # check flow magnitude
+    #         avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
+    #         valid_case = avg_flow > valid_cfg.thre
+        
+    #     elif valid_cfg.method == "homo_ratio":
+    #         # Find homography
+    #         H, H_inliers = cv2.findHomography(
+    #                     kp_cur,
+    #                     kp_ref,
+    #                     method=cv2.RANSAC,
+    #                     confidence=0.99,
+    #                     ransacReprojThreshold=0.2,
+    #                     )
+
+    #     elif valid_cfg.method == "GRIC":
+    #         self.timers.start('GRIC-H', 'E-tracker')
+    #         self.timers.start('find H', 'E-tracker')
+    #         H, H_inliers = cv2.findHomography(
+    #                     kp_cur,
+    #                     kp_ref,
+    #                     method=cv2.RANSAC,
+    #                     # method=cv2.LMEDS,
+    #                     confidence=0.99,
+    #                     ransacReprojThreshold=1,
+    #                     )
+    #         self.timers.end('find H')
+
+    #         H_res = compute_homography_residual(H, kp_cur, kp_ref)
+    #         H_gric = calc_GRIC(
+    #                     res=H_res,
+    #                     sigma=0.8,
+    #                     n=kp_cur.shape[0],
+    #                     model="HMat"
+    #         )
+    #         self.timers.end('GRIC-H')
+
+    #     if valid_case:
+    #         inputs_mp = []
+    #         outputs_mp = []
+    #         for i in range(max_ransac_iter):
+    #             # shuffle kp_cur and kp_ref
+    #             new_list = np.arange(0, kp_cur.shape[0], 1)
+    #             np.random.shuffle(new_list)
+    #             new_kp_cur = kp_cur.copy()[new_list]
+    #             new_kp_ref = kp_ref.copy()[new_list]
+
+    #             inputs = {}
+    #             inputs['kp_cur'] = new_kp_cur
+    #             inputs['kp_ref'] = new_kp_ref
+    #             inputs['H_inliers'] = H_inliers
+    #             inputs['cfg'] = self.cfg
+    #             inputs['cam_intrinsics'] = self.cam_intrinsics
+    #             if valid_cfg.method == "GRIC":
+    #                 inputs['H_gric'] = H_gric
+    #             inputs_mp.append(inputs)
+    #         outputs_mp = self.p.map(find_Ess_mat, inputs_mp)
+
+    #         # Gather result
+    #         num_valid_case = 0
+    #         best_inlier_cnt = 0
+    #         best_inliers = np.ones((kp_ref.shape[0])) == 1
+    #         for outputs in outputs_mp:
+    #             num_valid_case += outputs['valid_case']
+    #             if outputs['inlier_cnt'] > best_inlier_cnt:
+    #                 best_E = outputs['E']
+    #                 best_inlier_cnt = outputs['inlier_cnt']
+    #                 best_inliers = outputs['inlier']
+
+    #         # Recover pose
+    #         major_valid = num_valid_case > (max_ransac_iter/2)
+    #         if major_valid:
+    #             cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, new_kp_cur, new_kp_ref,
+    #                                     focal=self.cam_intrinsics.fx,
+    #                                     pp=principal_points,)
+
+    #             # cheirality_check
+    #             if cheirality_cnt > kp_cur.shape[0]*0.1:
+    #                 best_Rt = [R, t]
+
+    #     R, t = best_Rt
+    #     pose = SE3()
+    #     pose.R = R
+    #     pose.t = t
+
+    #     outputs = {"pose": pose, "inliers": best_inliers[:, 0]==1}
+    #     return outputs
+
+    def compute_rigid_flow_kp(self, cur_data, ref_data, pose):
+        """compute keypoints from optical-rigid flow consistency
+
         Args:
-            kp_ref (array, [Nx2]): keypoints for reference view
-            kp_cur (array, [Nx2]): keypoints for current view
-        
-        Returns:
-            a dictionary containing
-                - **pose** (SE3): relative pose from current to reference view
-                - **best_inliers** (array, [N]): boolean inlier mask
+            cur_data (dict): current data
+            ref_data (dict): reference data
+            pose (SE3): SE3 pose
         """
-        principal_points = (self.cam_intrinsics.cx, self.cam_intrinsics.cy)
+        rigid_pose = copy.deepcopy(pose)
+        ref_data['rigid_flow_pose'] = SE3(rigid_pose.inv_pose)
+         # kp selection
+        kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data, 
+                                self.cfg.e_tracker.iterative_kp.score_method
+                                )
+        ref_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
+        cur_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
+        ref_data['kp_depth_uniform'] = kp_sel_outputs['kp1_depth_uniform'][0]
+        cur_data['kp_depth_uniform'] = kp_sel_outputs['kp2_depth_uniform'][0]
+        cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
-        # validity check
-        valid_cfg = self.cfg.e_tracker.validity
-        valid_case = True
-
-        # initialize ransac setup
-        R = np.eye(3)
-        t = np.zeros((3,1))
-        best_Rt = [R, t]
-        max_ransac_iter = self.cfg.e_tracker.ransac.repeat
-
-        if valid_cfg.method == "flow":
-            # check flow magnitude
-            avg_flow = np.mean(np.linalg.norm(kp_ref-kp_cur, axis=1))
-            valid_case = avg_flow > valid_cfg.thre
-        
-        elif valid_cfg.method == "homo_ratio":
-            # Find homography
-            H, H_inliers = cv2.findHomography(
-                        kp_cur,
-                        kp_ref,
-                        method=cv2.RANSAC,
-                        confidence=0.99,
-                        ransacReprojThreshold=0.2,
-                        )
-
-        elif valid_cfg.method == "GRIC":
-            self.timers.start('GRIC-H', 'E-tracker')
-            self.timers.start('find H', 'E-tracker')
-            H, H_inliers = cv2.findHomography(
-                        kp_cur,
-                        kp_ref,
-                        method=cv2.RANSAC,
-                        # method=cv2.LMEDS,
-                        confidence=0.99,
-                        ransacReprojThreshold=1,
-                        )
-            self.timers.end('find H')
-
-            H_res = compute_homography_residual(H, kp_cur, kp_ref)
-            H_gric = calc_GRIC(
-                        res=H_res,
-                        sigma=0.8,
-                        n=kp_cur.shape[0],
-                        model="HMat"
-            )
-            self.timers.end('GRIC-H')
-
-        if valid_case:
-            inputs_mp = []
-            outputs_mp = []
-            for i in range(max_ransac_iter):
-                # shuffle kp_cur and kp_ref
-                new_list = np.arange(0, kp_cur.shape[0], 1)
-                np.random.shuffle(new_list)
-                new_kp_cur = kp_cur.copy()[new_list]
-                new_kp_ref = kp_ref.copy()[new_list]
-
-                inputs = {}
-                inputs['kp_cur'] = new_kp_cur
-                inputs['kp_ref'] = new_kp_ref
-                inputs['H_inliers'] = H_inliers
-                inputs['cfg'] = self.cfg
-                inputs['cam_intrinsics'] = self.cam_intrinsics
-                if valid_cfg.method == "GRIC":
-                    inputs['H_gric'] = H_gric
-                inputs_mp.append(inputs)
-            outputs_mp = self.p.map(find_Ess_mat, inputs_mp)
-
-            # Gather result
-            num_valid_case = 0
-            best_inlier_cnt = 0
-            best_inliers = np.ones((kp_ref.shape[0])) == 1
-            for outputs in outputs_mp:
-                num_valid_case += outputs['valid_case']
-                if outputs['inlier_cnt'] > best_inlier_cnt:
-                    best_E = outputs['E']
-                    best_inlier_cnt = outputs['inlier_cnt']
-                    best_inliers = outputs['inlier']
-
-            # Recover pose
-            major_valid = num_valid_case > (max_ransac_iter/2)
-            if major_valid:
-                cheirality_cnt, R, t, _ = cv2.recoverPose(best_E, new_kp_cur, new_kp_ref,
-                                        focal=self.cam_intrinsics.fx,
-                                        pp=principal_points,)
-
-                # cheirality_check
-                if cheirality_cnt > kp_cur.shape[0]*0.1:
-                    best_Rt = [R, t]
-
-        R, t = best_Rt
-        pose = SE3()
-        pose.R = R
-        pose.t = t
-
-        outputs = {"pose": pose, "inliers": best_inliers[:, 0]==1}
-        return outputs
-
-    def scale_recovery(self, cur_data, ref_data, E_pose):
+    def scale_recovery(self, cur_data, ref_data, E_pose, is_iterative):
         """recover depth scale
 
         Args:
             cur_data (dict): current data
             ref_data (dict): reference data
             E_pose (SE3): SE3 pose
+            is_iterative (bool): is iterative stage
         
         Returns:
             a dictionary containing
@@ -444,7 +467,7 @@ class EssTracker():
         outputs = {}
 
         if self.cfg.scale_recovery.method == "simple":
-            scale = self.scale_recovery_simple(cur_data, ref_data, E_pose)
+            scale = self.scale_recovery_simple(cur_data, ref_data, E_pose, is_iterative)
         
         elif self.cfg.scale_recovery.method == "iterative":
             iter_outputs = self.scale_recovery_iterative(cur_data, ref_data, E_pose)
@@ -458,7 +481,7 @@ class EssTracker():
         outputs['scale'] = scale
         return outputs
 
-    def scale_recovery_simple(self, cur_data, ref_data, E_pose):
+    def scale_recovery_simple(self, cur_data, ref_data, E_pose, is_iterative):
         """recover depth scale by comparing triangulated depths and CNN depths
         
         Args:
@@ -476,8 +499,12 @@ class EssTracker():
         Returns:
             scale (float)
         """
-        cur_kp = cur_data[self.cfg.scale_recovery.kp_src]
-        ref_kp = ref_data[self.cfg.scale_recovery.kp_src]
+        if is_iterative:
+            cur_kp = cur_data[self.cfg.scale_recovery.iterative_kp.kp_src]
+            ref_kp = ref_data[self.cfg.scale_recovery.iterative_kp.kp_src]
+        else:
+            cur_kp = cur_data[self.cfg.scale_recovery.kp_src]
+            ref_kp = ref_data[self.cfg.scale_recovery.kp_src]
 
         scale = self.find_scale_from_depth(
             ref_kp,
@@ -508,7 +535,6 @@ class EssTracker():
         # Initialization
         scale = self.prev_scale
         delta = 0.001
-        ref_data['rigid_flow_pose'] = {}
 
         for _ in range(5):    
             rigid_flow_pose = copy.deepcopy(E_pose)
@@ -518,7 +544,10 @@ class EssTracker():
 
             # kp selection
             kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data, 
-                                    self.cfg.kp_selection.rigid_flow_kp.kp_method)
+                                    self.cfg.scale_recovery.iterative_kp.score_method
+                                    )
+            # ref_data['kp_depth'] = kp_sel_outputs['kp1_depth_uniform'][0]
+            # cur_data['kp_depth'] = kp_sel_outputs['kp2_depth_uniform'][0]
             ref_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
             cur_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
             
@@ -624,10 +653,23 @@ class EssTracker():
         # FIXME: For DOM
         if self.save_tri_depth:
             # save triangulated depths
-            depth2_tri *= scale
+            # depth2_tri *= scale
+            depth2_tri *= 1
             png_dir = os.path.join(self.cfg.directory.result_dir, "depth_tri_{}".format(self.cfg.seq))
             mkdir_if_not_exists(png_dir)
             png_path = os.path.join(png_dir, "{:06}.png".format(self.cnt))
+            depth_diff = np.abs(depth2_tri - depth2) * valid_mask2
+
+            
+            # debug
+            # from matplotlib import pyplot as plt
+            # plt.figure("gt")
+            # plt.imshow(depth2, vmin=0, vmax=2)
+            # plt.figure("tri")
+            # plt.imshow(depth2_tri, vmin=0, vmax=2)
+            # plt.show()
+
+
             save_depth_png(depth2_tri, png_path, 500)
 
             # save cnn depth
@@ -639,13 +681,13 @@ class EssTracker():
             
         return scale
 
-    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method):
+    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_score_method):
         """Choose valid kp from a series of operations
 
         Args:
             cur_data (dict): current data
             ref_data (dict): reference data
-            rigid_kp_method (str) : [uniform, best]
+            rigid_kp_score_method (str): [opt_flow, rigid_flow]
         
         Returns:
             a dictionary containing
@@ -666,7 +708,6 @@ class EssTracker():
 
         """ opt-rigid flow consistent kp selection """
         if self.cfg.kp_selection.rigid_flow_kp.enable:
-            ref_data['rigid_flow_diff'] = {}
             # compute rigid flow
             rigid_flow_pose = ref_data['rigid_flow_pose'].pose
 
@@ -696,7 +737,8 @@ class EssTracker():
                         ref_data=ref_data,
                         cfg=self.cfg,
                         outputs=outputs,
-                        method=rigid_kp_method
+                        method='uniform',
+                        score_method=rigid_kp_score_method
                         )
                 )
 

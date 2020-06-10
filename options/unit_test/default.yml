@@ -7,14 +7,14 @@ image:
     height: 192                                           # image height
     width: 640                                            # image width
     ext: jpg                                              # image file extension for data loading
-seq: "09"                                                 # sequence to run
+seq: "10"                                                 # sequence to run
 frame_step: 1                                             # frame step
 
 #-------------------------------------
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/tmp/0              # directory to save result
+    result_dir: result/dfvo2/tro_paper/16/1              # directory to save result
     img_seq_dir: dataset/kitti_odom/odom_data_jpg/        # image data directory
     gt_pose_dir: dataset/kitti_odom/gt_poses/             # (optional) ground-truth pose data directory
     depth_dir:                                            # (optional) external depth data, e.g. ground-truth depths
@@ -101,7 +101,6 @@ kp_selection:                                             # correspondence selec
         num_col: 10                                       # number of divided columns
         score_method: opt_flow                                # selection score, [rigid_flow, opt_flow]
         rigid_flow_thre: 5                                # masking threshold for rigid-optical flow consistency 
-        kp_method: best                                   # kp selection method [uniform, best]
         optical_flow_thre: 0.1                            # masking threshold for forward-backward flow consistency 
     depth_consistency:                                    # (Experiement Ver. only) depth consistency configuration
         enable: False                                     # enable/disable depth consistency
@@ -119,17 +118,24 @@ e_tracker:                                                # E-tracker configurat
         method: GRIC                                      # method of validating E-tracker, [flow, GRIC]
         thre:                                             # threshold value for model selection, only used in [flow]
     kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best]
-    enable_iterative_kp: True
+    iterative_kp:
+        enable: True
+        kp_src: kp_depth
+        score_method: opt_flow
 
 scale_recovery:                                           # scale recovery configuration
-    method: iterative                                        # scale recovery method [simple, iterative]
+    method: simple                                        # scale recovery method [simple, iterative]
     ransac:                                               # Ransac configuration
         method: depth_ratio                               # fitting target [depth_ratio, abs_diff]
         min_samples: 3                                    # minimum number of min_samples
         max_trials: 100                                   # maximum number of trials
         stop_prob: 0.99                                   # The probability that the algorithm produces a useful result
         thre: 0.1                                         # inlier threshold value
-    kp_src: kp_depth                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
+    kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
+    iterative_kp:
+        enable: True
+        kp_src: kp_depth
+        score_method: rigid_flow
 
 pnp_tracker:                                              # PnP-tracker configuration
     ransac:                                               # Ransac configuration
@@ -137,17 +143,20 @@ pnp_tracker:                                              # PnP-tracker configur
         reproj_thre: 1                                    # inlier threshold value
         repeat: 5                                         # number of repeated Ransac
     kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
-    enable_iterative_kp: True
+    iterative_kp:
+        enable: False
+        kp_src: kp_depth
+        score_method: rigid_flow
 
 #-------------------------------------
 #- Visualization
 #-------------------------------------
 visualization:                                            # visualization configuration
-    enable: True                                         # enable/disable frame drawer
+    enable: False                                         # enable/disable frame drawer
     save_img: True                                        # enable/disable save frames
     window_h: 600                                         # frame window height
     window_w: 1000                                        # frame window width
-    kp_src: kp_best                                       # type of correspondences to be drawn
+    kp_src: kp_depth                                       # type of correspondences to be drawn
     flow:                                                 # optical flow visualization configuration
         vis_forward_flow: True                            # enable/disable forward flow visualization
         vis_backward_flow: False                           # enable/disable backward flow visualization

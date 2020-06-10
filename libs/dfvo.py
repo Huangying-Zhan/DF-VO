@@ -157,7 +157,8 @@ class DFVO():
                 self.timers.start('E-tracker', 'tracking')
                 e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
                                 self.ref_data[self.cfg.e_tracker.kp_src],
-                                self.cur_data[self.cfg.e_tracker.kp_src]) # pose: from cur->ref
+                                self.cur_data[self.cfg.e_tracker.kp_src],
+                                not(self.cfg.e_tracker.iterative_kp.enable)) # pose: from cur->ref
                 E_pose = e_tracker_outputs['pose']
                 self.timers.end('E-tracker')
 
@@ -169,11 +170,20 @@ class DFVO():
 
                 # scale recovery
                 if np.linalg.norm(E_pose.t) != 0:
-                    # FIXME: for DOM
-                    self.e_tracker.cnt = self.cur_data['id']
+                
+                # FIXME: for DOM
+                # if True:
+                    # self.e_tracker.cnt = int(round(self.dataset.get_timestamp(self.cur_data['id'])/0.1))
+                    # gt_cur_pose = self.dataset.gt_poses[self.cur_data['id']]
+                    # gt_ref_pose = self.dataset.gt_poses[self.ref_data['id']]
+                    # gt_rel_pose = SE3(np.linalg.inv(gt_ref_pose) @ gt_cur_pose)
 
                     self.timers.start('scale_recovery', 'tracking')
-                    scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose)
+
+                    # FIMXE: for DOM
+                    scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, False)
+                    # scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, gt_rel_pose, False)
+
                     scale = scale_out['scale']
                     if self.cfg.scale_recovery.kp_src == 'kp_depth':
                         self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
@@ -184,11 +194,17 @@ class DFVO():
                     self.timers.end('scale_recovery')
 
                 # Iterative keypoint refinement
-                if np.linalg.norm(E_pose.t) != 0 and self.cfg.e_tracker.enable_iterative_kp:
+                if np.linalg.norm(E_pose.t) != 0 and self.cfg.e_tracker.iterative_kp.enable:
                     self.timers.start('E-tracker iter.', 'tracking')
+                    # Compute refined keypoint
+                    self.e_tracker.compute_rigid_flow_kp(self.cur_data,
+                                                         self.ref_data,
+                                                         hybrid_pose)
+
                     e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
-                                self.ref_data['kp_depth'],
-                                self.cur_data['kp_depth']) # pose: from cur->ref
+                                self.ref_data[self.cfg.e_tracker.iterative_kp.kp_src],
+                                self.cur_data[self.cfg.e_tracker.iterative_kp.kp_src],
+                                True) # pose: from cur->ref
                     E_pose = e_tracker_outputs['pose']
 
                     # Rotation
@@ -198,18 +214,17 @@ class DFVO():
                     self.ref_data['inliers'] = e_tracker_outputs['inliers']
 
                     # scale recovery
-                    if np.linalg.norm(E_pose.t) != 0:
-                        # FIXME: for DOM
-                        self.e_tracker.cnt = self.cur_data['id']
-
-                        scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose)
+                    if np.linalg.norm(E_pose.t) != 0 and self.cfg.scale_recovery.iterative_kp.enable:
+                        scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, True)
                         scale = scale_out['scale']
-                        if self.cfg.scale_recovery.kp_src == 'kp_depth':
-                            self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
-                            self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
-                            self.cur_data['rigid_flow_mask'] = scale_out['rigid_flow_mask']
+                        # if self.cfg.scale_recovery.kp_src == 'kp_depth':
+                        #     self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
+                        #     self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
+                        #     self.cur_data['rigid_flow_mask'] = scale_out['rigid_flow_mask']
                         if scale != -1:
                             hybrid_pose.t = E_pose.t * scale
+                    else:
+                        hybrid_pose.t = E_pose.t * scale
                     self.timers.end('E-tracker iter.')
 
             ''' PnP-tracker '''
@@ -220,16 +235,18 @@ class DFVO():
                     pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
                                     self.ref_data[self.cfg.pnp_tracker.kp_src],
                                     self.cur_data[self.cfg.pnp_tracker.kp_src],
-                                    self.ref_data['depth']
+                                    self.ref_data['depth'],
+                                    not(self.cfg.pnp_tracker.iterative_kp.enable)
                                     ) # pose: from cur->ref
                     
                     # Iterative keypoint refinement
-                    if self.cfg.e_tracker.enable_iterative_kp:
+                    if self.cfg.pnp_tracker.iterative_kp.enable:
                         self.pnp_tracker.compute_rigid_flow_kp(self.cur_data, self.ref_data, pnp_outputs['pose'])
                         pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
-                                    self.ref_data['kp_depth'],
-                                    self.cur_data['kp_depth'],
-                                    self.ref_data['depth']
+                                    self.ref_data[self.cfg.pnp_tracker.iterative_kp.kp_src],
+                                    self.cur_data[self.cfg.pnp_tracker.iterative_kp.kp_src],
+                                    self.ref_data['depth'],
+                                    True
                                     ) # pose: from cur->ref
 
                     self.timers.end('pnp')
@@ -244,6 +261,9 @@ class DFVO():
                 self.tracking_mode = "DeepPose"
             
             ''' Summarize data '''
+            # FIXME: for DOM
+            # hybrid_pose = gt_rel_pose
+
             # update global poses
             self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
             pose = self.ref_data['pose']

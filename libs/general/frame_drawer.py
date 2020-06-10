@@ -122,6 +122,10 @@ class FrameDrawer():
         self.initialize_drawer()
         self.draw_scale = 1
 
+        # FIXME: kinect
+        # self.vis_scale = self.cfg.trajectory.vis_scale
+        self.vis_scale = 1
+
     
     def initialize_drawer(self):
         """Initialize drawer by assigning items to the drawer
@@ -250,7 +254,7 @@ class FrameDrawer():
 
         # draw scales
         mono_scale = traj_cfg.mono_scale    # scaling factor to align with gt (if gt is available)
-        pred_draw_scale = self.draw_scale * mono_scale
+        pred_draw_scale = self.draw_scale * mono_scale * self.vis_scale
 
         # Get predicted location
         cur_t = pred_poses[latest_id].t[:, 0]
@@ -278,10 +282,11 @@ class FrameDrawer():
             cv2.circle(traj_map, (draw_x , draw_y), 1, (0, 255, 0), max(1, int(10* self.draw_scale)))
 
             if traj_cfg.vis_gt_traj and gt_poses.get(latest_id, -1) is not -1:
+                gt_draw_scale = self.vis_scale * self.draw_scale
                 gt_t = gt_poses[latest_id][:3, 3]
                 gt_x, gt_y, gt_z = gt_t[0], gt_t[1], gt_t[2]
-                gt_draw_x = int(gt_x * self.draw_scale) + self.traj_x0
-                gt_draw_y = -(int(gt_z * self.draw_scale)) + self.traj_y0
+                gt_draw_x = int(gt_x * gt_draw_scale) + self.traj_x0
+                gt_draw_y = -(int(gt_z * gt_draw_scale)) + self.traj_y0
                 cv2.circle(traj_map, (gt_draw_x , gt_draw_y), 1, (0, 0, 255), max(1, int(10* self.draw_scale)))
         else:
             # draw point
@@ -289,10 +294,11 @@ class FrameDrawer():
 
             # draw GT
             if traj_cfg.vis_gt_traj and gt_poses.get(latest_id, -1) is not -1:
+                gt_draw_scale = self.vis_scale * self.draw_scale
                 gt_t = gt_poses[latest_id][:3, 3]
                 gt_x, gt_y, gt_z = gt_t[0], gt_t[1], gt_t[2]
-                gt_draw_x = int(gt_x * self.draw_scale) + self.traj_x0
-                gt_draw_y = -(int(gt_z * self.draw_scale)) + self.traj_y0
+                gt_draw_x = int(gt_x * gt_draw_scale) + self.traj_x0
+                gt_draw_y = -(int(gt_z * gt_draw_scale)) + self.traj_y0
                 cv2.circle(traj_map, (gt_draw_x , gt_draw_y), 1, (0, 0, 255), max(1, int(10* self.draw_scale)))
         
         # draw origin
@@ -555,7 +561,6 @@ class FrameDrawer():
         
         # Optical-Rigid flow consistency
         if vo.cfg.visualization.flow.vis_rigid_diff and \
-            vo.cfg.scale_recovery.method == 'iterative' and \
               vo.tracking_stage >= 1:
                 self.draw_rigid_flow_consistency(vo)
         

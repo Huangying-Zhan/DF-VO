@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-06-10
 @LastEditors: Huangying Zhan
 @Description: Dataset loaders for Kinect captures (TUM RBG-D format)
 '''
@@ -36,15 +36,14 @@ class Kinect(Dataset):
             a dictionary containing
                 - **rgb_timestamp** : {'depth': depth_timestamp, 'pose': pose_timestamp}
         """
+        self.pose_file_name = 'keyframe_trajectory_mono.txt'
         self.rgb_d_pose_pair = {}
 
         # associate rgb-depth-pose timestamp pair
         rgb_list = read_file_list(self.data_dir['img'] +'/../rgb.txt')
         depth_list = read_file_list(self.data_dir['img'] +'/../depth.txt')
 
-        # for i in rgb_list:
-
-        # pose_list = read_file_list(self.data_dir['img'] +'/../groundtruth.txt')
+        pose_list = read_file_list(self.data_dir['img'] +'/../{}'.format(self.pose_file_name))
 
         for i in rgb_list:
             self.rgb_d_pose_pair[i] = {}
@@ -62,17 +61,17 @@ class Kinect(Dataset):
             self.rgb_d_pose_pair[rgb_stamp]['depth'] = depth_stamp
         
         # associate rgb-pose
-        # matches = associate(
-        #     first_list=rgb_list,
-        #     second_list=pose_list,
-        #     offset=0,
-        #     max_difference=0.02
-        # )
+        matches = associate(
+            first_list=rgb_list,
+            second_list=pose_list,
+            offset=0,
+            max_difference=0.02
+        )
         
-        # for match in matches:
-        #     rgb_stamp = match[0]
-        #     pose_stamp = match[1]
-        #     self.rgb_d_pose_pair[rgb_stamp]['pose'] = pose_stamp
+        for match in matches:
+            rgb_stamp = match[0]
+            pose_stamp = match[1]
+            self.rgb_d_pose_pair[rgb_stamp]['pose'] = pose_stamp
         
         # Clear pairs without depth
         to_del_pair = []
@@ -83,13 +82,13 @@ class Kinect(Dataset):
             del(self.rgb_d_pose_pair[rgb_stamp])
         
         # # Clear pairs without pose
-        # to_del_pair = []
-        # tmp_rgb_d_pose_pair = copy.deepcopy(self.rgb_d_pose_pair)
-        # for rgb_stamp in tmp_rgb_d_pose_pair:
-        #     if self.rgb_d_pose_pair[rgb_stamp].get('pose', -1) == -1:
-        #         to_del_pair.append(rgb_stamp)
-        # for rgb_stamp in to_del_pair:
-        #     del(self.rgb_d_pose_pair[rgb_stamp])
+        to_del_pair = []
+        tmp_rgb_d_pose_pair = copy.deepcopy(self.rgb_d_pose_pair)
+        for rgb_stamp in tmp_rgb_d_pose_pair:
+            if self.rgb_d_pose_pair[rgb_stamp].get('pose', -1) == -1:
+                to_del_pair.append(rgb_stamp)
+        for rgb_stamp in to_del_pair:
+            del(self.rgb_d_pose_pair[rgb_stamp])
         
         # timestep
         timestep = 1
@@ -185,7 +184,7 @@ class Kinect(Dataset):
         annotations = os.path.join(
                             self.cfg.directory.gt_pose_dir,
                             self.cfg.seq,
-                            'groundtruth.txt'
+                            self.pose_file_name
                             )
         gt_poses = load_poses_from_txt_tum(annotations)
         return gt_poses

@@ -156,8 +156,8 @@ class DFVO():
                 # Essential matrix pose
                 self.timers.start('E-tracker', 'tracking')
                 e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
-                                self.cur_data[self.cfg.e_tracker.kp_src],
-                                self.ref_data[self.cfg.e_tracker.kp_src]) # pose: from cur->ref
+                                self.ref_data[self.cfg.e_tracker.kp_src],
+                                self.cur_data[self.cfg.e_tracker.kp_src]) # pose: from cur->ref
                 E_pose = e_tracker_outputs['pose']
                 self.timers.end('E-tracker')
 
@@ -187,8 +187,8 @@ class DFVO():
                 if np.linalg.norm(E_pose.t) != 0 and self.cfg.e_tracker.enable_iterative_kp:
                     self.timers.start('E-tracker iter.', 'tracking')
                     e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
-                                self.cur_data['kp_depth'],
-                                self.ref_data['kp_depth']) # pose: from cur->ref
+                                self.ref_data['kp_depth'],
+                                self.cur_data['kp_depth']) # pose: from cur->ref
                     E_pose = e_tracker_outputs['pose']
 
                     # Rotation
@@ -218,8 +218,8 @@ class DFVO():
                 if np.linalg.norm(E_pose.t) == 0 or scale == -1:
                     self.timers.start('pnp', 'tracking')
                     pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
-                                    self.cur_data[self.cfg.pnp_tracker.kp_src],
                                     self.ref_data[self.cfg.pnp_tracker.kp_src],
+                                    self.cur_data[self.cfg.pnp_tracker.kp_src],
                                     self.ref_data['depth']
                                     ) # pose: from cur->ref
                     
@@ -227,8 +227,8 @@ class DFVO():
                     if self.cfg.e_tracker.enable_iterative_kp:
                         self.pnp_tracker.compute_rigid_flow_kp(self.cur_data, self.ref_data, pnp_outputs['pose'])
                         pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
-                                    self.cur_data['kp_depth'],
                                     self.ref_data['kp_depth'],
+                                    self.cur_data['kp_depth'],
                                     self.ref_data['depth']
                                     ) # pose: from cur->ref
 

@@ -136,8 +136,8 @@ class PnpTracker():
          # kp selection
         kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data, 
                                 self.cfg.kp_selection.rigid_flow_kp.kp_method)
-        cur_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
-        ref_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
+        ref_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
+        cur_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
         cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
 

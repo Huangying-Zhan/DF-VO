@@ -77,8 +77,8 @@ class KeypointSampler():
         """Choose valid kp from a series of operations
 
         Args:
-            cur_data (dict): data of current frame
-            ref_data (dict): data of reference frame
+            cur_data (dict): data of current frame (view-2)
+            ref_data (dict): data of reference frame (view-1)
         
         Returns:
             outputs (dict): a dictionary containing some of the following items
@@ -152,24 +152,13 @@ class KeypointSampler():
         """
         if self.cfg.kp_selection.local_bestN.enable or self.cfg.kp_selection.bestN.enable:
             # save selected kp
-            cur_data['kp_best'] = kp_sel_outputs['kp1_best'][0]
-            ref_data['kp_best'] = kp_sel_outputs['kp2_best'][0]
+            ref_data['kp_best'] = kp_sel_outputs['kp1_best'][0]
+            cur_data['kp_best'] = kp_sel_outputs['kp2_best'][0]
             
             # save mask
             cur_data['fb_flow_mask'] = kp_sel_outputs['fb_flow_mask']
             
         if self.cfg.kp_selection.sampled_kp.enable:
-            cur_data['kp_list'] = kp_sel_outputs['kp1_list'][0]
-            ref_data['kp_list'] = kp_sel_outputs['kp2_list'][0]
+            ref_data['kp_list'] = kp_sel_outputs['kp1_list'][0]
+            cur_data['kp_list'] = kp_sel_outputs['kp2_list'][0]
         
-        # FIXME: disabled rigid flow mask
-        if False:
-        # if self.cfg.kp_selection.rigid_flow_kp.enable:
-            ref_data['kp_rigid'] = {}
-            cur_data['kp_rigid'] = kp_sel_outputs['kp1_rigid'][0]
-            cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
-            cur_data['flow_mask'] = kp_sel_outputs['flow_mask']
-            ref_data['kp_rigid'] = kp_sel_outputs['kp2_rigid'][0]
-        
-        if self.cfg.kp_selection.depth_consistency.enable:
-            cur_data['depth_mask'] = kp_sel_outputs['depth_mask']

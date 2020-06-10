@@ -452,6 +452,8 @@ class EssTracker():
             outputs['cur_kp_depth'] = iter_outputs['cur_kp']
             outputs['ref_kp_depth'] = iter_outputs['ref_kp']
             outputs['rigid_flow_mask'] = iter_outputs['rigid_flow_mask']
+        else:
+            assert False, "Wrong scale recovery method [{}] used.".format(self.cfg.scale_recovery.method)
         
         outputs['scale'] = scale
         return outputs
@@ -474,8 +476,8 @@ class EssTracker():
         Returns:
             scale (float)
         """
-        ref_kp = cur_data[self.cfg.scale_recovery.kp_src]
-        cur_kp = ref_data[self.cfg.scale_recovery.kp_src]
+        cur_kp = cur_data[self.cfg.scale_recovery.kp_src]
+        ref_kp = ref_data[self.cfg.scale_recovery.kp_src]
 
         scale = self.find_scale_from_depth(
             ref_kp,
@@ -517,9 +519,8 @@ class EssTracker():
             # kp selection
             kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data, 
                                     self.cfg.kp_selection.rigid_flow_kp.kp_method)
-            ref_data['kp_depth'] = {}
-            cur_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
-            ref_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
+            ref_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
+            cur_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
             
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
@@ -528,8 +529,8 @@ class EssTracker():
             ref_kp = ref_data[self.cfg.scale_recovery.kp_src]
 
             new_scale = self.find_scale_from_depth(
-                cur_kp,
                 ref_kp,
+                cur_kp,
                 E_pose.inv_pose, 
                 cur_data['depth']
             )

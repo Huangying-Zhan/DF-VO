@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-03-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-29
+@LastEditTime: 2020-06-10
 @LastEditors: Huangying Zhan
 @Description: KeypointSampler is an interface for keypoint sampling
 '''
@@ -32,7 +32,7 @@ class KeypointSampler():
                                         img_h=self.cfg.image.height,
                                         img_w=self.cfg.image.width,
                                         crop=self.cfg.crop.flow_crop,
-                                        N=self.cfg.deep_flow.num_kp
+                                        N=self.cfg.kp_selection.sampled_kp.num_kp
                                         )
 
     def get_feat_track_methods(self, method_idx):

@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-04
+@LastEditTime: 2020-06-10
 @LastEditors: Huangying Zhan
 @Description: Frame drawer to display different visualizations
 '''
@@ -499,7 +499,7 @@ class FrameDrawer():
         # check if data is available
         if vo.cur_data.get('rigid_flow_mask', -1) is -1: return
         
-        vmax = 3
+        vmax = vo.cfg.kp_selection.rigid_flow_kp.rigid_flow_thre
         normalizer = mpl.colors.Normalize(vmin=0, vmax=vmax)
         mapper = mpl.cm.ScalarMappable(norm=normalizer, cmap='jet')
         mask = vo.cur_data['rigid_flow_mask']
@@ -523,12 +523,12 @@ class FrameDrawer():
         
         # temporal match
         if vo.cfg.visualization.kp_match.vis_temp.enable and \
-             vo.tracking_stage > 1:
+             vo.tracking_stage >= 1:
                 self.draw_match_temp(vo=vo)
         
         # side-by-side match
         if vo.cfg.visualization.kp_match.vis_side.enable and \
-             vo.tracking_stage > 1:
+             vo.tracking_stage >= 1:
                 self.draw_match_side(vo=vo)
 
         # Depth
@@ -537,31 +537,31 @@ class FrameDrawer():
 
         # Forward Flow
         if vo.cfg.visualization.flow.vis_forward_flow and \
-            vo.tracking_stage > 1 and \
+            vo.tracking_stage >= 1 and \
                 vo.ref_data.get('flow') is not None:
                     self.draw_flow(vo.ref_data['flow'], 'flow1')
         
         # Backward Flow
         if vo.cfg.visualization.flow.vis_backward_flow and \
-            vo.tracking_stage > 1 and \
+            vo.tracking_stage >= 1 and \
                 vo.cur_data.get('flow') is not None:
                     self.draw_flow(vo.cur_data['flow'], 'flow2')
         
         # Forward-backward flow consistency
         if vo.cfg.visualization.flow.vis_flow_diff and \
             vo.cfg.deep_flow.forward_backward and \
-              vo.tracking_stage > 1:
+              vo.tracking_stage >= 1:
                 self.draw_flow_consistency(vo)
         
         # Optical-Rigid flow consistency
         if vo.cfg.visualization.flow.vis_rigid_diff and \
             vo.cfg.scale_recovery.method == 'iterative' and \
-              vo.tracking_stage > 1 and vo.tracking_mode == 'Ess. Mat.':
+              vo.tracking_stage >= 1:
                 self.draw_rigid_flow_consistency(vo)
         
         # FIXME: draw warp_diff
         # warp_diff
-        # if vo.tracking_stage > 1:
+        # if vo.tracking_stage >= 1:
         #     self.draw_warp_diff(vo)
 
         # Save visualization result

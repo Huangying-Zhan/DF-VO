@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-06-10
 @LastEditors: Huangying Zhan
 @Description: This file contains Essential matrix based tracker
 '''
@@ -515,7 +515,8 @@ class EssTracker():
             ref_data['rigid_flow_pose'] = SE3(rigid_flow_pose.inv_pose)
 
             # kp selection
-            kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data)
+            kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data, 
+                                    self.cfg.kp_selection.rigid_flow_kp.kp_method)
             ref_data['kp_depth'] = {}
             cur_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
             ref_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
@@ -523,12 +524,12 @@ class EssTracker():
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
             # translation scale from triangulation v.s. CNN-depth
-            ref_kp = cur_data[self.cfg.scale_recovery.kp_src]
-            cur_kp = ref_data[self.cfg.scale_recovery.kp_src]
+            cur_kp = cur_data[self.cfg.scale_recovery.kp_src]
+            ref_kp = ref_data[self.cfg.scale_recovery.kp_src]
 
             new_scale = self.find_scale_from_depth(
-                ref_kp,
                 cur_kp,
+                ref_kp,
                 E_pose.inv_pose, 
                 cur_data['depth']
             )
@@ -637,7 +638,7 @@ class EssTracker():
             
         return scale
 
-    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method="uniform"):
+    def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_method):
         """Choose valid kp from a series of operations
 
         Args:

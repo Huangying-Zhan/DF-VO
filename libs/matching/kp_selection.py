@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-29
+@LastEditTime: 2020-06-10
 @LastEditors: Huangying Zhan
 @Description: this file contains different correspondence selection methods
 '''
@@ -247,14 +247,15 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method):
             valid_mask = flow_mask
 
             # computing scores
-            if score_method == "flow":
+            if score_method == "rigid_flow":
                 score = tmp_rigid_flow_diff
+            elif score_method == "opt_flow":
+                score = tmp_opt_flow_diff
 
             # kp selection
             tmp_kp_list = np.where(valid_mask)
             num_to_pick = min(n_best, len(tmp_kp_list[0]))
             
-
             # Pick uniform kps
             if method == 'uniform':
                 if num_to_pick > 0:

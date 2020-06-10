@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-04
+@LastEditTime: 2020-06-10
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -151,6 +151,7 @@ class DFVO():
             hybrid_pose = SE3()
             E_pose = SE3()
 
+            ''' E-tracker '''
             if self.tracking_method in ['hybrid']:
                 # Essential matrix pose
                 self.timers.start('E-tracker', 'tracking')
@@ -182,6 +183,36 @@ class DFVO():
                         hybrid_pose.t = E_pose.t * scale
                     self.timers.end('scale_recovery')
 
+                # Iterative keypoint refinement
+                if np.linalg.norm(E_pose.t) != 0 and self.cfg.e_tracker.enable_iterative_kp:
+                    self.timers.start('E-tracker iter.', 'tracking')
+                    e_tracker_outputs = self.e_tracker.compute_pose_2d2d(
+                                self.cur_data['kp_depth'],
+                                self.ref_data['kp_depth']) # pose: from cur->ref
+                    E_pose = e_tracker_outputs['pose']
+
+                    # Rotation
+                    hybrid_pose.R = E_pose.R
+
+                    # save inliers
+                    self.ref_data['inliers'] = e_tracker_outputs['inliers']
+
+                    # scale recovery
+                    if np.linalg.norm(E_pose.t) != 0:
+                        # FIXME: for DOM
+                        self.e_tracker.cnt = self.cur_data['id']
+
+                        scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose)
+                        scale = scale_out['scale']
+                        if self.cfg.scale_recovery.kp_src == 'kp_depth':
+                            self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
+                            self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
+                            self.cur_data['rigid_flow_mask'] = scale_out['rigid_flow_mask']
+                        if scale != -1:
+                            hybrid_pose.t = E_pose.t * scale
+                    self.timers.end('E-tracker iter.')
+
+            ''' PnP-tracker '''
             if self.tracking_method in ['PnP', 'hybrid']:
                 # PnP if Essential matrix fail
                 if np.linalg.norm(E_pose.t) == 0 or scale == -1:
@@ -191,24 +222,35 @@ class DFVO():
                                     self.ref_data[self.cfg.pnp_tracker.kp_src],
                                     self.ref_data['depth']
                                     ) # pose: from cur->ref
+                    
+                    # Iterative keypoint refinement
+                    if self.cfg.e_tracker.enable_iterative_kp:
+                        self.pnp_tracker.compute_rigid_flow_kp(self.cur_data, self.ref_data, pnp_outputs['pose'])
+                        pnp_outputs = self.pnp_tracker.compute_pose_3d2d(
+                                    self.cur_data['kp_depth'],
+                                    self.ref_data['kp_depth'],
+                                    self.ref_data['depth']
+                                    ) # pose: from cur->ref
+
                     self.timers.end('pnp')
 
                     # use PnP pose instead of E-pose
                     hybrid_pose = pnp_outputs['pose']
                     self.tracking_mode = "PnP"
 
+            ''' Deep-tracker '''
             if self.tracking_method in ['deep_pose']:
                 hybrid_pose = SE3(self.ref_data['deep_pose'])
                 self.tracking_mode = "DeepPose"
             
-            self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
-
+            ''' Summarize data '''
             # update global poses
+            self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
             pose = self.ref_data['pose']
+            self.update_global_pose(pose, 1)
 
             # FIXME: testing only
             # print(pose.pose)
-            self.update_global_pose(pose, 1)
 
     def update_data(self, ref_data, cur_data):
         """Update data

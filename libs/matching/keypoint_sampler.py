@@ -152,7 +152,6 @@ class KeypointSampler():
         """
         if self.cfg.kp_selection.local_bestN.enable or self.cfg.kp_selection.bestN.enable:
             # save selected kp
-            ref_data['kp_best'] = {}
             cur_data['kp_best'] = kp_sel_outputs['kp1_best'][0]
             ref_data['kp_best'] = kp_sel_outputs['kp2_best'][0]
             
@@ -160,7 +159,6 @@ class KeypointSampler():
             cur_data['fb_flow_mask'] = kp_sel_outputs['fb_flow_mask']
             
         if self.cfg.kp_selection.sampled_kp.enable:
-            ref_data['kp_list'] = {}
             cur_data['kp_list'] = kp_sel_outputs['kp1_list'][0]
             ref_data['kp_list'] = kp_sel_outputs['kp2_list'][0]
         

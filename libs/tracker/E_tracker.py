@@ -160,7 +160,7 @@ class EssTracker():
         # FIXME: For debug
         self.timers = timers
 
-    def compute_pose_2d2d(self, kp_ref, kp_cur, is_iterative=False):
+    def compute_pose_2d2d(self, kp_ref, kp_cur, is_iterative):
         """Compute the pose from view2 to view1
         
         Args:
@@ -185,8 +185,7 @@ class EssTracker():
         t = np.zeros((3,1))
         best_Rt = [R, t]
         best_inlier_cnt = 0
-        # max_ransac_iter = self.cfg.e_tracker.ransac.repeat if is_iterative else 3
-        max_ransac_iter = self.cfg.e_tracker.ransac.repeat
+        max_ransac_iter = self.cfg.e_tracker.ransac.repeat if is_iterative else 3
         best_inliers = np.ones((kp_ref.shape[0], 1)) == 1
 
         if valid_cfg.method == "flow":
@@ -546,10 +545,8 @@ class EssTracker():
             kp_sel_outputs = self.kp_selection_good_depth(cur_data, ref_data, 
                                     self.cfg.scale_recovery.iterative_kp.score_method
                                     )
-            # ref_data['kp_depth'] = kp_sel_outputs['kp1_depth_uniform'][0]
-            # cur_data['kp_depth'] = kp_sel_outputs['kp2_depth_uniform'][0]
-            ref_data['kp_depth'] = kp_sel_outputs['kp1_depth'][0]
-            cur_data['kp_depth'] = kp_sel_outputs['kp2_depth'][0]
+            ref_data['kp_depth'] = kp_sel_outputs['kp1_depth_uniform'][0]
+            cur_data['kp_depth'] = kp_sel_outputs['kp2_depth_uniform'][0]
             
             cur_data['rigid_flow_mask'] = kp_sel_outputs['rigid_flow_mask']
 
@@ -737,7 +734,6 @@ class EssTracker():
                         ref_data=ref_data,
                         cfg=self.cfg,
                         outputs=outputs,
-                        method='uniform',
                         score_method=rigid_kp_score_method
                         )
                 )

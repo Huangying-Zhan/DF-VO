@@ -184,7 +184,7 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
     return outputs
 
 
-def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method, score_method):
+def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, score_method):
     """select best-N filtered keypoints from uniformly divided regions 
     with rigid-flow mask
     
@@ -257,21 +257,21 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method, score_method):
             num_to_pick = min(n_best, len(tmp_kp_list[0]))
             
             # Pick uniform kps
-            if method == 'uniform':
-                if num_to_pick > 0:
-                    step = int(len(tmp_kp_list[0]) / (num_to_pick))
-                    sel_list = np.arange(0, len(tmp_kp_list[0]), step)[:num_to_pick]
-                else:
-                    sel_list = []
-                # sel_global_coords = convert_idx_to_global_coord(sel_list, tmp_kp_list, x0)
-                # for i in range(sel_global_coords.shape[1]):
-                #     sel_kps_uniform.append(sel_global_coords[:, i:i+1])
+            # if method == 'uniform':
+            if num_to_pick > 0:
+                step = int(len(tmp_kp_list[0]) / (num_to_pick))
+                sel_list = np.arange(0, len(tmp_kp_list[0]), step)[:num_to_pick]
+            else:
+                sel_list = []
+            sel_global_coords = convert_idx_to_global_coord(sel_list, tmp_kp_list, x0)
+            for i in range(sel_global_coords.shape[1]):
+                sel_kps_uniform.append(sel_global_coords[:, i:i+1])
 
-            elif method == 'best':
-                if num_to_pick <= n_best:
-                    sel_list = np.argpartition(score[tmp_kp_list], num_to_pick-1)[:num_to_pick]
-                else:
-                    sel_list = np.argpartition(score[tmp_kp_list], num_to_pick)[:num_to_pick]
+            # elif method == 'best':
+            if num_to_pick <= n_best:
+                sel_list = np.argpartition(score[tmp_kp_list], num_to_pick-1)[:num_to_pick]
+            else:
+                sel_list = np.argpartition(score[tmp_kp_list], num_to_pick)[:num_to_pick]
 
             sel_global_coords = convert_idx_to_global_coord(sel_list, tmp_kp_list, x0)
             for i in range(sel_global_coords.shape[1]):
@@ -290,16 +290,16 @@ def opt_rigid_flow_kp(kp1, kp2, ref_data, cfg, outputs, method, score_method):
     outputs['kp2_depth'] = kp2_best.copy()
 
     # uniform
-    # sel_kps = np.asarray(sel_kps_uniform)
-    # assert sel_kps.shape[0]!=0, "sampling threshold is too small."
-    # sel_kps = np.transpose(sel_kps, (1, 0, 2))
-    # sel_kps = np.reshape(sel_kps, (4, -1))
+    sel_kps = np.asarray(sel_kps_uniform)
+    assert sel_kps.shape[0]!=0, "sampling threshold is too small."
+    sel_kps = np.transpose(sel_kps, (1, 0, 2))
+    sel_kps = np.reshape(sel_kps, (4, -1))
 
-    # kp1_best = kp1[:, sel_kps[1], sel_kps[2]]
-    # kp2_best = kp2[:, sel_kps[1], sel_kps[2]]
+    kp1_best = kp1[:, sel_kps[1], sel_kps[2]]
+    kp2_best = kp2[:, sel_kps[1], sel_kps[2]]
 
-    # outputs['kp1_depth_uniform'] = kp1_best.copy()
-    # outputs['kp2_depth_uniform'] = kp2_best.copy()
+    outputs['kp1_depth_uniform'] = kp1_best.copy()
+    outputs['kp2_depth_uniform'] = kp2_best.copy()
 
 
 

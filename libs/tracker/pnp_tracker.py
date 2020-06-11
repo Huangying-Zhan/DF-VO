@@ -84,8 +84,7 @@ class PnpTracker():
         # initialize ransac setup
         best_rt = []
         best_inlier = 0
-        # max_ransac_iter = self.cfg.pnp_tracker.ransac.repeat if is_iterative else 3
-        max_ransac_iter = self.cfg.pnp_tracker.ransac.repeat
+        max_ransac_iter = self.cfg.pnp_tracker.ransac.repeat if is_iterative else 3
         
         for _ in range(max_ransac_iter):
             # shuffle kp (only useful when random seed is fixed)	
@@ -206,7 +205,6 @@ class PnpTracker():
                         ref_data=ref_data,
                         cfg=self.cfg,
                         outputs=outputs,
-                        method='uniform',
                         score_method=rigid_kp_score_method
                         )
                 )

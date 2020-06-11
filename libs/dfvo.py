@@ -217,10 +217,6 @@ class DFVO():
                     if np.linalg.norm(E_pose.t) != 0 and self.cfg.scale_recovery.iterative_kp.enable:
                         scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, True)
                         scale = scale_out['scale']
-                        # if self.cfg.scale_recovery.kp_src == 'kp_depth':
-                        #     self.cur_data['kp_depth'] = scale_out['cur_kp_depth']
-                        #     self.ref_data['kp_depth'] = scale_out['ref_kp_depth']
-                        #     self.cur_data['rigid_flow_mask'] = scale_out['rigid_flow_mask']
                         if scale != -1:
                             hybrid_pose.t = E_pose.t * scale
                     else:

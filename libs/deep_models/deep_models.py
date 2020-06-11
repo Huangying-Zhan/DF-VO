@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-04
+@LastEditTime: 2020-06-11
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -16,6 +16,7 @@ from torchvision import transforms
 
 from .depth.monodepth2.monodepth2 import Monodepth2DepthNet
 from .flow.lite_flow_net.lite_flow import LiteFlow
+from .flow.hd3.hd3_flow import HD3Flow
 from .pose.monodepth2.monodepth2 import Monodepth2PoseNet
 from libs.deep_models.depth.monodepth2.layers import FlowToPix, PixToFlow, SSIM, get_smooth_loss
 
@@ -64,6 +65,13 @@ class DeepModel():
         """
         if self.cfg.deep_flow.network == 'liteflow':
             flow_net = LiteFlow(self.cfg.image.height, self.cfg.image.width)
+            enable_finetune = self.finetune_cfg.enable and self.finetune_cfg.flow.enable
+            flow_net.initialize_network_model(
+                    weight_path=self.cfg.deep_flow.flow_net_weight,
+                    finetune=enable_finetune,
+                    )
+        elif self.cfg.deep_flow.network == 'hd3':
+            flow_net = HD3Flow(self.cfg.image.height, self.cfg.image.width)
             enable_finetune = self.finetune_cfg.enable and self.finetune_cfg.flow.enable
             flow_net.initialize_network_model(
                     weight_path=self.cfg.deep_flow.flow_net_weight,

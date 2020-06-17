@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-10
+@LastEditTime: 2020-06-17
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -429,3 +429,7 @@ class DFVO():
         # np.save("loss.npy", np.asarray(self.deep_models.losses))
         # plt.plot(self.deep_models.losses)
         # plt.show()
+
+        # FIXME: save model
+        if self.cfg.online_finetune.enable and self.cfg.online_finetune.save_model:
+            self.deep_models.save_model()

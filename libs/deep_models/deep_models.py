@@ -9,6 +9,7 @@
 '''
 
 import numpy as np
+import os
 import PIL.Image as pil
 import torch
 import torch.optim as optim
@@ -19,6 +20,7 @@ from .flow.lite_flow_net.lite_flow import LiteFlow
 from .flow.hd3.hd3_flow import HD3Flow
 from .pose.monodepth2.monodepth2 import Monodepth2PoseNet
 from libs.deep_models.depth.monodepth2.layers import FlowToPix, PixToFlow, SSIM, get_smooth_loss
+from libs.general.utils import mkdir_if_not_exists
 
 class DeepModel():
     """DeepModel initializes different deep networks and provide forward interfaces.
@@ -141,7 +143,6 @@ class DeepModel():
             self.pose.setup_train(self, self.finetune_cfg.pose)
         
         self.model_optimizer = optim.Adam(self.parameters_to_train, self.learning_rate)
-
 
     def forward_flow(self, in_cur_data, in_ref_data, forward_backward):
         """Optical flow network forward interface, a forward inference.
@@ -341,3 +342,15 @@ class DeepModel():
             # reset pose model to eval mode
             if self.finetune_cfg.pose.enable:
                 self.pose.model.eval()
+
+    def save_model(self):
+        """Save deep models
+        """
+        save_folder = os.path.join(self.cfg.directory.result_dir, "deep_models", self.cfg.seq)
+        mkdir_if_not_exists(save_folder)
+
+        # Flow
+        model_name = "flow"
+        model = self.flow.model
+        ckpt_path = os.path.join(save_folder, "{}.pth".format(model_name))
+        torch.save(model.state_dict(), ckpt_path)

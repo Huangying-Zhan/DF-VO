@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-03
+@LastEditTime: 2020-06-12
 @LastEditors: Huangying Zhan
 @Description: This is the Base class for deep flow network interface
 '''

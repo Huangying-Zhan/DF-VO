@@ -9,6 +9,11 @@ result/
 dataset/
 model_zoo/
 
+# docs
+docs/
+
 # temporary files
 tmp/
-
+options/adelaide/
+tools/paper_tool/
+tools/evaluation/flow/

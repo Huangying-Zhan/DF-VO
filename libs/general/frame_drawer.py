@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-10
+@LastEditTime: 2020-06-24
 @LastEditors: Huangying Zhan
 @Description: Frame drawer to display different visualizations
 '''
@@ -113,19 +113,16 @@ class FrameDrawer():
         self.h = cfg.window_h
         self.w = cfg.window_w
         self.img = np.zeros((self.h, self.w, 3), dtype=np.uint8)
-
-        self.text_y = 0.9 # size ratio on y-direction that start drawing text
         
         # initialize data and data assignment
         self.data = {}
         self.display = {}
         self.initialize_drawer()
+
+        # visualization setting
+        self.vis_scale = self.cfg.trajectory.vis_scale
         self.draw_scale = 1
-
-        # FIXME: kinect
-        # self.vis_scale = self.cfg.trajectory.vis_scale
-        self.vis_scale = 1
-
+        self.text_y = 0.9 # size ratio on y-direction that start drawing text
     
     def initialize_drawer(self):
         """Initialize drawer by assigning items to the drawer
@@ -143,7 +140,9 @@ class FrameDrawer():
             'flow2':            ([int(h/4*3), int(w/4*2)], [int(h/4*4), int(w/4*3)]),
             'rigid_flow_diff':  ([int(h/4*3), int(w/4*2)], [int(h/4*4), int(w/4*3)]),
             'opt_flow_diff':    ([int(h/4*3), int(w/4*3)], [int(h/4*4), int(w/4*4)]),
-            'warp_diff':  ([int(h/4*3), int(w/4*2)], [int(h/4*4), int(w/4*3)]),
+
+            # (Experiement Ver. only)
+            'warp_diff':        ([int(h/4*3), int(w/4*2)], [int(h/4*4), int(w/4*3)]),
         }
 
         for key, locs in drawer_layout.items():
@@ -495,7 +494,6 @@ class FrameDrawer():
         colormapped_im = (mapper.to_rgba(mask)[:, :, :3] * 255).astype(np.uint8)
         self.update_data("warp_diff", colormapped_im)
 
-
     def draw_rigid_flow_consistency(self, vo):
         """Draw optical-rigid flow consistency map
 
@@ -564,8 +562,7 @@ class FrameDrawer():
               vo.tracking_stage >= 1:
                 self.draw_rigid_flow_consistency(vo)
         
-        # FIXME: draw warp_diff
-        # warp_diff
+        # FIXME: (Experiment Ver. only) draw warp_diff
         # if vo.tracking_stage >= 1:
         #     self.draw_warp_diff(vo)
 

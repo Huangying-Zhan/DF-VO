@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-04
+@LastEditTime: 2020-06-23
 @LastEditors: Huangying Zhan
 @Description: This is the Base class for deep depth network interface
 '''
@@ -181,20 +181,6 @@ class DeepDepth():
                                     img_ref, outputs[('reproj_xy', 1, frame_id, s)], 
                                     mode='bilinear', padding_mode='border')
         
-        # FIXME: debug
-        # import numpy as np
-        # from matplotlib import pyplot as plt
-        # vis_img = inputs[('color', 1, 0)].detach().cpu().numpy()[0].transpose(1,2,0)
-        # vis_warp = outputs[('warp_img', 1, 0, 0)].detach().cpu().numpy()[0].transpose(1,2,0)
-        # warp_diff = np.linalg.norm(vis_img-vis_warp, axis=2)
-        # self.warp_diff = np.linalg.norm(vis_img-vis_warp, axis=2)
-        # f, ax = plt.subplots(3,1)
-        # ax[0].imshow(vis_img)
-        # ax[1].imshow(vis_warp)
-        # ax[2].imshow(diff)
-        # plt.show(block=False)
-        # plt.pause(0.3)
-        # plt.close()
         return outputs
 
     def compute_depth_loss(self, inputs, outputs):
@@ -248,9 +234,6 @@ class DeepDepth():
 
         total_loss /= self.num_depth_scale
         losses["reproj_sm_loss"] = total_loss
-
-        # FIXME: DEBUG
-        print("loss: ", losses["reproj_sm_loss/{}".format(0)]*(1/self.apperance_loss))
         return losses
 
     def compute_reprojection_loss(self, pred, target):

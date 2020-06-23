@@ -173,6 +173,7 @@ visualization:                                            # visualization config
         vis_traj: True                                    # enable/disable predicted trajectory visualization
         vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
         mono_scale: 1                                     # monocular prediction scaling factor
+        vis_scale: 1
     depth:                                                # depth visualization configuration
         use_tracking_depth: False                         # enable/disable visualizing depth map used for tracking (preprocessed, e.g. range capping)
         depth_disp: disp                                  # visualize depth or disparity map [depth, disp, None]

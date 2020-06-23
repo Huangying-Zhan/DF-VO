@@ -2,7 +2,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 1970-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-11
+@LastEditTime: 2020-06-23
 @LastEditors: Huangying Zhan
 @Description: This is the interface for HD3FlowNet
 '''
@@ -74,8 +74,6 @@ class HD3Flow(DeepFlow):
 
     def __init__(self, *args, **kwargs):
         super(HD3Flow, self).__init__(*args, **kwargs)
-        # FIXME: half-flow issue
-        self.half_flow = False
         
     def initialize_network_model(self, weight_path, finetune):
         """initialize flow_net model with weight_path

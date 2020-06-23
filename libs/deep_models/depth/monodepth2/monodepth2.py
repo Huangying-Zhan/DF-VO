@@ -3,17 +3,15 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-04
+@LastEditTime: 2020-06-23
 @LastEditors: Huangying Zhan
 @Description: This is the interface for Monodepth2 depth network
 '''
 
 import numpy as np
 import os
-# import PIL.Image as pil
 import sys
 import torch
-# from torchvision import transforms
 
 from .depth_decoder import DepthDecoder
 from .layers import disp_to_depth

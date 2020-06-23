@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-11
+@LastEditTime: 2020-06-23
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -35,9 +35,6 @@ class DeepModel():
         self.finetune_cfg = self.cfg.online_finetune
         self.device = torch.device('cuda')
 
-        # FIXME: debug
-        # self.losses = []
-        
     def initialize_models(self):
         """intialize multiple deep models
         """
@@ -327,9 +324,6 @@ class DeepModel():
             
             self.img_cnt += 1
 
-            # # FIXME: debug
-            # self.losses.append(losses['loss'].item())
-
         else:
             # reset flow model to eval mode
             if self.finetune_cfg.flow.enable:
@@ -349,7 +343,7 @@ class DeepModel():
         save_folder = os.path.join(self.cfg.directory.result_dir, "deep_models", self.cfg.seq)
         mkdir_if_not_exists(save_folder)
 
-        # Flow
+        # Save Flow model
         model_name = "flow"
         model = self.flow.model
         ckpt_path = os.path.join(save_folder, "{}.pth".format(model_name))

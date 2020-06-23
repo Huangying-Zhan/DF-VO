@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-17
+@LastEditTime: 2020-06-23
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -257,16 +257,10 @@ class DFVO():
                 self.tracking_mode = "DeepPose"
             
             ''' Summarize data '''
-            # FIXME: for DOM
-            # hybrid_pose = gt_rel_pose
-
             # update global poses
             self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
             pose = self.ref_data['pose']
             self.update_global_pose(pose, 1)
-
-            # FIXME: testing only
-            # print(pose.pose)
 
     def update_data(self, ref_data, cur_data):
         """Update data
@@ -310,8 +304,9 @@ class DFVO():
             # Single-view Depth prediction
             if self.dataset.data_dir['depth_src'] is None:
                 self.timers.start('depth_cnn', 'deep inference')
-                if self.tracking_stage > 0 and self.cfg.online_finetune.depth.loss.depth_consistency != 0:
-                    img_list = [self.cur_data['img'], self.ref_data['img']]
+                if self.tracking_stage > 0 and \
+                    self.cfg.online_finetune.enable and self.cfg.online_finetune.depth.enable:
+                        img_list = [self.cur_data['img'], self.ref_data['img']]
                 else:
                     img_list = [self.cur_data['img']]
 
@@ -361,7 +356,6 @@ class DFVO():
             start_frame = int(input("Start with frame: "))
 
         # FIXME: testing only
-        # for img_id in tqdm(range(start_frame, 3)):
         for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
             self.timers.start('DF-VO')
             self.tracking_mode = "Ess. Mat."
@@ -411,12 +405,18 @@ class DFVO():
 
         print("=> Finish!")
 
+
+
         """ Display & Save result """
         print("The result is saved in [{}].".format(self.cfg.directory.result_dir))
         # Save trajectory map
         print("Save VO map.")
         map_png = "{}/map.png".format(self.cfg.directory.result_dir)
         cv2.imwrite(map_png, self.drawer.data['traj'])
+
+        # save finetuned model
+        if self.cfg.online_finetune.enable and self.cfg.online_finetune.save_model:
+            self.deep_models.save_model()
 
         # Save trajectory txt
         traj_txt = "{}/{}.txt".format(self.cfg.directory.result_dir, self.cfg.seq)
@@ -425,11 +425,3 @@ class DFVO():
         # Output experiement information
         self.timers.time_analysis()
 
-        # FIXME: save loss
-        # np.save("loss.npy", np.asarray(self.deep_models.losses))
-        # plt.plot(self.deep_models.losses)
-        # plt.show()
-
-        # FIXME: save model
-        if self.cfg.online_finetune.enable and self.cfg.online_finetune.save_model:
-            self.deep_models.save_model()

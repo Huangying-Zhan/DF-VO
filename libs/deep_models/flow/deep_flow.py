@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-12
+@LastEditTime: 2020-06-18
 @LastEditors: Huangying Zhan
 @Description: This is the Base class for deep flow network interface
 '''
@@ -190,7 +190,7 @@ class DeepFlow():
         if UnFlow_constrain:
             flow_diff = (flow_diff ** 2 - 0.01 * (flow1**2 - warp_flow1 ** 2))
 
-        # copy flow_diff to cpu
+        # calculate norm and reshape
         flow_diff = flow_diff.norm(dim=1, keepdim=True)
         flow_diff = flow_diff.permute(0, 2, 3, 1)
         return flow_diff

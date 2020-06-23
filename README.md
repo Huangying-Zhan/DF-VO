@@ -56,25 +56,23 @@ ln -s KITTI_ODOMETRY/sequences dataset/kitti_odom/odom_data
 For our trained models, please visit [here](https://www.dropbox.com/sh/9by21564eb0xloh/AABHFMlWd_ja14c5wU4R1KUua?dl=0) to download the models and save the models into the directory `model_zoo/`.
 
 ### Part 3. DF-VO
-The main algorithm is inplemented in `vo_moduels.py`.
 We have created different configurations for running the algrithm.
 
 ``` 
 # Example 1: run default kitti setup
-python run.py -d options/kitti_default_configuration.yml  
+python apis/run.py -d options/kitti/default_configuration.yml  
 
 # Example 2: Run custom kitti setup
 # kitti_default_configuration.yml and kitti_stereo_0.yml are merged
-python run.py -c options/kitti/kitti_stereo_0.yml  
+python apis/run.py -d options/kitti/default_configuration.yml -c options/kitti/kitti_stereo_0.yml  
 ```
 
 The result (trajectory pose file) is saved in `result_dir` defined in the configuration file.
-Please check the `kitti_default_configuration.yml` for more possible configuration.
+Please check the `options/kitti/default_configuration.yml` for reference. 
+FIXME: add link to RTD page
 
 ### Part 4. Result evaluation
 <img src='docs/misc/dfvo_result.png' width=320 height=480>
-
-Note that, we have cleaned and optimized the code for better readability and it changes the randomness such that the quantitative result is slightly different from the result reported in the paper. 
 
 <img src='docs/misc/dfvo_result2.png' width=400 height=100>
 
@@ -84,21 +82,16 @@ The original results, including related works, can be found [here](https://www.d
 [KITTI Odometry benchmark](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) contains 22 stereo sequences, in which 11 sequences are provided with ground truth. The 11 sequences are used for evaluating visual odometry. 
 
 ```
-python tool/evaluation/eval_odom.py --result result/tmp/0 --align 6dof
+python tools/evaluation/odometry/eval_odom.py --result result/tmp/0 --align 6dof
 ```
 
 For more information about the evaluation toolkit, please check the [toolbox page](https://github.com/Huangying-Zhan/kitti_odom_eval) or the [wiki page](https://github.com/Huangying-Zhan/DF-VO/wiki).
 
+### Part 5. Run your own dataset
 
-### Add your new dataset
-- configuration [seq, dataset, dataset_dir]
-- dfvo.py datasets dictionary
-- libs/datasets/__init__.py
-- libs/datasets/DATASET_LOADER.py
-- libs/deep_depth/monodepth2 (dataset parameters, min/max depth, stereo)
-- libs/general/frame_drawer.py (vmax for depth)
-
-
+We also provide a guideline to run DF-VO on your own dataset.
+Please check ...
+FIXME: add RTD link
 
 ### License
 For academic usage, the code is released under the permissive MIT license. Our intension of sharing the project is for research/personal purpose. For any commercial purpose, please contact the authors. 

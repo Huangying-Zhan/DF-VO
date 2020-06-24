@@ -3,8 +3,8 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-04
-@LastEditors: Huangying Zhan
+@LastEditTime: 2020-06-25
+@LastEditors: Please set LastEditors
 @Description: This is the interface for Monodepth2 pose network
 '''
 
@@ -78,6 +78,8 @@ class Monodepth2PoseNet(DeepPose):
             self.stereo_baseline_multiplier = 5.4
         elif 'tum' in dataset:
             self.stereo_baseline_multiplier = 1.
+        elif 'robotcar' in dataset:
+            self.stereo_baseline_multiplier = 5.4
         else:
             self.stereo_baseline_multiplier = 1.
 

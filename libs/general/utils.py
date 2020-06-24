@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
+@LastEditTime: 2020-06-25
 @LastEditors: Huangying Zhan
 @Description: utils.py contains varies methods for general purpose
 '''
@@ -29,17 +29,25 @@ def mkdir_if_not_exists(path):
         os.makedirs(path)
 
 
-def read_image(path, h, w):
+def read_image(path, h, w, crop=None):
     """read image data and convert to RGB
 
     Args:
         path (str): image path
+        h (int): final image height
+        w (int): final image width
+        crop (array, [2x2]): [[y_crop_0, y_crop_1],[x_crop_0, x_crop_1]]
     
     Returns:
         img (array, [HxWx3]): image data
     """
     img = cv2.imread(path, 1)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    if crop is not None:
+        img_h, img_w, _ = img.shape
+        y0, y1 = int(img_h * crop[0][0]), int(img_h * crop[0][1])
+        x0, x1 = int(img_w * crop[1][0]), int(img_w * crop[1][1])
+        img = img[y0:y1, x0:x1]
     img = cv2.resize(img, (w, h))
     return img
 

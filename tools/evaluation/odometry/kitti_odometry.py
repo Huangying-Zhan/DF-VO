@@ -3,8 +3,8 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-27
-@LastEditors: Huangying Zhan
+@LastEditTime: 2020-06-25
+@LastEditors: Please set LastEditors
 @Description: This file contains evaluation tool for KITTI odometry
 '''
 
@@ -320,14 +320,14 @@ class KittiEvalOdom():
         ax.set_aspect('equal')
 
         for key in plot_keys:
-            pos_xz = []
+            pos_xyz = []
             frame_idx_list = sorted(poses_dict["Ours"].keys())
             for frame_idx in frame_idx_list:
                 # pose = np.linalg.inv(poses_dict[key][frame_idx_list[0]]) @ poses_dict[key][frame_idx]
                 pose = poses_dict[key][frame_idx]
-                pos_xz.append([pose[0, 3],  pose[2, 3]])
-            pos_xz = np.asarray(pos_xz)
-            plt.plot(pos_xz[:, 0],  pos_xz[:, 1], label=key)
+                pos_xyz.append([pose[0, 3], pose[1, 3], pose[2, 3]])
+            pos_xyz = np.asarray(pos_xyz)
+            plt.plot(pos_xyz[:, 0],  pos_xyz[:, 2], label=key)
 
         plt.legend(loc="upper right", prop={'size': fontsize_})
         plt.xticks(fontsize=fontsize_)

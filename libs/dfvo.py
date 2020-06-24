@@ -3,8 +3,8 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-24
-@LastEditors: Huangying Zhan
+@LastEditTime: 2020-06-25
+@LastEditors: Please set LastEditors
 @Description: DF-VO core program
 '''
 
@@ -343,7 +343,6 @@ class DFVO():
         else:
             start_frame = int(input("Start with frame: "))
 
-        # FIXME: testing only
         for img_id in tqdm(range(start_frame, len(self.dataset), self.cfg.frame_step)):
             self.timers.start('DF-VO')
             self.tracking_mode = "Ess. Mat."

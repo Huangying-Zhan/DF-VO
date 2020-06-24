@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-23
+@LastEditTime: 2020-06-24
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -170,20 +170,8 @@ class DFVO():
 
                 # scale recovery
                 if np.linalg.norm(E_pose.t) != 0:
-                
-                # FIXME: for DOM
-                # if True:
-                    # self.e_tracker.cnt = int(round(self.dataset.get_timestamp(self.cur_data['id'])/0.1))
-                    # gt_cur_pose = self.dataset.gt_poses[self.cur_data['id']]
-                    # gt_ref_pose = self.dataset.gt_poses[self.ref_data['id']]
-                    # gt_rel_pose = SE3(np.linalg.inv(gt_ref_pose) @ gt_cur_pose)
-
                     self.timers.start('scale_recovery', 'tracking')
-
-                    # FIMXE: for DOM
                     scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, E_pose, False)
-                    # scale_out = self.e_tracker.scale_recovery(self.cur_data, self.ref_data, gt_rel_pose, False)
-
                     scale = scale_out['scale']
                     if self.cfg.scale_recovery.kp_src == 'kp_depth':
                         self.cur_data['kp_depth'] = scale_out['cur_kp_depth']

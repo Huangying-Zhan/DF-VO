@@ -114,15 +114,16 @@ class FrameDrawer():
         self.w = cfg.window_w
         self.img = np.zeros((self.h, self.w, 3), dtype=np.uint8)
         
+        # visualization setting
+        self.vis_scale = self.cfg.trajectory.vis_scale
+        self.draw_scale = 1
+        self.text_y = 0.9 # size ratio on y-direction that start drawing text
+        
         # initialize data and data assignment
         self.data = {}
         self.display = {}
         self.initialize_drawer()
 
-        # visualization setting
-        self.vis_scale = self.cfg.trajectory.vis_scale
-        self.draw_scale = 1
-        self.text_y = 0.9 # size ratio on y-direction that start drawing text
     
     def initialize_drawer(self):
         """Initialize drawer by assigning items to the drawer

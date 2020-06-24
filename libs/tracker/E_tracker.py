@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-10
+@LastEditTime: 2020-06-24
 @LastEditors: Huangying Zhan
 @Description: This file contains Essential matrix based tracker
 '''
@@ -22,12 +22,6 @@ from libs.geometry.ops_3d import *
 from libs.geometry.rigid_flow import RigidFlow
 from libs.general.utils import image_shape, image_grid
 from libs.matching.kp_selection import opt_rigid_flow_kp
-
-# FIXME: For DOM
-import os
-from libs.general.utils import save_depth_png
-from libs.general.utils import mkdir_if_not_exists
-
 
 def find_Ess_mat(inputs):
     """Find essetial matrix 
@@ -154,9 +148,6 @@ class EssTracker():
             self.inv_K = torch.from_numpy(self.inv_K).float().unsqueeze(0).cuda()
             self.rigid_flow_layer = RigidFlow(self.cfg.image.height, self.cfg.image.width).cuda()
         
-        # FIXME: For DOM
-        self.save_tri_depth = False
-
         # FIXME: For debug
         self.timers = timers
 
@@ -646,36 +637,7 @@ class EssTracker():
 
         else:
             scale = -1
-
-        # FIXME: For DOM
-        if self.save_tri_depth:
-            # save triangulated depths
-            # depth2_tri *= scale
-            depth2_tri *= 1
-            png_dir = os.path.join(self.cfg.directory.result_dir, "depth_tri_{}".format(self.cfg.seq))
-            mkdir_if_not_exists(png_dir)
-            png_path = os.path.join(png_dir, "{:06}.png".format(self.cnt))
-            depth_diff = np.abs(depth2_tri - depth2) * valid_mask2
-
-            
-            # debug
-            # from matplotlib import pyplot as plt
-            # plt.figure("gt")
-            # plt.imshow(depth2, vmin=0, vmax=2)
-            # plt.figure("tri")
-            # plt.imshow(depth2_tri, vmin=0, vmax=2)
-            # plt.show()
-
-
-            save_depth_png(depth2_tri, png_path, 500)
-
-            # save cnn depth
-            png_dir = os.path.join(self.cfg.directory.result_dir, "depth_cnn_{}".format(self.cfg.seq))
-            mkdir_if_not_exists(png_dir)
-            png_path = os.path.join(png_dir, "{:06}.png".format(self.cnt))
-            save_depth_png(depth2, png_path, 500)
-            self.cnt += 1
-            
+       
         return scale
 
     def kp_selection_good_depth(self, cur_data, ref_data, rigid_kp_score_method):

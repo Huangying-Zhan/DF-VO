@@ -3,7 +3,8 @@
 # python apis/run.py -d tmp/kejie_kinect_new.yml --no_confirm
 
 # Reference 
-python apis/run.py -d options/unit_test/default.yml --no_confirm
+# python apis/run.py -d options/unit_test/default.yml --no_confirm
+# python apis/run.py -d options/unit_test/robotcar.yml --no_confirm
 # python apis/run.py -d options/unit_test/adelaide.yml --no_confirm
 # python apis/run.py -d options/unit_test/adelaide_0.yml --no_confirm
 # python apis/run.py -d options/unit_test/adelaide_1.yml --no_confirm
@@ -99,6 +100,37 @@ python apis/run.py -d options/unit_test/default.yml --no_confirm
 #     # python run.py -s $seq -c options/kitti/dfvo_test.yml --no_confirm
 # done
 
+############# Run Oxford Robotcar seqs #############
+# 2014-05-06-12-54-54 \
+for seq in \
+2014-05-06-13-09-52 \
+2014-05-06-13-14-58 \
+2014-05-06-13-17-51 \
+2014-05-14-13-46-12 \
+2014-05-14-13-50-20 \
+2014-05-14-13-53-47 \
+2014-05-14-13-59-05 \
+2014-06-25-16-22-15 
+
+do
+    python apis/run.py -s $seq -d options/unit_test/robotcar.yml --no_confirm
+    # python apis/run.py -s $seq -d options/unit_test/robotcar1.yml --no_confirm
+done
+
+# for seq in \
+# 2014-05-06-12-54-54 \
+# 2014-05-06-13-09-52 \
+# 2014-05-06-13-14-58 \
+# 2014-05-06-13-17-51 \
+# 2014-05-14-13-46-12 \
+# 2014-05-14-13-50-20 \
+# 2014-05-14-13-53-47 \
+# 2014-05-14-13-59-05 \
+# 2014-06-25-16-22-15 
+
+# do
+#     python apis/run.py -s $seq -d options/unit_test/robotcar2.yml --no_confirm
+# done
 
 
 # # python run.py -c options/kitti/kitti_stereo_0.yml
@@ -119,3 +151,10 @@ python apis/run.py -d options/unit_test/default.yml --no_confirm
 # --seq 2011_10_03_drive_0047_sync
 
 # # --result result/tmp/0 \
+
+# robotcar
+# python tools/evaluation/odometry/eval_odom.py \
+# --result result/dfvo2/tro_paper/18/0 \
+# --align 7dof \
+# --gt dataset/robotcar/gt_poses \
+# --seq 2014-05-06-13-17-51

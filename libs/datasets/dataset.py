@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-20
+@LastEditTime: 2020-06-25
 @LastEditors: Huangying Zhan
 @Description: This is the Base class for dataset loader.
 '''
@@ -90,6 +90,17 @@ class Dataset():
         raise NotImplementedError
 
     def get_image(self, timestamp):
+        """Get image data given the image timestamp
+
+        Args:
+            timestamp (int): timestamp for the image
+            
+        Returns:
+            img (array, [CxHxW]): image data
+        """
+        raise NotImplementedError
+
+    def get_image_stereo(self, timestamp):
         """Get image data given the image timestamp
 
         Args:

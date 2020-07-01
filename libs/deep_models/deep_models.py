@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-23
+@LastEditTime: 2020-06-25
 @LastEditors: Huangying Zhan
 @Description: DeepModel initializes different deep networks and provide forward interfaces.
 '''
@@ -18,6 +18,7 @@ from torchvision import transforms
 from .depth.monodepth2.monodepth2 import Monodepth2DepthNet
 from .flow.lite_flow_net.lite_flow import LiteFlow
 from .flow.hd3.hd3_flow import HD3Flow
+from .stereo.hd3.hd3_stereo import HD3Stereo
 from .pose.monodepth2.monodepth2 import Monodepth2PoseNet
 from libs.deep_models.depth.monodepth2.layers import FlowToPix, PixToFlow, SSIM, get_smooth_loss
 from libs.general.utils import mkdir_if_not_exists
@@ -55,6 +56,13 @@ class DeepModel():
                 self.pose = self.initialize_deep_pose_model()
             else:
                 assert False, "No pretrained pose model"
+        
+        ''' stereo '''
+        if self.cfg.stereo.enable:
+            if self.cfg.stereo.deep_stereo.pretrained_model is not None:
+                self.stereo = self.initialize_deep_stereo_model()
+            else:
+                assert False, "No pretrained stereo model"
 
     def initialize_deep_flow_model(self):
         """Initialize optical flow network
@@ -115,6 +123,25 @@ class DeepModel():
             finetune=enable_finetune,
             )
         return pose_net
+
+    def initialize_deep_stereo_model(self):
+        """Initialize stereo matching network
+        
+        Returns:
+            stereo_net (nn.Module): stereo matching network
+        """
+        if self.cfg.stereo.deep_stereo.network == 'hd3':
+            stereo_net = HD3Stereo(self.cfg.image.height, self.cfg.image.width)
+            enable_finetune = self.finetune_cfg.enable and self.finetune_cfg.stereo.enable
+            stereo_net.initialize_network_model(
+                    weight_path=self.cfg.stereo.deep_stereo.pretrained_model,
+                    finetune=enable_finetune,
+                    )
+        else:
+            assert False, "Invalid stereo network [{}] is provided.".format(
+                                self.cfg.stereo.deep_stereo.network
+                                )
+        return stereo_net
 
     def setup_train(self):
         """Setup training configurations for online finetuning
@@ -228,6 +255,43 @@ class DeepModel():
         pred_poses = self.pose.inference_pose(img_tensor)
         pose = pred_poses.detach().cpu().numpy()[0]
         return pose
+
+    def forward_stereo(self, imgs, forward_backward):
+        """Stereo matching network forward interface, a forward inference.
+
+        Args:
+            imgs (list): list of images [imgL, imgR], each element is a [HxWx3] array
+            forward_backward (bool): use forward-backward consistency if True
+        
+        Returns:
+            disps (dict): predicted disp data. disps[('l', 'r')] is disps from left to right.
+
+                - **disps(l, r)** (array, [1xHxW]): disps from left to right
+                - **disps(r, l)** (array, [1xHxW]): disps from left to right
+                - **disps(l, r, diff)** (array, [1xHxW]): disp difference of left
+        """
+        # Preprocess image
+        cur_imgs = np.transpose((imgs[0])/255, (2, 0, 1))
+        ref_imgs = np.transpose((imgs[1])/255, (2, 0, 1))
+        cur_imgs = torch.from_numpy(cur_imgs).unsqueeze(0).float().cuda()
+        ref_imgs = torch.from_numpy(ref_imgs).unsqueeze(0).float().cuda()
+
+        # Forward pass
+        disps = {}
+
+        # disp inference
+        batch_disps = self.stereo.inference_stereo(
+                                img1=cur_imgs,
+                                img2=ref_imgs,
+                                forward_backward=forward_backward,
+                                dataset=self.cfg.dataset)
+        
+        # Save disps at current view
+        disps[('l', 'r')] = batch_disps['forward'].detach().cpu().numpy()[0]
+        if forward_backward:
+            disps[('r', 'l')] = batch_disps['backward'].detach().cpu().numpy()[0]
+            disps[('l', 'r', "diff")] = batch_disps['disp_diff'].detach().cpu().numpy()[0]
+        return disps
 
     def finetune(self, img1, img2, pose, K, inv_K):
         """Finetuning deep models

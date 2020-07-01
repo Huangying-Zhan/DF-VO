@@ -3,7 +3,7 @@
 # python apis/run.py -d tmp/kejie_kinect_new.yml --no_confirm
 
 # Reference 
-# python apis/run.py -d options/unit_test/default.yml --no_confirm
+python apis/run.py -d options/unit_test/default.yml --no_confirm
 # python apis/run.py -d options/unit_test/robotcar.yml --no_confirm
 # python apis/run.py -d options/unit_test/adelaide.yml --no_confirm
 # python apis/run.py -d options/unit_test/adelaide_0.yml --no_confirm
@@ -102,20 +102,20 @@
 
 ############# Run Oxford Robotcar seqs #############
 # 2014-05-06-12-54-54 \
-for seq in \
-2014-05-06-13-09-52 \
-2014-05-06-13-14-58 \
-2014-05-06-13-17-51 \
-2014-05-14-13-46-12 \
-2014-05-14-13-50-20 \
-2014-05-14-13-53-47 \
-2014-05-14-13-59-05 \
-2014-06-25-16-22-15 
+# for seq in \
+# 2014-05-06-13-09-52 \
+# 2014-05-06-13-14-58 \
+# 2014-05-06-13-17-51 \
+# 2014-05-14-13-46-12 \
+# 2014-05-14-13-50-20 \
+# 2014-05-14-13-53-47 \
+# 2014-05-14-13-59-05 \
+# 2014-06-25-16-22-15 
 
-do
-    python apis/run.py -s $seq -d options/unit_test/robotcar.yml --no_confirm
-    # python apis/run.py -s $seq -d options/unit_test/robotcar1.yml --no_confirm
-done
+# do
+#     # python apis/run.py -s $seq -d options/unit_test/robotcar.yml --no_confirm
+#     python apis/run.py -s $seq -d options/unit_test/default.yml -c options/unit_test/robotcar1.yml --no_confirm
+# done
 
 # for seq in \
 # 2014-05-06-12-54-54 \

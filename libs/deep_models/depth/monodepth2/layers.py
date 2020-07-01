@@ -265,6 +265,47 @@ class PixToFlow(nn.Module):
             flow[:, 1] /= self.height - 1
         return flow
 
+
+class DispToPix(nn.Module):
+    """Layer to transform disparity into camera pixel coordiantes
+    """
+    def __init__(self, batch_size, height, width):
+        """Prepare regular grid (Nx2xHxW)
+        """
+        super(DispToPix, self).__init__()
+
+        self.batch_size = batch_size
+        self.height = height
+        self.width = width
+
+        meshgrid = np.meshgrid(range(self.width), range(self.height), indexing='xy')
+        self.id_coords = np.stack(meshgrid, axis=0).astype(np.float32)
+        self.id_coords = nn.Parameter(torch.from_numpy(self.id_coords))
+
+        self.pix_coords = torch.unsqueeze(self.id_coords, 0)
+        self.pix_coords = self.pix_coords.repeat(batch_size, 1, 1, 1)
+        self.pix_coords = nn.Parameter(self.pix_coords)
+
+    def forward(self, disp, normalized=True):
+        """Forward 
+        Args:
+            disp (tensor, [Nx1xHxW]): disparity
+            normalized (bool): normalized to [-1, 1] if True; otherwise [0, H-1 or W-1]
+
+        Returns:
+            pix_coords (tensor, [NxHxWx2]): pixel coordinates
+        """
+        pix_coords = self.pix_coords.clone()
+        pix_coords[:, 0:1] = self.pix_coords[:, 0:1] + disp
+        pix_coords = pix_coords.permute(0, 2, 3, 1)
+        
+        if normalized:
+            pix_coords[..., 0] /= self.width - 1
+            pix_coords[..., 1] /= self.height - 1
+            pix_coords = (pix_coords - 0.5) * 2
+        return pix_coords
+
+
 def get_warp_flow(
             source_forward_flow, source_backward_flow, 
             pix_forward, pix_backward):

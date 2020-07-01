@@ -1,6 +1,7 @@
+''''''
 '''
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
-@Date: 1970-01-01
+@Date: 2020-06-23
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
 @LastEditTime: 2020-06-25
 @LastEditors: Huangying Zhan
@@ -16,8 +17,8 @@ import sys
 import torch
 import torch.nn.functional as F
 
-from .hd3model import HD3Model
-from ..deep_flow import DeepFlow
+from libs.deep_models.flow.hd3.hd3model import HD3Model
+from ..deep_stereo import DeepStereo
 
 
 def model_state_dict_parallel_convert(state_dict, mode):
@@ -67,15 +68,15 @@ def model_state_dict_convert_auto(state_dict, gpu_ids):
 
 
 
-class HD3Flow(DeepFlow):
-    """HD3Flow is the interface for HD3FlowNet. 
+class HD3Stereo(DeepStereo):
+    """HD3Stereo is the interface for HD3StereoNet. 
     """
 
     def __init__(self, *args, **kwargs):
-        super(HD3Flow, self).__init__(*args, **kwargs)
+        super(HD3Stereo, self).__init__(*args, **kwargs)
         
     def initialize_network_model(self, weight_path, finetune):
-        """initialize flow_net model with weight_path
+        """initialize stereo_net model with weight_path
         
         Args:
             weight_path (str): weight path
@@ -85,10 +86,10 @@ class HD3Flow(DeepFlow):
             print("==> Initialize HD3Net with [{}]: ".format(weight_path))
             # Initialize network
             self.model = HD3Model(
-                            task="flow",
+                            task="stereo",
                             encoder="dlaup",
                             decoder="hda",
-                            corr_range=[4, 4, 4, 4, 4],
+                            corr_range=[4, 4, 4, 4, 4, 4],
                             context=False
                             ).cuda()
 
@@ -113,96 +114,99 @@ class HD3Flow(DeepFlow):
         return h[0, index // 2], w[0, index % 2]
 
     def inference(self, img1, img2):
-        """Predict optical flow for the given pairs
+        """Predict disparity for the given pairs
         
         Args:
             img1 (tensor, [Nx3xHxW]): image 1; intensity [0-1]
             img2 (tensor, [Nx3xHxW]): image 2; intensity [0-1]
         
         Returns:
-            a dictionary containing flows at different scales, resized back to input scale 
-                - **scale-N** (tensor, [Nx2xHxW]): flow from img1 to img2 at scale level-N
+            a dictionary containing disparity at different scales, resized back to input scale 
+                - **scale-N** (tensor, [Nx1xHxW]): disparity from img1 to img2 at scale level-N
         """
         # get shape
         _, _, h, w = img1.shape
         th, tw = self.get_target_size(h, w)
-        corr_range = [4, 4, 4, 4, 4]
+        corr_range = [4, 4, 4, 4, 4, 4]
 
         # forward pass
-        flow_inputs = [img1, img2]
+        disp_inputs = [img1, img2]
         resized_img_list = [
                             F.interpolate(
                                 img, (th, tw), mode='bilinear', align_corners=True)
-                            for img in flow_inputs
+                            for img in disp_inputs
                         ]
         output = self.model(img_list=resized_img_list, get_vect=True)
 
         # Post-process output
         scale_factor = 1 / 2**(7 - len(corr_range))
-        flows = {}
-        for s in self.flow_scales:
-            flows[s] = self.resize_dense_flow(
+        disps = {}
+        for s in self.stereo_scales:
+            disps[s] = self.resize_dense_disp(
                                 output['vect'] * scale_factor,
                                 h, w)
-        return flows
+        return disps
 
-    def inference_flow(self, 
+    def inference_stereo(self, 
                     img1, img2,
                     forward_backward=False,
                     dataset='kitti'):
-        """Estimate flow (1->2) and compute flow consistency
+        """Estimate disparity (1->2) and compute stereo consistency
         
         Args:
             img1 (tensor, [Nx3xHxW]): image 1
             img2 (tensor [Nx3xHxW]): image 2
-            foward_backward (bool): forward-backward flow consistency is used if True
+            foward_backward (bool): forward-backward disparity consistency is used if True
             dataset (str): dataset type
         
         Returns:
             a dictionary containing
-                - **forward** (tensor, [Nx2xHxW]) : forward flow
-                - **backward** (tensor, [Nx2xHxW]) : backward flow
-                - **flow_diff** (tensor, [NxHxWx1]) : foward-backward flow inconsistency
+                - **forward** (tensor, [Nx2xHxW]) : forward disparity (left to right)
+                - **backward** (tensor, [Nx2xHxW]) : backward disparity (right to left)
+                - **disp_diff** (tensor, [NxHxWx1]) : foward-backward disparity inconsistency
         """
-        # flow net inference to get flows
+        # flip imgs
+        flip_img1 = torch.flip(img1, [3])
+        flip_img2 = torch.flip(img2, [3])
+
+        # stereo net inference to get disps
         if forward_backward:
-            input_img1 = torch.cat((img1, img2), dim=0)
-            input_img2 = torch.cat((img2, img1), dim=0)
+            input_img1 = torch.cat((img1, flip_img2), dim=0)
+            input_img2 = torch.cat((img2, flip_img1), dim=0)
         else:
             input_img1 = img1
             input_img2 = img2
         
         # inference with/without gradient
         if self.enable_finetune:
-            combined_flow_data = self.inference(input_img1, input_img2)
+            combined_disp_data = self.inference(input_img1, input_img2)
         else:
-            combined_flow_data = self.inference_no_grad(input_img1, input_img2)
+            combined_disp_data = self.inference_no_grad(input_img1, input_img2)
         
-        self.forward_flow = {}
-        self.backward_flow = {}
-        self.flow_diff = {}
+        self.forward_disp = {}
+        self.backward_disp = {}
+        self.disp_diff = {}
         self.px1on2 = {}
-        for s in self.flow_scales:
-            self.forward_flow[s] = combined_flow_data[s][0:1]
+        for s in self.stereo_scales:
+            self.forward_disp[s] = combined_disp_data[s][0:1]
             if forward_backward:
-                self.backward_flow[s] = combined_flow_data[s][1:2]
+                self.backward_disp[s] = torch.flip(combined_disp_data[s][1:2], [3])
 
-            # sampled flow
             # Get sampling pixel coordinates
-            self.px1on2[s] = self.flow_to_pix(self.forward_flow[s])
+            self.px1on2[s] = self.disp_to_pix(self.forward_disp[s])
 
             # Forward-Backward flow consistency check
             if forward_backward:
                 # get flow-consistency error map
-                self.flow_diff[s] = self.forward_backward_consistency(
-                                    flow1=self.forward_flow[s],
-                                    flow2=self.backward_flow[s],
+                self.disp_diff[s] = self.forward_backward_consistency(
+                                    disp1=self.forward_disp[s],
+                                    disp2=self.backward_disp[s],
                                     px1on2=self.px1on2[s])
         
         # summarize flow data and flow difference for DF-VO
-        flows = {}
-        flows['forward'] = self.forward_flow[1].clone()
+        disps = {}
+        disps['forward'] = self.forward_disp[0].clone()
         if forward_backward:
-            flows['backward'] = self.backward_flow[1].clone()
-            flows['flow_diff'] = self.flow_diff[1].clone()
-        return flows
+            disps['backward'] = self.backward_disp[0].clone()
+            disps['disp_diff'] = self.disp_diff[0].clone()
+        return disps

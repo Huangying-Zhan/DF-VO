@@ -4,7 +4,7 @@
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
 @LastEditTime: 2020-06-25
-@LastEditors: Please set LastEditors
+@LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
 
@@ -280,6 +280,10 @@ class DFVO():
         """
         # Reading image
         self.cur_data['img'] = self.dataset.get_image(self.cur_data['timestamp'])
+        
+        # stereo
+        if self.cfg.stereo.enable:
+            self.cur_data['img_stereo'] = self.dataset.get_image_stereo(self.cur_data['timestamp'])
 
         # Reading/Predicting depth
         if self.dataset.data_dir['depth_src'] is not None:
@@ -333,6 +337,21 @@ class DFVO():
             self.ref_data['deep_pose'] = pose # from cur->ref
             self.timers.end('pose_cnn')
         
+        # Stereo
+        if self.cfg.stereo.enable:
+            # get images
+            imgs = [self.cur_data['img'], self.cur_data['img_stereo']]
+
+            disps = self.deep_models.forward_stereo(imgs,
+                                        forward_backward=self.cfg.stereo.deep_stereo.forward_backward)
+            self.cur_data['raw_depth'], self.cur_data['depth'] = self.deep_models.stereo.disps_to_depth(
+                                                                    disps, 
+                                                                    fx=self.dataset.cam_intrinsics.fx,
+                                                                    b=self.dataset.stereo_baseline,
+                                                                    diff_thre=self.cfg.stereo.disp_thre,
+                                                                    depth_range=[self.cfg.depth.min_depth, self.cfg.depth.max_depth]
+                                                                    )
+
     def main(self):
         """Main program
         """

@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-05-28
+@LastEditTime: 2020-06-25
 @LastEditors: Huangying Zhan
 @Description: Dataset loaders for KITTI Driving Sequence
 '''
@@ -21,6 +21,7 @@ class KITTI(Dataset):
     
     def __init__(self, *args, **kwargs):
         super(KITTI, self).__init__(*args, **kwargs)
+        self.stereo_baseline = 0.54
         return
 
     def synchronize_timestamps(self):
@@ -100,6 +101,10 @@ class KittiOdom(KITTI):
                             )
         data_dir['img'] = os.path.join(img_seq_dir, "image_2")
 
+        # stereo (right image)
+        if self.cfg.cam_mode == 'stereo': 
+            data_dir['img_stereo'] = os.path.join(img_seq_dir, "image_3")
+
         # get depth data directory
         data_dir['depth_src'] = self.cfg.depth.depth_src
 
@@ -137,6 +142,21 @@ class KittiOdom(KITTI):
             img (array, [CxHxW]): image data
         """
         img_path = os.path.join(self.data_dir['img'], 
+                            "{:06d}.{}".format(timestamp, self.cfg.image.ext)
+                            )
+        img = read_image(img_path, self.cfg.image.height, self.cfg.image.width)
+        return img
+    
+    def get_image_stereo(self, timestamp):
+        """Get image data (stereo_right) given the image timestamp
+
+        Args:
+            timestamp (int): timestamp for the image
+            
+        Returns:
+            img (array, [CxHxW]): image data
+        """
+        img_path = os.path.join(self.data_dir['img_stereo'], 
                             "{:06d}.{}".format(timestamp, self.cfg.image.ext)
                             )
         img = read_image(img_path, self.cfg.image.height, self.cfg.image.width)

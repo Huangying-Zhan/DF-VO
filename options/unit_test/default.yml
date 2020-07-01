@@ -4,11 +4,13 @@
 dataset: kitti_odom                                       # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]
 seed: 4869                                                # random seed
 image:
-    height: 192                                           # image height
-    width: 640                                            # image width
+    height: 370                                           # image height
+    width: 1226                                            # image width
     ext: jpg                                              # image file extension for data loading
-seq: "10"                                                 # sequence to run
+seq: "04"                                                 # sequence to run
 frame_step: 1                                             # frame step
+cam_mode: mono                                            # camera mode: [mono, stereo]
+
 
 #-------------------------------------
 #- Directories
@@ -45,6 +47,18 @@ deep_pose:                                                # Deep pose network co
     enable: False                                         # enable/disable pose network
     pretrained_model: MODEL_DIR                           # model directory contains pose_encoder.pth and pose.pth
 
+#-------------------------------------
+#- Deep Stereo (Experiment Ver. only)
+#-------------------------------------
+stereo:
+    enable: False
+    disp_thre: 0.1
+    deep_stereo:
+        network: hd3                                     # stereo matching network, [hd3]
+        pretrained_model: model_zoo/stereo/hd3/hd3s_things_kitti-1243813e.pth
+        # pretrained_model: model_zoo/stereo/hd3/hd3s_things-8b4dcd6d.pth
+        forward_backward: True                                # predict both forward/backward flows and compute forward-backward consistency
+
 # ------------------------------------
 # Online Finetuning
 # ------------------------------------
@@ -68,6 +82,9 @@ online_finetune:                                          # online fine-tuning c
             depth_consistency: 0.001                      # depth consistency loss weight
     pose:                                                 # pose finetuning configuration (with depth)                  
         enable: False                                     # enable/disable pose finetuning
+    
+    stereo:
+        enable: False
 
 #-------------------------------------
 #- Preprocessing
@@ -152,7 +169,7 @@ pnp_tracker:                                              # PnP-tracker configur
 #- Visualization
 #-------------------------------------
 visualization:                                            # visualization configuration
-    enable: True                                         # enable/disable frame drawer
+    enable: False                                         # enable/disable frame drawer
     save_img: True                                        # enable/disable save frames
     window_h: 600                                         # frame window height
     window_w: 1000                                        # frame window width

@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-25
+@LastEditTime: 2020-07-03
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -420,13 +420,13 @@ class DFVO():
         map_png = "{}/map.png".format(self.cfg.directory.result_dir)
         cv2.imwrite(map_png, self.drawer.data['traj'])
 
-        # save finetuned model
-        if self.cfg.online_finetune.enable and self.cfg.online_finetune.save_model:
-            self.deep_models.save_model()
-
         # Save trajectory txt
         traj_txt = "{}/{}.txt".format(self.cfg.directory.result_dir, self.cfg.seq)
         self.dataset.save_result_traj(traj_txt, self.global_poses)
+
+        # save finetuned model
+        if self.cfg.online_finetune.enable and self.cfg.online_finetune.save_model:
+            self.deep_models.save_model()
 
         # Output experiement information
         self.timers.time_analysis()

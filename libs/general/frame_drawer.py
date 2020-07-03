@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-24
+@LastEditTime: 2020-07-02
 @LastEditors: Huangying Zhan
 @Description: Frame drawer to display different visualizations
 '''
@@ -394,8 +394,8 @@ class FrameDrawer():
             
             vis_match_side = draw_match_side(
                     # img1=colormapped_im, # (Experiment Ver. only)
-                    img1=vo.cur_data['img'],
-                    img2=vo.ref_data['img'],
+                    img1=vo.ref_data['img'],
+                    img2=vo.cur_data['img'],
                     kp1=vis_kp_ref,
                     kp2=vis_kp_cur,
                     N=vis_kp_num,

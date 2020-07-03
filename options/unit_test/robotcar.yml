@@ -1,24 +1,22 @@
 #-------------------------------------
 #- Basic setup
 #-------------------------------------
-dataset: kitti_odom                                       # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]
+dataset: robotcar                                       # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2, robotcar]
 seed: 4869                                                # random seed
 image:
-    height: 370                                           # image height
-    width: 1226                                            # image width
+    height: 768                                           # image height
+    width: 1280                                            # image width
     ext: jpg                                              # image file extension for data loading
-seq: "04"                                                 # sequence to run
-frame_step: 1                                             # frame step
-cam_mode: mono                                            # camera mode: [mono, stereo]
-
+seq: "2014-05-06-12-54-54"                                                 # sequence to run
+frame_step: 3                                             # frame step
 
 #-------------------------------------
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/tmp/0/              # directory to save result
-    img_seq_dir: dataset/kitti_odom/odom_data_jpg/        # image data directory
-    gt_pose_dir: dataset/kitti_odom/gt_poses/             # (optional) ground-truth pose data directory
+    result_dir: result/dfvo2/tro_paper/19/1              # directory to save result
+    img_seq_dir: dataset/robotcar/        # image data directory
+    gt_pose_dir: dataset/robotcar/             # (optional) ground-truth pose data directory
     depth_dir:                                            # (optional) external depth data, e.g. ground-truth depths
 
 #-------------------------------------
@@ -47,24 +45,11 @@ deep_pose:                                                # Deep pose network co
     enable: False                                         # enable/disable pose network
     pretrained_model: MODEL_DIR                           # model directory contains pose_encoder.pth and pose.pth
 
-#-------------------------------------
-#- Deep Stereo (Experiment Ver. only)
-#-------------------------------------
-stereo:
-    enable: False
-    disp_thre: 0.1
-    deep_stereo:
-        network: hd3                                     # stereo matching network, [hd3]
-        pretrained_model: model_zoo/stereo/hd3/hd3s_things_kitti-1243813e.pth
-        # pretrained_model: model_zoo/stereo/hd3/hd3s_things-8b4dcd6d.pth
-        forward_backward: True                                # predict both forward/backward flows and compute forward-backward consistency
-
 # ------------------------------------
 # Online Finetuning
 # ------------------------------------
 online_finetune:                                          # online fine-tuning configuration
     enable: False                                         # enable/disable flow finetuning
-    save_model: False
     lr: 0.00001                                           # learning rate
     num_frames: 200                                           # number of frames to be fine-tuned, [None, int]
     flow:                                                 # flow fine-tuning configuration
@@ -83,9 +68,6 @@ online_finetune:                                          # online fine-tuning c
             depth_consistency: 0.001                      # depth consistency loss weight
     pose:                                                 # pose finetuning configuration (with depth)                  
         enable: False                                     # enable/disable pose finetuning
-    
-    stereo:
-        enable: False
 
 #-------------------------------------
 #- Preprocessing
@@ -193,5 +175,5 @@ visualization:                                            # visualization config
         mono_scale: 1                                     # monocular prediction scaling factor
         vis_scale: 1
     depth:                                                # depth visualization configuration
-        use_tracking_depth: False                         # enable/disable visualizing depth map used for tracking (preprocessed, e.g. range capping)
+        use_tracking_depth: True                         # enable/disable visualizing depth map used for tracking (preprocessed, e.g. range capping)
         depth_disp: disp                                  # visualize depth or disparity map [depth, disp, None]

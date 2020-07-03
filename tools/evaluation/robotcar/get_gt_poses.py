@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 1970-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-25
+@LastEditTime: 2020-07-01
 @Description: Get GT poses (KITTI format) for robotcar
 '''
 
@@ -38,9 +38,19 @@ for seq in [
     raw_vo_path = os.path.join(dataset_dir, seq, "vo/vo.csv")
 
     poses = interpolate_vo_poses(raw_vo_path, origin_timestamp, origin_timestamp[time_offset])
+
+    # transformation 
+    T = np.array([
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 1]
+    ])
+
     poses_dict = {}
     for i in range(time_offset, len(poses)):
-        poses_dict[i-time_offset] = np.asarray(poses[i])
+        # poses_dict[i-time_offset] = np.asarray(poses[i])
+        poses_dict[i-time_offset] = T @ np.asarray(poses[i]) @ np.linalg.inv(T)
 
     mkdir_if_not_exists(result_dir)
     save_traj(os.path.join(result_dir, "{}.txt".format(seq)), poses_dict)

@@ -3,8 +3,8 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-13
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-25
-@LastEditors: Please set LastEditors
+@LastEditTime: 2020-07-03
+@LastEditors: Huangying Zhan
 @Description: Dataset loaders for Oxford Robotcar Driving Sequence
 '''
 
@@ -14,6 +14,9 @@ import os
 
 from .dataset import Dataset
 from libs.general.utils import *
+from tools.evaluation.robotcar.sdk_python.interpolate_poses import interpolate_vo_poses
+from tools.evaluation.robotcar.sdk_python.image import load_image
+from tools.evaluation.robotcar.sdk_python.camera_model import CameraModel
 
 
 class OxfordRobotCar(Dataset):
@@ -22,6 +25,11 @@ class OxfordRobotCar(Dataset):
 
     def __init__(self, *args, **kwargs):
         super(OxfordRobotCar, self).__init__(*args, **kwargs)
+
+        # undistortion model
+        camera_model_dir = os.path.join(self.cfg.directory.img_seq_dir, 'robotcar-dataset-sdk', 'models')
+        img_dir = os.path.join(self.cfg.directory.img_seq_dir, self.cfg.seq, 'stereo/centre')
+        self.model = CameraModel(camera_model_dir, img_dir)
     
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
@@ -71,37 +79,39 @@ class OxfordRobotCar(Dataset):
         Returns:
             intrinsics_param (list): [cx, cy, fx, fy]
         """
-        # Reference image size
-        self.height = 960
-        self.width = 1280
+        # original image size
+        ref_height = 960
+        ref_width = 1280
 
-        # Crop
-        self.x_crop = np.array([0.1, 0.9]) 
-        self.y_crop = np.array([0.0, 0.8]) 
-        
-        self.height = int((self.y_crop[1] - self.y_crop[0]) * self.height)
-        self.width = int((self.x_crop[1] - self.x_crop[0]) * self.width)
-
+        # get reference intrinsics
         intrinsic_txt = os.path.join(
                             self.cfg.directory.img_seq_dir,
                             "robotcar-dataset-sdk",
                             "models",
                             "stereo_narrow_left.txt"
                             )
-        K_params = np.loadtxt(intrinsic_txt)
+        ref_K_params = np.loadtxt(intrinsic_txt)[0]
         K = np.eye(3)
-        K[0, 0] = K_params[0,0] # fx
-        K[0, 2] = K_params[0,2] # cx
-        K[1, 1] = K_params[0,1] - int(self.width * self.x_crop[0]) # fy
-        K[1, 2] = K_params[0,3] - int(self.height * self.y_crop[0]) # cy
+        K[0, 0] = ref_K_params[0] # fx
+        K[1, 1] = ref_K_params[1] # fy
+        K[0, 2] = ref_K_params[2] # cx
+        K[1, 2] = ref_K_params[3] # cy
 
+        # crop
+        self.x_crop = [0.0, 1.0]
+        self.y_crop = [0.0, 0.8]
+        crop_height = int(ref_height * (self.y_crop[1] - self.y_crop[0]))
+        crop_width = int(ref_width * (self.x_crop[1] - self.x_crop[0]))
+        K[0, 2] -= int(ref_width * self.x_crop[0])
+        K[1, 2] -= int(ref_height * self.y_crop[0])
 
-        K[0] *= (self.cfg.image.width / self.width)
-        K[1] *= (self.cfg.image.height / self.height)
+        # resize
+        K[0] *= (self.cfg.image.width / crop_width)
+        K[1] *= (self.cfg.image.height / crop_height)
 
         intrinsics_param = [K[0,2], K[1,2], K[0,0], K[1,1]]
         return intrinsics_param
-    
+
     def get_data_dir(self):
         """Get data directory
 
@@ -117,7 +127,7 @@ class OxfordRobotCar(Dataset):
         img_seq_dir = os.path.join(
                             self.cfg.directory.img_seq_dir,
                             self.cfg.seq,
-                            "stereo",
+                            "undistorted_stereo",
                             "centre"
                             )
         data_dir['img'] = os.path.join(img_seq_dir)
@@ -136,9 +146,22 @@ class OxfordRobotCar(Dataset):
         img_path = os.path.join(self.data_dir['img'], 
                             "{:016d}.{}".format(timestamp, self.cfg.image.ext)
                             )
+        
+        # load undistorted image
+        
         crop = np.zeros((2,2))
         crop[0] = self.y_crop
         crop[1] = self.x_crop
+
+        # img = load_image(img_path, self.model)
+        
+        # # crop and resize
+        # img_h, img_w, _ = img.shape
+        # y0, y1 = int(img_h * crop[0][0]), int(img_h * crop[0][1])
+        # x0, x1 = int(img_w * crop[1][0]), int(img_w * crop[1][1])
+        # img = img[y0:y1, x0:x1]
+
+        # img = cv2.resize(img, (self.cfg.image.width, self.cfg.image.height))
         img = read_image(img_path, self.cfg.image.height, self.cfg.image.width, crop)
         return img
     
@@ -164,5 +187,26 @@ class OxfordRobotCar(Dataset):
         Returns:
             gt_poses (dict): each pose is a [4x4] array
         """
-        raise NotImplementedError
+        timestamp_txt = os.path.join(self.cfg.directory.gt_pose_dir, self.cfg.seq, "stereo.timestamps")
+        timestamps = np.loadtxt(timestamp_txt)[:, 0].astype(np.int)
+        origin_timestamp = list(timestamps)
+
+        raw_vo_path = os.path.join(self.cfg.directory.gt_pose_dir, self.cfg.seq, "vo/vo.csv")
+
+        time_offset = 20
+        poses = interpolate_vo_poses(raw_vo_path, origin_timestamp, origin_timestamp[time_offset])
+
+        # coordinate transformation 
+        T = np.array([
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 1]
+        ])
+
+        gt_poses = {}
+        for i in range(time_offset, len(poses)):
+            gt_poses[i-time_offset] = T @ np.asarray(poses[i]) @ np.linalg.inv(T)
+        
+        return gt_poses
     

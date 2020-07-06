@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-19
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-23
+@LastEditTime: 2020-07-06
 @LastEditors: Huangying Zhan
 @Description: This is the interface for Monodepth2 depth network
 '''
@@ -79,6 +79,10 @@ class Monodepth2DepthNet(DeepDepth):
             self.min_depth = 0.1
             self.max_depth = 10
             self.stereo_baseline_multiplier = 1
+        elif 'robotcar' in dataset:
+            self.min_depth = 0.1
+            self.max_depth = 100
+            self.stereo_baseline_multiplier = 5.4
         else:
             self.min_depth = 0.1
             self.max_depth = 100

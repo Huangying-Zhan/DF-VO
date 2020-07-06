@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-10
+@LastEditTime: 2020-07-06
 @LastEditors: Huangying Zhan
 @Description: this file contains different correspondence selection methods
 '''
@@ -116,6 +116,12 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
     flow_diff = np.expand_dims(ref_data['flow_diff'], 0)
     if kp_cfg.depth_consistency.enable:
         depth_diff = ref_data['depth_diff'].reshape(1, h, w, 1)
+    
+    # Failed case
+    if (flow_diff[0,:,:,0] < flow_diff_thre).sum() < N * 0.05 :
+        print("Cannot find enough good keypoints!")
+        outputs['good_kp_found'] = False
+        return outputs
 
     for row in range(num_row):
         for col in range(num_col):
@@ -163,7 +169,6 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
 
     # reshape selected keypoints
     sel_kps = np.asarray(sel_kps)
-    assert sel_kps.shape[0]!=0, "sampling threshold is too small."
     sel_kps = np.transpose(sel_kps, (1, 0, 2))
     sel_kps = np.reshape(sel_kps, (4, -1))
 

@@ -5,16 +5,16 @@ dataset: robotcar                                       # dataset [kitti_odom, k
 seed: 4869                                                # random seed
 image:
     height: 768                                           # image height
-    width: 1280                                            # image width
+    width: 1280
     ext: jpg                                              # image file extension for data loading
-seq: "2014-05-06-12-54-54"                                                 # sequence to run
-frame_step: 3                                             # frame step
+seq: "2014-05-06-13-09-52"                                                 # sequence to run
+frame_step: 1                                             # frame step
 
 #-------------------------------------
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/dfvo2/tro_paper/19/1              # directory to save result
+    result_dir: result/tmp/0              # directory to save result
     img_seq_dir: dataset/robotcar/        # image data directory
     gt_pose_dir: dataset/robotcar/             # (optional) ground-truth pose data directory
     depth_dir:                                            # (optional) external depth data, e.g. ground-truth depths
@@ -152,7 +152,7 @@ pnp_tracker:                                              # PnP-tracker configur
 #- Visualization
 #-------------------------------------
 visualization:                                            # visualization configuration
-    enable: False                                         # enable/disable frame drawer
+    enable: True                                         # enable/disable frame drawer
     save_img: True                                        # enable/disable save frames
     window_h: 600                                         # frame window height
     window_w: 1000                                        # frame window width
@@ -172,7 +172,7 @@ visualization:                                            # visualization config
     trajectory:                                           # trajectory visualization configuration
         vis_traj: True                                    # enable/disable predicted trajectory visualization
         vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
-        mono_scale: 1                                     # monocular prediction scaling factor
+        mono_scale: 5.4                                     # monocular prediction scaling factor
         vis_scale: 1
     depth:                                                # depth visualization configuration
         use_tracking_depth: True                         # enable/disable visualizing depth map used for tracking (preprocessed, e.g. range capping)

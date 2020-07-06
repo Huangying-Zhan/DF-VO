@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-24
+@LastEditTime: 2020-07-06
 @LastEditors: Huangying Zhan
 @Description: This file contains Essential matrix based tracker
 '''
@@ -193,26 +193,28 @@ class EssTracker():
                         ransacReprojThreshold=0.2,
                         )
         elif valid_cfg.method == "GRIC":
-            self.timers.start('GRIC-H', 'E-tracker')
-            self.timers.start('find H', 'E-tracker')
-            H, H_inliers = cv2.findHomography(
-                        kp_cur,
-                        kp_ref,
-                        method=cv2.RANSAC,
-                        # method=cv2.LMEDS,
-                        confidence=0.99,
-                        ransacReprojThreshold=1,
-                        )
-            self.timers.end('find H')
+            if kp_cur.shape[0] > 10:
+                self.timers.start('GRIC-H', 'E-tracker')
+                self.timers.start('find H', 'E-tracker')
+                H, H_inliers = cv2.findHomography(
+                            kp_cur,
+                            kp_ref,
+                            method=cv2.RANSAC,
+                            confidence=0.99,
+                            ransacReprojThreshold=1,
+                            )
+                self.timers.end('find H')
 
-            H_res = compute_homography_residual(H, kp_cur, kp_ref)
-            H_gric = calc_GRIC(
-                        res=H_res,
-                        sigma=0.8,
-                        n=kp_cur.shape[0],
-                        model="HMat"
-            )
-            self.timers.end('GRIC-H')
+                H_res = compute_homography_residual(H, kp_cur, kp_ref)
+                H_gric = calc_GRIC(
+                            res=H_res,
+                            sigma=0.8,
+                            n=kp_cur.shape[0],
+                            model="HMat"
+                )
+                self.timers.end('GRIC-H')
+            else:
+                valid_case = False
 
         
         if valid_case:

@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-03-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-10
+@LastEditTime: 2020-07-06
 @LastEditors: Huangying Zhan
 @Description: KeypointSampler is an interface for keypoint sampling
 '''
@@ -93,6 +93,7 @@ class KeypointSampler():
 
         """
         outputs = {}
+        outputs['good_kp_found'] = True
 
         # initialization
         h, w = cur_data['depth'].shape
@@ -139,7 +140,6 @@ class KeypointSampler():
                     )
         )  
 
-       
         return outputs
 
     def update_kp_data(self, cur_data, ref_data, kp_sel_outputs):

@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-07-03
+@LastEditTime: 2020-07-06
 @LastEditors: Huangying Zhan
 @Description: DF-VO core program
 '''
@@ -135,6 +135,7 @@ class DFVO():
 
         # Second to last frames
         elif self.tracking_stage >= 1:
+            ''' keypoint selection '''
             if self.tracking_method in ['hybrid', 'PnP']:
                 # Depth consistency (CNN depths + CNN pose)
                 if self.cfg.kp_selection.depth_consistency.enable:
@@ -143,13 +144,21 @@ class DFVO():
                 # kp_selection
                 self.timers.start('kp_sel', 'tracking')
                 kp_sel_outputs = self.kp_sampler.kp_selection(self.cur_data, self.ref_data)
-                self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
+                if kp_sel_outputs['good_kp_found']:
+                    self.kp_sampler.update_kp_data(self.cur_data, self.ref_data, kp_sel_outputs)
                 self.timers.end('kp_sel')
 
             ''' Pose estimation '''
             # Initialize hybrid pose
             hybrid_pose = SE3()
             E_pose = SE3()
+
+            if not(kp_sel_outputs['good_kp_found']):
+                print("No enough good keypoints, constant motion will be used!")
+                pose = self.ref_data['motion']
+                self.update_global_pose(pose, 1)
+                return 
+
 
             ''' E-tracker '''
             if self.tracking_method in ['hybrid']:
@@ -243,10 +252,11 @@ class DFVO():
             if self.tracking_method in ['deep_pose']:
                 hybrid_pose = SE3(self.ref_data['deep_pose'])
                 self.tracking_mode = "DeepPose"
-            
+
             ''' Summarize data '''
             # update global poses
             self.ref_data['pose'] = copy.deepcopy(hybrid_pose)
+            self.ref_data['motion'] = copy.deepcopy(hybrid_pose)
             pose = self.ref_data['pose']
             self.update_global_pose(pose, 1)
 
@@ -356,6 +366,7 @@ class DFVO():
         """Main program
         """
         print("==> Start DF-VO")
+        print("==> Running sequence: {}".format(self.cfg.seq))
 
         if self.cfg.no_confirm:
             start_frame = 0

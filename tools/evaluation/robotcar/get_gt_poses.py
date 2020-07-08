@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 1970-01-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-07-01
+@LastEditTime: 2020-07-08
 @Description: Get GT poses (KITTI format) for robotcar
 '''
 
@@ -28,7 +28,7 @@ for seq in [
     dataset_dir = "dataset/robotcar"
     time_offset = 20
 
-    result_dir = "dataset/robotcar/gt_poses"
+    result_dir = "dataset/robotcar/gt_poses_20"
 
     # Load data
     timestamp_txt = os.path.join(dataset_dir, seq, "stereo.timestamps")

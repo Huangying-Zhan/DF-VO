@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-07-06
+@LastEditTime: 2020-07-07
 @LastEditors: Huangying Zhan
 @Description: this file contains different correspondence selection methods
 '''
@@ -103,6 +103,7 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
     score_method = bestN_cfg.score_method
     flow_diff_thre = bestN_cfg.thre
     depth_diff_thre = kp_cfg.depth_consistency.thre
+    good_region_cnt = 0
 
     h, w, _ = ref_data['flow_diff'].shape
     
@@ -117,8 +118,8 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
     if kp_cfg.depth_consistency.enable:
         depth_diff = ref_data['depth_diff'].reshape(1, h, w, 1)
     
-    # Failed case
-    if (flow_diff[0,:,:,0] < flow_diff_thre).sum() < N * 0.05 :
+    # Insufficent keypoint case 1
+    if (flow_diff[0,:,:,0] < flow_diff_thre).sum() < N * 0.1 :
         print("Cannot find enough good keypoints!")
         outputs['good_kp_found'] = False
         return outputs
@@ -158,6 +159,10 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
             tmp_kp_list = np.where(valid_mask)
 
             num_to_pick = min(n_best, len(tmp_kp_list[0]))
+
+            if num_to_pick != 0:
+                good_region_cnt += 1
+            
             if num_to_pick <= n_best:
                 sel_list = np.argpartition(score[tmp_kp_list], num_to_pick-1)[:num_to_pick]
             else:
@@ -166,6 +171,12 @@ def local_bestN(kp1, kp2, ref_data, cfg, outputs):
             sel_global_coords = convert_idx_to_global_coord(sel_list, tmp_kp_list, x0)
             for i in range(sel_global_coords.shape[1]):
                 sel_kps.append(sel_global_coords[:, i:i+1])
+    
+    # Insufficent keypoint case 2
+    if good_region_cnt < (num_row * num_col) * 0.1:
+        print("Cannot find enough good keypoints from diversed regions!")
+        outputs['good_kp_found'] = False
+        return outputs
 
     # reshape selected keypoints
     sel_kps = np.asarray(sel_kps)

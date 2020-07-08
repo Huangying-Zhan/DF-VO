@@ -3,12 +3,13 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-07-03
+@LastEditTime: 2020-07-07
 @LastEditors: Huangying Zhan
 @Description: This file contains evaluation tool for KITTI odometry
 '''
 
 import copy
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -315,6 +316,11 @@ class KittiEvalOdom():
         poses_dict["Ground Truth"] = poses_gt
         poses_dict["Ours"] = poses_result
 
+        color_list = {"Ground Truth": 'k',
+                      "Ours": 'lime'}
+        linestyle = {"Ground Truth": "--",
+                     "Ours": "-"}
+
         fig = plt.figure()
         ax = plt.gca()
         ax.set_aspect('equal')
@@ -327,13 +333,19 @@ class KittiEvalOdom():
                 pose = poses_dict[key][frame_idx]
                 pos_xyz.append([pose[0, 3], pose[1, 3], pose[2, 3]])
             pos_xyz = np.asarray(pos_xyz)
-            plt.plot(pos_xyz[:, 0],  pos_xyz[:, 2], label=key)
+            plt.plot(pos_xyz[:, 0],  pos_xyz[:, 2], label=key, c=color_list[key], linestyle=linestyle[key])
+
+            # Draw rect
+            if key == 'Ground Truth':
+                rect = mpl.patches.Rectangle((pos_xyz[0, 0]-5, pos_xyz[0, 2]-5), 10,10, linewidth=2, edgecolor='k', facecolor='none')
+                ax.add_patch(rect)
 
         plt.legend(loc="upper right", prop={'size': fontsize_})
         plt.xticks(fontsize=fontsize_)
         plt.yticks(fontsize=fontsize_)
         plt.xlabel('x (m)', fontsize=fontsize_)
         plt.ylabel('z (m)', fontsize=fontsize_)
+        plt.grid(linestyle="--")
         fig.set_size_inches(10, 10)
         png_title = "sequence_{}".format(seq)
         fig_pdf = self.plot_path_dir + "/" + png_title + ".pdf"

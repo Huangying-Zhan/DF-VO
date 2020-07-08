@@ -3,7 +3,7 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2020-05-13
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-07-03
+@LastEditTime: 2020-07-08
 @LastEditors: Huangying Zhan
 @Description: Dataset loaders for Oxford Robotcar Driving Sequence
 '''
@@ -24,13 +24,14 @@ class OxfordRobotCar(Dataset):
     """
 
     def __init__(self, *args, **kwargs):
+        self.time_offset = 0
         super(OxfordRobotCar, self).__init__(*args, **kwargs)
 
         # undistortion model
         camera_model_dir = os.path.join(self.cfg.directory.img_seq_dir, 'robotcar-dataset-sdk', 'models')
         img_dir = os.path.join(self.cfg.directory.img_seq_dir, self.cfg.seq, 'stereo/centre')
         self.model = CameraModel(camera_model_dir, img_dir)
-    
+
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
         
@@ -47,7 +48,7 @@ class OxfordRobotCar(Dataset):
 
         self.rgb_d_pose_pair = {}
         len_seq = len(glob(os.path.join(self.data_dir['img'], "*.{}".format(self.cfg.image.ext))))
-        for cnt, i in enumerate(range(20, len_seq)):
+        for cnt, i in enumerate(range(self.time_offset, len_seq)):
             self.rgb_d_pose_pair[timestamps[i]] = {}
             self.rgb_d_pose_pair[timestamps[i]]['depth'] = i
             self.rgb_d_pose_pair[timestamps[i]]['pose'] = i
@@ -193,8 +194,7 @@ class OxfordRobotCar(Dataset):
 
         raw_vo_path = os.path.join(self.cfg.directory.gt_pose_dir, self.cfg.seq, "vo/vo.csv")
 
-        time_offset = 20
-        poses = interpolate_vo_poses(raw_vo_path, origin_timestamp, origin_timestamp[time_offset])
+        poses = interpolate_vo_poses(raw_vo_path, origin_timestamp, origin_timestamp[self.time_offset])
 
         # coordinate transformation 
         T = np.array([
@@ -205,8 +205,8 @@ class OxfordRobotCar(Dataset):
         ])
 
         gt_poses = {}
-        for i in range(time_offset, len(poses)):
-            gt_poses[i-time_offset] = T @ np.asarray(poses[i]) @ np.linalg.inv(T)
+        for i in range(self.time_offset, len(poses)):
+            gt_poses[i-self.time_offset] = T @ np.asarray(poses[i]) @ np.linalg.inv(T)
         
         return gt_poses
     

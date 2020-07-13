@@ -42,7 +42,8 @@ This code was tested with Python 3.6, CUDA 9.0, Ubuntu 16.04, and [PyTorch](http
 We suggest use [Anaconda](https://www.anaconda.com/distribution/) for installing the prerequisites.
 
 ```
-conda env create -f requirement.yml -p dfvo # install prerequisites
+cd envs
+conda env create -f requirement.yml -p {ANACONDA_DIR/envs/dfvo} # install prerequisites
 conda activate dfvo  # activate the environment [dfvo]
 ```
 
@@ -99,8 +100,3 @@ For academic usage, the code is released under the permissive MIT license. Our i
 
 ### Acknowledgement
 Some of the codes were borrowed from the excellent works of [monodepth2](https://github.com/nianticlabs/monodepth2), [LiteFlowNet](https://github.com/twhui/LiteFlowNet) and [pytorch-liteflownet](https://github.com/sniklaus/pytorch-liteflownet). The borrowed files are licensed under their original license respectively.
-
-### To-do list
-- Release more pretrained models
-- Release more results
-- (maybe) training code: it takes longer time to clean the training code. Also, the current training code involves other projects which increases the difficulty in cleaning the code.

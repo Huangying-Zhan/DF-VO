@@ -1,0 +1,34 @@
+# This configuration corresponds to Ours (Mono-SC Train.) in the ICRA paper.
+# NOTE: the predicted trajectory is not in the real-world scale.
+
+#-------------------------------------
+#- Basic setup
+#-------------------------------------
+image:
+    height: 370                                           # image height
+    width: 1226                                           # image width
+
+#-------------------------------------
+#- Directories
+#-------------------------------------
+directory:
+  result_dir: result/mono_sc/0
+
+#-------------------------------------
+#- Depth
+#-------------------------------------
+depth:                                                    # Depth configuration
+    depth_src:                                            # depth source [None, gt]
+    deep_depth:
+        network: monodepth2
+        pretrained_model: model_zoo/depth/kitti_odom/mono_sc/  # directory stores depth.pth and encoder.pth 
+
+#-------------------------------------
+#- Visualization
+#-------------------------------------
+visualization:                                            # visualization configuration
+    trajectory:                                           # trajectory visualization configuration
+        vis_traj: True                                    # enable/disable predicted trajectory visualization
+        vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
+        mono_scale: 0.2                                   # monocular prediction scaling factor
+        vis_scale: 1

@@ -1,0 +1,11 @@
+# This configuration corresponds to Ablation study
+
+#-------------------------------------
+#- Correspondence (keypoint) selection
+#-------------------------------------
+kp_selection:                                             # correspondence selection configuration
+    local_bestN:                                          # local best-N configuration
+        enable: False                                      # enable/disable local best-N selection
+    bestN:
+        enable: True                                     # enable/disable best-N selection
+        num_bestN: 2000                                   # number of keypoints

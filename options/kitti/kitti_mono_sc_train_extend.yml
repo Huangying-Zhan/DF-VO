@@ -1,0 +1,59 @@
+# This configuration corresponds to Ours (Mono-SC Train.) in the extended paper.
+# NOTE: the predicted trajectory is not in the real-world scale.
+
+#-------------------------------------
+#- Basic setup
+#-------------------------------------
+image:
+    height: 370                                           # image height
+    width: 1226                                           # image width
+
+#-------------------------------------
+#- Directories
+#-------------------------------------
+directory:
+  result_dir: result/mono_sc/0
+
+#-------------------------------------
+#- Depth
+#-------------------------------------
+depth:                                                    # Depth configuration
+    depth_src:                                            # depth source [None, gt]
+    deep_depth:
+        network: monodepth2
+        pretrained_model: model_zoo/depth/kitti_odom/mono_sc/  # directory stores depth.pth and encoder.pth 
+
+# ------------------------------------
+# Online Finetuning
+# ------------------------------------
+online_finetune:                                          # online fine-tuning configuration
+    enable: True                                          # enable/disable flow finetuning
+
+#-------------------------------------
+#- Correspondence (keypoint) selection
+#-------------------------------------
+kp_selection:                                             # correspondence selection configuration
+    rigid_flow_kp:                                        # keypoint selection from optical-rigid flow consistency (for scale recovery)
+        enable: True                                      # enable/disable rigid-flow based keypoint selection
+        num_bestN: 2000                                   # number of keypoints
+        num_row: 10                                       # number of divided rows
+        num_col: 10                                       # number of divided columns
+        score_method: opt_flow                            # selection score, [rigid_flow, opt_flow]
+        rigid_flow_thre: 5                                # masking threshold for rigid-optical flow consistency 
+        optical_flow_thre: 0.1                            # masking threshold for forward-backward flow consistency 
+
+#-------------------------------------
+#- Tracking
+#-------------------------------------
+scale_recovery:                                           # scale recovery configuration
+    method: iterative                                     # scale recovery method [simple, iterative]
+
+#-------------------------------------
+#- Visualization
+#-------------------------------------
+visualization:                                            # visualization configuration
+    trajectory:                                           # trajectory visualization configuration
+        vis_traj: True                                    # enable/disable predicted trajectory visualization
+        vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
+        mono_scale: 0.2                                   # monocular prediction scaling factor
+        vis_scale: 1

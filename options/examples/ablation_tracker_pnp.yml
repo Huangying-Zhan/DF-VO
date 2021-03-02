@@ -1,0 +1,6 @@
+# This configuration corresponds to Ablation study
+
+#-------------------------------------
+#- Tracking
+#-------------------------------------
+tracking_method: PnP                                   # tracking method [hybrid, PnP]

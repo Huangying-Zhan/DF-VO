@@ -1,0 +1,14 @@
+# This configuration corresponds to Ours (Stereo Train.) in the ICRA paper.
+
+#-------------------------------------
+#- Basic setup
+#-------------------------------------
+image:
+    height: 370                                           # image height
+    width: 1226                                           # image width
+
+#-------------------------------------
+#- Directories
+#-------------------------------------
+directory:
+  result_dir: result/stereo/0

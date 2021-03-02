@@ -1,0 +1,13 @@
+# This configuration corresponds to Ablation study
+
+# NOTE: to use this flow model, 
+# need to update libs/deep_models/flow/lite_flow_net/lite_flow_net.py line 323-324 by 
+# comment line 324 and uncomment 323
+
+#-------------------------------------
+#- Deep flow
+#-------------------------------------
+deep_flow:                                                # Deep optical flow configuration
+    network: liteflow                                     # optical flow network, [liteflow]
+    flow_net_weight: model_zoo/optical_flow/UnLiteFlowNet/kitti_odom/mono_640x192/flow.pth                          # optical flow model path
+    forward_backward: True                                # predict both forward/backward flows and compute forward-backward flow consistency

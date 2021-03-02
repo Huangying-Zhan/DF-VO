@@ -1,0 +1,9 @@
+# This configuration corresponds to Ablation study
+
+#-------------------------------------
+#- Tracking
+#-------------------------------------
+e_tracker:                                                # E-tracker configuration
+    validity:                                             # model selection condition
+        method: flow                                      # method of validating E-tracker, [flow, GRIC]
+        thre: 5                                           # threshold value for model selection, only used in [flow]

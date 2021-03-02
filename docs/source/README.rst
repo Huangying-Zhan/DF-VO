@@ -5,26 +5,38 @@
 Introduction
 ============
 
-This repo implements the system described in the paper:
+This repo implements the system described in the ICRA-2020 paper and the extended report:
 
 `Visual Odometry Revisited: What Should Be Learnt?  <https://arxiv.org/abs/1909.09803>`_ 
 
-Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ian Reid
+`DF-VO: What Should Be Learnt for Visual Odometry? <https://arxiv.org/abs/2103.00933>`_ 
+
+Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ravi Garg, Ian Reid
 
 The demo video can be found `here <https://www.youtube.com/watch?v=Nl8mFU4SJKY>`_.
 
 .. code-block::
 
-   # The paper is accepted to ICRA-2020. Updated bibtex will be provided in the future.
+   @INPROCEEDINGS{zhan2019dfvo,
+     author={H. {Zhan} and C. S. {Weerasekera} and J. -W. {Bian} and I. {Reid}},
+     booktitle={2020 IEEE International Conference on Robotics and Automation (ICRA)}, 
+     title={Visual Odometry Revisited: What Should Be Learnt?}, 
+     year={2020},
+     volume={},
+     number={},
+     pages={4203-4210},
+     doi={10.1109/ICRA40945.2020.9197374}}
 
-   @article{zhan2019dfvo,
-     title={Visual Odometry Revisited: What Should Be Learnt?},
-     author={Zhan, Huangying and Weerasekera, Chamara Saroj and Bian, Jiawang and Reid, Ian},
-     journal={arXiv preprint arXiv:1909.09803},
-     year={2019}
+   @misc{zhan2021dfvo,
+         title={DF-VO: What Should Be Learnt for Visual Odometry?}, 
+         author={Huangying Zhan and Chamara Saroj Weerasekera and Jia-Wang Bian and Ravi Garg and Ian Reid},
+         year={2021},
+         eprint={2103.00933},
+         archivePrefix={arXiv},
+         primaryClass={cs.CV}
    }
 
-:raw-html-m2r:`<img src='https://github.com/Huangying-Zhan/DF-VO/blob/docs/docs/misc/dfvo_eg.gif' width=640 height=320>`
+:raw-html-m2r:`<img src='docs/source/misc/dfvo_eg.gif' width=640 height=320>`
 
 This repo includes
 
@@ -45,13 +57,14 @@ Contents
 Part 1. Requirements
 ^^^^^^^^^^^^^^^^^^^^
 
-This code was tested with Python 3.6, CUDA 9.0, Ubuntu 16.04, and `PyTorch <https://pytorch.org/>`_.
+This code was tested with Python 3.6, CUDA 9.0, Ubuntu 16.04, and `PyTorch-1.1 <https://pytorch.org/>`_.
 
 We suggest use `Anaconda <https://www.anaconda.com/distribution/>`_ for installing the prerequisites.
 
 .. code-block::
 
-   conda env create -f requirement.yml -p dfvo # install prerequisites
+   cd envs
+   conda env create -f requirement.yml -p {ANACONDA_DIR/envs/dfvo} # install prerequisites
    conda activate dfvo  # activate the environment [dfvo]
 
 Part 2. Download dataset and models
@@ -68,29 +81,30 @@ For our trained models, please visit `here <https://www.dropbox.com/sh/9by21564e
 Part 3. DF-VO
 ^^^^^^^^^^^^^
 
-The main algorithm is inplemented in ``vo_moduels.py``.
-We have created different configurations for running the algrithm.
+We have created some examples for running the algorithm.
 
 .. code-block::
 
    # Example 1: run default kitti setup
-   python run.py -d options/kitti_default_configuration.yml  
+   python apis/run.py -d options/examples/default_configuration.yml  
 
    # Example 2: Run custom kitti setup
-   # kitti_default_configuration.yml and kitti_stereo_0.yml are merged
-   python run.py -c options/kitti/kitti_stereo_0.yml
+   python apis/run.py \
+   -d options/examples/default_configuration.yml \
+   -c options/examples/kitti_stereo_train_icra.yml \
+   --no_confirm
+
+   # More examples and our experiments can be found in scripts/experiment.sh
 
 The result (trajectory pose file) is saved in ``result_dir`` defined in the configuration file.
-Please check the ``kitti_default_configuration.yml`` for more possible configuration.
+Please check the ``options/examples/default_configuration.yml`` or `Configuration Documentation <https://df-vo.readthedocs.io/en/latest/rsts/configuration.html>`_ for reference. 
 
 Part 4. Result evaluation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:raw-html-m2r:`<img src='https://github.com/Huangying-Zhan/DF-VO/blob/docs/docs/misc/dfvo_result.png' width=320 height=480>`
+:raw-html-m2r:`<img src='docs/source/misc/dfvo_result.png' width=320 height=480>`
 
-Note that, we have cleaned and optimized the code for better readability and it changes the randomness such that the quantitative result is slightly different from the result reported in the paper. 
-
-:raw-html-m2r:`<img src='https://github.com/Huangying-Zhan/DF-VO/blob/docs/docs/misc/dfvo_result2.png' width=400 height=100>`
+:raw-html-m2r:`<img src='docs/source/misc/dfvo_result2.png' width=400 height=100>`
 
 The original results, including related works, can be found `here <https://www.dropbox.com/sh/u7x3rt4lz6zx8br/AADshjd33Q3TLCy2stKt6qpJa?dl=0>`_.
 
@@ -101,20 +115,15 @@ KITTI
 
 .. code-block::
 
-   python tool/evaluation/eval_odom.py --result result/tmp/0 --align 6dof
+   python tools/evaluation/odometry/eval_odom.py --result result/tmp/0 --align 6dof
 
 For more information about the evaluation toolkit, please check the `toolbox page <https://github.com/Huangying-Zhan/kitti_odom_eval>`_ or the `wiki page <https://github.com/Huangying-Zhan/DF-VO/wiki>`_.
 
-Add your new dataset
-^^^^^^^^^^^^^^^^^^^^
+Part 5. Run your own dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-* configuration [seq, dataset, dataset_dir]
-* dfvo.py datasets dictionary
-* libs/datasets/\ **init**.py
-* libs/datasets/DATASET_LOADER.py
-* libs/deep_depth/monodepth2 (dataset parameters, min/max depth, stereo)
-* libs/general/frame_drawer.py (vmax for depth)
+We also provide a guideline to run DF-VO on your own dataset.
+Please check `Run own dataset <https://df-vo.readthedocs.io/en/latest/rsts/run_own_dataset.html>`_ for more details.
 
 License
 ^^^^^^^
@@ -125,11 +134,3 @@ Acknowledgement
 ^^^^^^^^^^^^^^^
 
 Some of the codes were borrowed from the excellent works of `monodepth2 <https://github.com/nianticlabs/monodepth2>`_\ , `LiteFlowNet <https://github.com/twhui/LiteFlowNet>`_ and `pytorch-liteflownet <https://github.com/sniklaus/pytorch-liteflownet>`_. The borrowed files are licensed under their original license respectively.
-
-To-do list
-^^^^^^^^^^
-
-
-* Release more pretrained models
-* Release more results
-* (maybe) training code: it takes longer time to clean the training code. Also, the current training code involves other projects which increases the difficulty in cleaning the code.

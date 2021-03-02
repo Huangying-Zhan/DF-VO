@@ -88,9 +88,7 @@ python apis/run.py \
 ```
 
 The result (trajectory pose file) is saved in `result_dir` defined in the configuration file.
-Please check the `options/examples/default_configuration.yml` for reference. 
-
-FIXME: add link to RTD page
+Please check the `options/examples/default_configuration.yml` or [Configuration Documentation](https://df-vo.readthedocs.io/en/latest/rsts/configuration.html) for reference. 
 
 ### Part 4. Result evaluation
 <img src='docs/misc/dfvo_result.png' width=320 height=480>
@@ -111,8 +109,7 @@ For more information about the evaluation toolkit, please check the [toolbox pag
 ### Part 5. Run your own dataset
 
 We also provide a guideline to run DF-VO on your own dataset.
-Please check ...
-FIXME: add RTD link
+Please check [Run own dataset](https://df-vo.readthedocs.io/en/latest/rsts/run_own_dataset.html) for more details.
 
 ### License
 For academic usage, the code is released under the permissive MIT license. Our intension of sharing the project is for research/personal purpose. For any commercial purpose, please contact the authors. 

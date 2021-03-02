@@ -1,7 +1,0 @@
-libs.kitti\_raw\_utils
-======================
-
-.. automodule:: libs.kitti_raw_utils
-   :members:
-   :undoc-members:
-   :show-inheritance:

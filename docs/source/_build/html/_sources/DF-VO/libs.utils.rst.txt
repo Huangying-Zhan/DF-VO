@@ -1,7 +1,0 @@
-libs.utils
-==========
-
-.. automodule:: libs.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:

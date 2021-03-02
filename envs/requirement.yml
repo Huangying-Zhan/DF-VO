@@ -1,4 +1,4 @@
-name: deepvo
+name: dfvo
 channels:
   - pytorch
   - conda-forge

@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.deep_models.deep_models &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.flowlib" href="libs.flowlib.html" />
+    <link rel="prev" title="libs.deep_models.pose.deep_pose" href="libs.deep_models.pose.deep_pose.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.depth.html">libs.deep_models.depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.flow.html">libs.deep_models.flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.pose.html">libs.deep_models.pose</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.deep_models.deep_models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.deep_models.html">libs.deep_models</a> &raquo;</li>
+        
+      <li>libs.deep_models.deep_models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.deep_models.deep_models.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.deep_models.deep_models">
+<span id="libs-deep-models-deep-models"></span><h1>libs.deep_models.deep_models<a class="headerlink" href="#module-libs.deep_models.deep_models" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.deep_models.deep_models.DeepModel">
+<em class="property">class </em><code class="sig-name descname">DeepModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>DeepModel initializes different deep networks and provide forward interfaces.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>add forward_depth()</p>
+<p>add forward_pose()</p>
+</div>
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<em>edict</em>) – configuration dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.forward_depth">
+<code class="sig-name descname">forward_depth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.forward_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.forward_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.forward_flow">
+<code class="sig-name descname">forward_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_cur_data</span></em>, <em class="sig-param"><span class="n">in_ref_data</span></em>, <em class="sig-param"><span class="n">forward_backward</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.forward_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.forward_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optical flow network forward interface, a forward inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – current data</p></li>
+<li><p><strong>in_ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – reference data</p></li>
+<li><p><strong>forward_backward</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – use forward-backward consistency if True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><em>flows (dict)</em> –</p>
+<p>predicted flow data. flows[(id1, id2)] is flows from id1 to id2.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>flows(id1, id2)</strong> (array, 2xHxW): flows from id1 to id2</p></li>
+<li><p><strong>flows(id2, id1)</strong> (array, 2xHxW): flows from id2 to id1</p></li>
+<li><p><strong>flows(id1, id2, ‘diff)</strong> (array, 1xHxW): flow difference of id1</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.forward_pose">
+<code class="sig-name descname">forward_pose</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.forward_pose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.forward_pose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.initialize_deep_depth_model">
+<code class="sig-name descname">initialize_deep_depth_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.initialize_deep_depth_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.initialize_deep_depth_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize single-view depth model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>depth_net (nn.Module)</em> – single-view depth network</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.initialize_deep_flow_model">
+<code class="sig-name descname">initialize_deep_flow_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.initialize_deep_flow_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.initialize_deep_flow_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize optical flow network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>flow_net (nn.Module)</em> – optical flow network</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.initialize_deep_pose_model">
+<code class="sig-name descname">initialize_deep_pose_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.initialize_deep_pose_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.initialize_deep_pose_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize two-view pose model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>pose_net (nn.Module)</em> – two-view pose network</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.deep_models.DeepModel.initialize_models">
+<code class="sig-name descname">initialize_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/deep_models.html#DeepModel.initialize_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.deep_models.DeepModel.initialize_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>intialize multiple deep models</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.flowlib.html" class="btn btn-neutral float-right" title="libs.flowlib" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.deep_models.pose.deep_pose.html" class="btn btn-neutral float-left" title="libs.deep_models.pose.deep_pose" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

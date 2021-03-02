@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.general.frame_drawer &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.general.kitti_raw_utils" href="libs.general.kitti_raw_utils.html" />
+    <link rel="prev" title="libs.general.configuration" href="libs.general.configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.general.html">libs.general</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="libs.general.configuration.html">libs.general.configuration</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.general.frame_drawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.kitti_raw_utils.html">libs.general.kitti_raw_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.kitti_utils.html">libs.general.kitti_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.timer.html">libs.general.timer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.utils.html">libs.general.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.general.html">libs.general</a> &raquo;</li>
+        
+      <li>libs.general.frame_drawer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.general.frame_drawer.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.general.frame_drawer">
+<span id="libs-general-frame-drawer"></span><h1>libs.general.frame_drawer<a class="headerlink" href="#module-libs.general.frame_drawer" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.general.frame_drawer.FrameDrawer">
+<em class="property">class </em><code class="sig-name descname">FrameDrawer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Frame drawer to display different visualizations</p>
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<em>edict</em>) – visualization configuration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.assign_data">
+<code class="sig-name descname">assign_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em>, <em class="sig-param"><span class="n">top_left</span></em>, <em class="sig-param"><span class="n">bottom_right</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.assign_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.assign_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>assign data to the drawer image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>item</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – item name</p></li>
+<li><p><strong>top_left</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – [y, x] position of top left corner</p></li>
+<li><p><strong>bottom_right</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – [y, x] position of bottom right corner</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.draw_depth">
+<code class="sig-name descname">draw_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vo</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.draw_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.draw_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw depth/disparity map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vo</strong> (<a class="reference internal" href="libs.dfvo.html#libs.dfvo.DFVO" title="libs.dfvo.DFVO"><em>DFVO</em></a>) – DF-VO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.draw_flow">
+<code class="sig-name descname">draw_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow_data</span></em>, <em class="sig-param"><span class="n">flow_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.draw_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.draw_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw optical flow map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow_data</strong> (<em>array</em><em>, </em><em>[</em><em>2xHxW</em><em>]</em>) – flow data</p></li>
+<li><p><strong>flow_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – flow name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.draw_flow_consistency">
+<code class="sig-name descname">draw_flow_consistency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vo</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.draw_flow_consistency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.draw_flow_consistency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw forward-backward flow consistency map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vo</strong> (<a class="reference internal" href="libs.dfvo.html#libs.dfvo.DFVO" title="libs.dfvo.DFVO"><em>DFVO</em></a>) – DF-VO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.draw_match_side">
+<code class="sig-name descname">draw_match_side</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vo</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.draw_match_side"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.draw_match_side" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw optical flow vectors on image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vo</strong> (<a class="reference internal" href="libs.dfvo.html#libs.dfvo.DFVO" title="libs.dfvo.DFVO"><em>DFVO</em></a>) – DF-VO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.draw_match_temp">
+<code class="sig-name descname">draw_match_temp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vo</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.draw_match_temp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.draw_match_temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw optical flow vectors on image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vo</strong> (<a class="reference internal" href="libs.dfvo.html#libs.dfvo.DFVO" title="libs.dfvo.DFVO"><em>DFVO</em></a>) – DF-VO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.draw_rigid_flow_consistency">
+<code class="sig-name descname">draw_rigid_flow_consistency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vo</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.draw_rigid_flow_consistency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.draw_rigid_flow_consistency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw optical-rigid flow consistency map</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vo</strong> (<a class="reference internal" href="libs.dfvo.html#libs.dfvo.DFVO" title="libs.dfvo.DFVO"><em>DFVO</em></a>) – DF-VO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.draw_traj">
+<code class="sig-name descname">draw_traj</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pred_poses</span></em>, <em class="sig-param"><span class="n">gt_poses</span></em>, <em class="sig-param"><span class="n">traj_cfg</span></em>, <em class="sig-param"><span class="n">tracking_mode</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.draw_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.draw_traj" title="Permalink to this definition">¶</a></dt>
+<dd><p>draw trajectory and related information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pred_poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – predicted poses w.r.t world coordinate system</p></li>
+<li><p><strong>gt_poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – predicted poses w.r.t world coordinate system</p></li>
+<li><p><strong>traj_cfg</strong> (<em>edict</em>) – trajectory configuration</p></li>
+<li><p><strong>tracking_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – tracking mode</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.initialize_drawer">
+<code class="sig-name descname">initialize_drawer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.initialize_drawer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.initialize_drawer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize drawer by assigning items to the drawer</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.interface">
+<code class="sig-name descname">interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.interface" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.main">
+<code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vo</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function for drawing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vo</strong> (<a class="reference internal" href="libs.dfvo.html#libs.dfvo.DFVO" title="libs.dfvo.DFVO"><em>DFVO</em></a>) – DFVO object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.general.frame_drawer.FrameDrawer.update_data">
+<code class="sig-name descname">update_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#FrameDrawer.update_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.FrameDrawer.update_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>update drawer content</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>item</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – item to be updated</p></li>
+<li><p><strong>data</strong> (<em>array</em><em>, </em><em>[</em><em>HxWx3</em><em>]</em>) – content to be updated, RGB format</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.frame_drawer.draw_match_side">
+<code class="sig-name descname">draw_match_side</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img1</span></em>, <em class="sig-param"><span class="n">kp1</span></em>, <em class="sig-param"><span class="n">img2</span></em>, <em class="sig-param"><span class="n">kp2</span></em>, <em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">inliers</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#draw_match_side"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.draw_match_side" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw matches on 2 sides</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img1</strong> (<em>array</em><em>, </em><em>[</em><em>HxWxC</em><em>]</em>) – image 1</p></li>
+<li><p><strong>kp1</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint for image 1</p></li>
+<li><p><strong>img2</strong> (<em>array</em><em>, </em><em>[</em><em>HxWxC</em><em>]</em>) – image 2</p></li>
+<li><p><strong>kp2</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint for image 2</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – number of matches to be drawn</p></li>
+<li><p><strong>inliers</strong> (<em>array</em><em>, </em><em>[</em><em>Nx1</em><em>]</em>) – boolean mask for inlier</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>out_img (array, [Hx2WxC])</em> – output image with drawn matches</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.frame_drawer.draw_match_temporal">
+<code class="sig-name descname">draw_match_temporal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img1</span></em>, <em class="sig-param"><span class="n">kp1</span></em>, <em class="sig-param"><span class="n">img2</span></em>, <em class="sig-param"><span class="n">kp2</span></em>, <em class="sig-param"><span class="n">N</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/frame_drawer.html#draw_match_temporal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.frame_drawer.draw_match_temporal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw matches defined by kp1, kp2. Lay the matches on img2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img1</strong> (<em>array</em><em>, </em><em>[</em><em>HxWxC</em><em>]</em>) – image 1</p></li>
+<li><p><strong>kp1</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint for image 1</p></li>
+<li><p><strong>img2</strong> (<em>array</em><em>, </em><em>[</em><em>HxWxC</em><em>]</em>) – image 2</p></li>
+<li><p><strong>kp2</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint for image 2</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – number of matches to be drawn</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>out_img (array, [HxWxC])</em> – output image with drawn matches</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.general.kitti_raw_utils.html" class="btn btn-neutral float-right" title="libs.general.kitti_raw_utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.general.configuration.html" class="btn btn-neutral float-left" title="libs.general.configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

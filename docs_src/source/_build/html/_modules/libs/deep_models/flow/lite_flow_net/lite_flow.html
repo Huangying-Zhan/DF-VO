@@ -1,0 +1,562 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.deep_models.flow.lite_flow_net.lite_flow &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.deep_models.flow.lite_flow_net.lite_flow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.deep_models.flow.lite_flow_net.lite_flow</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2020-05-19</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-05-28</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: This is the interface for LiteFlowNet</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="n">image_grid</span>
+<span class="kn">from</span> <span class="nn">libs.deep_models.depth.monodepth2.layers</span> <span class="k">import</span> <span class="n">FlowToPix</span><span class="p">,</span> <span class="n">PixToFlow</span><span class="p">,</span> <span class="n">SSIM</span><span class="p">,</span> <span class="n">get_smooth_loss</span>
+
+<span class="kn">from</span> <span class="nn">.lite_flow_net</span> <span class="k">import</span> <span class="n">LiteFlowNet</span>
+<span class="kn">from</span> <span class="nn">..deep_flow</span> <span class="k">import</span> <span class="n">DeepFlow</span>
+
+
+<div class="viewcode-block" id="LiteFlow"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow">[docs]</a><span class="k">class</span> <span class="nc">LiteFlow</span><span class="p">(</span><span class="n">DeepFlow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;LiteFlow is the interface for LiteFlowNet. It allows (optional) online finetuning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LiteFlow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Basic configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Layer setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_to_pix</span> <span class="o">=</span> <span class="n">FlowToPix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_to_pix</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        
+        <span class="c1"># FIXME: half-flow issue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">half_flow</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="c1"># Online finetuning configuration</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finetune</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">enable</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finetune</span> <span class="o">=</span> <span class="kc">False</span>
+    
+<div class="viewcode-block" id="LiteFlow.setup_train"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.setup_train">[docs]</a>    <span class="k">def</span> <span class="nf">setup_train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup training configurations for online finetuning</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Basic configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">img_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_scales</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_flow_scale</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flow_scales</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Layer setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssim</span> <span class="o">=</span> <span class="n">SSIM</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssim</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        
+        <span class="c1"># Optimization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters_to_train</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters_to_train</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters_to_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">)</span>
+
+        <span class="c1"># loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_forward_backward</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_consistency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">flow_consistency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_smoothness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">flow_smoothness</span></div>
+
+<div class="viewcode-block" id="LiteFlow.initialize_network_model"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.initialize_network_model">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_network_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize flow_net model with weight_path</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            weight_path (str): weight path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">weight_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==&gt; Initialize LiteFlowNet with [</span><span class="si">{}</span><span class="s2">]: &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">weight_path</span><span class="p">))</span>
+            <span class="c1"># Initialize network</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">LiteFlowNet</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+            <span class="c1"># Load model weights</span>
+            <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">weight_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setup_train</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;No LiteFlowNet pretrained model is provided.&quot;</span></div>
+
+<div class="viewcode-block" id="LiteFlow.inference_no_grad"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.inference_no_grad">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">inference_no_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Predict optical flow for the given pairs (no grad)</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            img1 (array, [Nx3xHxW]): image 1; intensity [0-1]</span>
+<span class="sd">            img2 (array, [Nx3xHxW]): image 2; intensity [0-1]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            flow (tensor, [Nx2xHxW]): flow from img1 to img2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LiteFlow.inference"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.inference">[docs]</a>    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Predict optical flow for the given pairs</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            img1 (array, [Nx3xHxW]): image 1; intensity [0-1]</span>
+<span class="sd">            img2 (array, [Nx3xHxW]): image 2; intensity [0-1]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            flow (tensor, [Nx2xHxW]): flow from img1 to img2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert to torch array:cuda</span>
+        <span class="n">img1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">img1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">img2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">img1</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">th</span><span class="p">,</span> <span class="n">tw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_size</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+
+        <span class="c1"># forward pass</span>
+        <span class="n">flow_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">]</span>
+        <span class="n">resized_img_list</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                                <span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">th</span><span class="p">,</span> <span class="n">tw</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span> <span class="n">align_corners</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">flow_inputs</span>
+                        <span class="p">]</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">resized_img_list</span><span class="p">)</span>
+
+        <span class="c1"># Post-process output</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resize_dense_flow</span><span class="p">(</span>
+                                <span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_flow</span><span class="p">:</span>
+            <span class="n">flow</span> <span class="o">/=</span> <span class="mf">2.</span>
+        <span class="k">return</span> <span class="n">flow</span></div>
+    
+<div class="viewcode-block" id="LiteFlow.train_flow"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.train_flow">[docs]</a>    <span class="k">def</span> <span class="nf">train_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">combined_flow_data</span><span class="p">,</span> <span class="n">flow_diff</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Train flow model using </span>
+<span class="sd">        - photometric loss</span>
+<span class="sd">        - flow smoothness loss</span>
+<span class="sd">        - flow consistency loss</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            combined_flow_data (tensor, [Nx2xHxW]): forward and backward flow</span>
+<span class="sd">            flow_diff (tensor, [1xHxWx1]): forward-backward flow differnce</span>
+<span class="sd">            img1 (array, [1x3xHxW]): image 1</span>
+<span class="sd">            img2 (array, [1x3xHxW]): image 2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">img1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span>
+            <span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="s1">&#39;flow&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>  <span class="n">combined_flow_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">(</span><span class="s1">&#39;flow&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>  <span class="n">combined_flow_data</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+            <span class="p">(</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>  <span class="n">combined_flow_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_images_pred_flow</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+
+        <span class="n">losses</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_flow_losses</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">))</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;flow_loss&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LiteFlow.generate_images_pred_flow"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.generate_images_pred_flow">[docs]</a>    <span class="k">def</span> <span class="nf">generate_images_pred_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate the warped (reprojected) color images using optical flow for a minibatch.</span>
+<span class="sd">        Generated images are saved into the `outputs` dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source_scale</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="k">if</span> <span class="n">f_i</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">scale</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_scales</span><span class="p">:</span>
+                    <span class="c1"># Warp image using forward flow</span>
+                    <span class="n">flow</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;flow&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">f_i</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span>
+                    <span class="n">flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resize_dense_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+                    <span class="n">pix_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_to_pix</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+                    <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;sample_flow&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">f_i</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pix_coords</span>
+                    <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;color_flow&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">f_i</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+                        <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="n">f_i</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)],</span>
+                        <span class="n">pix_coords</span><span class="p">,</span>
+                        <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;border&quot;</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_forward_backward</span><span class="p">:</span>
+                        <span class="c1"># Warp image using backward flow</span>
+                        <span class="n">flow</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;flow&quot;</span><span class="p">,</span> <span class="n">f_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span>
+                        <span class="n">flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resize_dense_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+                        <span class="n">pix_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_to_pix</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+                        <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;sample_flow&quot;</span><span class="p">,</span> <span class="n">f_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pix_coords</span>
+                        <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;color_flow&quot;</span><span class="p">,</span> <span class="n">f_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+                            <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)],</span>
+                            <span class="n">pix_coords</span><span class="p">,</span>
+                            <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;border&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LiteFlow.compute_flow_losses"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.compute_flow_losses">[docs]</a>    <span class="k">def</span> <span class="nf">compute_flow_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the reprojection and smoothness losses for a minibatch</span>
+<span class="sd">        if forward_backward consistency is enabled:</span>
+<span class="sd">            warp_flow and flow_diff are saved</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">source_scale</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">scale</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_scales</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">reprojection_losses</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="sd">&quot;&quot;&quot; reprojection loss &quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="n">frame_id</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                    <span class="n">target</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)]</span>
+                    <span class="n">pred</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;color_flow&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span>
+                    <span class="n">reprojection_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_reprojection_loss</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+
+            <span class="n">reprojection_losses</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">reprojection_losses</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">reprojection_losses</span>
+
+            <span class="k">if</span> <span class="n">combined</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">to_optimise</span> <span class="o">=</span> <span class="n">combined</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_optimise</span><span class="p">,</span> <span class="n">idxs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">+=</span> <span class="n">to_optimise</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+            <span class="sd">&quot;&quot;&quot; flow smoothness loss &quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="n">frame_id</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                    <span class="n">flow</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;flow&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)]</span>
+                    <span class="n">mean_flow</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                    <span class="n">norm_flow</span> <span class="o">=</span> <span class="n">flow</span> <span class="o">/</span> <span class="p">(</span><span class="n">mean_flow</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+                    <span class="n">smooth_loss</span> <span class="o">=</span> <span class="n">get_smooth_loss</span><span class="p">(</span><span class="n">norm_flow</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+                    <span class="n">loss</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_smoothness</span> <span class="o">*</span> <span class="n">smooth_loss</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">scale</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_forward_backward</span><span class="p">:</span>
+                        <span class="n">flow</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;flow&quot;</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)]</span>
+                        <span class="n">mean_flow</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                        <span class="n">norm_flow</span> <span class="o">=</span> <span class="n">flow</span> <span class="o">/</span> <span class="p">(</span><span class="n">mean_flow</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+                        <span class="n">smooth_loss</span> <span class="o">=</span> <span class="n">get_smooth_loss</span><span class="p">(</span><span class="n">norm_flow</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+                        <span class="n">loss</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_smoothness</span> <span class="o">*</span> <span class="n">smooth_loss</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">scale</span><span class="p">)</span>
+
+            <span class="sd">&quot;&quot;&quot; flow forward-backward consistency loss &quot;&quot;&quot;</span>
+            <span class="c1"># if self.flow_forward_backward:</span>
+            <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="n">frame_id</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                    <span class="n">flow_consistency_loss</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;flow_diff&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                    <span class="n">loss</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_consistency</span> <span class="o">*</span> <span class="n">flow_consistency_loss</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">scale</span><span class="p">)</span>
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;flow_loss/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scale</span><span class="p">)]</span> <span class="o">=</span> <span class="n">loss</span>
+
+        <span class="n">total_loss</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_flow_scale</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;flow_loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_loss</span>
+        <span class="k">return</span> <span class="n">losses</span></div>
+
+<div class="viewcode-block" id="LiteFlow.compute_reprojection_loss"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.compute_reprojection_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_reprojection_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes reprojection loss between a batch of predicted and target images</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">abs_diff</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">pred</span><span class="p">)</span>
+        <span class="n">l1_loss</span> <span class="o">=</span> <span class="n">abs_diff</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        
+        <span class="n">ssim_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssim</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">reprojection_loss</span> <span class="o">=</span> <span class="mf">0.85</span> <span class="o">*</span> <span class="n">ssim_loss</span> <span class="o">+</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="n">l1_loss</span>
+
+        <span class="k">return</span> <span class="n">reprojection_loss</span></div>
+
+<div class="viewcode-block" id="LiteFlow.inference_flow"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.inference_flow">[docs]</a>    <span class="k">def</span> <span class="nf">inference_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                    <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">,</span>
+                    <span class="n">forward_backward</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;kitti&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Estimate flow (1-&gt;2) and form keypoints</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            img1 (array [Nx3xHxW]): image 1</span>
+<span class="sd">            img2 (array [Nx3xHxW]): image 2</span>
+<span class="sd">            foward_backward (bool): forward-backward flow consistency is used if True</span>
+<span class="sd">            dataset (str): dataset type</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **forward** (array, [Nx2xHxW]) : foward flow</span>
+<span class="sd">                - **backward** (array, [Nx2xHxW]) : backward flow</span>
+<span class="sd">                - **flow_diff** (array, [NxHxWx1]) : foward-backward flow inconsistency</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># flow net inference to get flows</span>
+        <span class="k">if</span> <span class="n">forward_backward</span><span class="p">:</span>
+            <span class="n">input_img1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">input_img2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">img2</span><span class="p">,</span> <span class="n">img1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_img1</span> <span class="o">=</span> <span class="n">img1</span>
+            <span class="n">input_img2</span> <span class="o">=</span> <span class="n">img2</span>
+        
+        <span class="c1"># inference with/without gradient</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune</span><span class="p">:</span>
+            <span class="n">combined_flow_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">input_img1</span><span class="p">,</span> <span class="n">input_img2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">combined_flow_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference_no_grad</span><span class="p">(</span><span class="n">input_img1</span><span class="p">,</span> <span class="n">input_img2</span><span class="p">)</span>
+        <span class="n">flow_data</span> <span class="o">=</span> <span class="n">combined_flow_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">forward_backward</span><span class="p">:</span>
+            <span class="n">back_flow_data</span> <span class="o">=</span> <span class="n">combined_flow_data</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># sampled flow</span>
+        <span class="c1"># Get sampling pixel coordinates</span>
+        <span class="n">px1on2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_to_pix</span><span class="p">(</span><span class="n">flow_data</span><span class="p">)</span>
+
+        <span class="c1"># Forward-Backward flow consistency check</span>
+        <span class="k">if</span> <span class="n">forward_backward</span><span class="p">:</span>
+            <span class="c1"># get flow-consistency error map</span>
+            <span class="n">flow_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_backward_consistency</span><span class="p">(</span>
+                                <span class="n">flow1</span><span class="o">=</span><span class="n">flow_data</span><span class="p">,</span>
+                                <span class="n">flow2</span><span class="o">=</span><span class="n">back_flow_data</span><span class="p">,</span>
+                                <span class="n">px1on2</span><span class="o">=</span><span class="n">px1on2</span><span class="p">)</span>
+        
+        <span class="c1"># online finetune</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">num_frames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_flow</span><span class="p">(</span><span class="n">combined_flow_data</span><span class="p">,</span> <span class="n">flow_diff</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_cnt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">num_frames</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_flow</span><span class="p">(</span><span class="n">combined_flow_data</span><span class="p">,</span> <span class="n">flow_diff</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c1"># summarize flow data and flow difference</span>
+        <span class="n">flows</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">flows</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_data</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">forward_backward</span><span class="p">:</span>
+            <span class="n">flows</span><span class="p">[</span><span class="s1">&#39;backward&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">back_flow_data</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">flows</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_diff</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">flows</span></div>
+    
+<div class="viewcode-block" id="LiteFlow.forward_backward_consistency"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.flow.lite_flow_net.lite_flow.html#libs.deep_models.flow.lite_flow_net.lite_flow.LiteFlow.forward_backward_consistency">[docs]</a>    <span class="k">def</span> <span class="nf">forward_backward_consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow1</span><span class="p">,</span> <span class="n">flow2</span><span class="p">,</span> <span class="n">px1on2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute flow consistency map</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flow1 (tensor, [Nx2xHxW]): flow map 1</span>
+<span class="sd">            flow2 (tensor, [Nx2xHxW]): flow map 2</span>
+<span class="sd">            px1on2 (tensor, [NxHxWx2]): projected pixel of view 1 on view 2</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            flow_diff (array, [NxHxWx1]): flow inconsistency error map</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Warp flow2 to flow1</span>
+        <span class="n">warp_flow1</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span><span class="o">-</span><span class="n">flow2</span><span class="p">,</span> <span class="n">px1on2</span><span class="p">)</span>
+
+        <span class="c1"># Calculate flow difference</span>
+        <span class="n">flow_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">flow1</span> <span class="o">-</span> <span class="n">warp_flow1</span><span class="p">)</span>
+
+        <span class="c1"># TODO: UnFlow (Meister etal. 2017) constrain is not used</span>
+        <span class="n">UnFlow_constrain</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">UnFlow_constrain</span><span class="p">:</span>
+            <span class="n">flow_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">flow_diff</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="p">(</span><span class="n">flow1</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">warp_flow1</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># copy flow_diff to cpu</span>
+        <span class="n">flow_diff</span> <span class="o">=</span> <span class="n">flow_diff</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">flow_diff</span> <span class="o">=</span> <span class="n">flow_diff</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flow_diff</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

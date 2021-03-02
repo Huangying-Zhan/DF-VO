@@ -1,0 +1,897 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.tracker.E_tracker &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.tracker.E_tracker</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.tracker.E_tracker</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2019-09-01</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-05-28</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: This file contains Essential matrix based tracker</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">linear_model</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+
+<span class="kn">from</span> <span class="nn">.gric</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">libs.geometry.camera_modules</span> <span class="k">import</span> <span class="n">SE3</span>
+<span class="kn">from</span> <span class="nn">libs.geometry.ops_3d</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">libs.geometry.rigid_flow</span> <span class="k">import</span> <span class="n">RigidFlow</span>
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="n">image_shape</span><span class="p">,</span> <span class="n">image_grid</span>
+<span class="kn">from</span> <span class="nn">libs.matching.kp_selection</span> <span class="k">import</span> <span class="n">opt_rigid_flow_kp</span>
+
+<span class="c1"># FIXME: For DOM</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="n">save_depth_png</span>
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="n">mkdir_if_not_exists</span>
+
+
+<div class="viewcode-block" id="find_Ess_mat"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.find_Ess_mat">[docs]</a><span class="k">def</span> <span class="nf">find_Ess_mat</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find essetial matrix </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a dictionary containing</span>
+
+<span class="sd">            - **kp_cur** (array, [Nx2]): keypoints at current view</span>
+<span class="sd">            - **kp_ref** (array, [Nx2]): keypoints at reference view</span>
+<span class="sd">            - **H_inliers** (array, [N]): boolean inlier mask </span>
+<span class="sd">            - **cfg** (edict): configuration dictionary related to pose estimation from 2D-2D matches</span>
+<span class="sd">            - **cam_intrinsics** (Intrinsics): camera intrinsics</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        a dictionary containing</span>
+<span class="sd">            - **E** (array, [3x3]): essential matrix</span>
+<span class="sd">            - **valid_case** (bool): validity of the solution</span>
+<span class="sd">            - **inlier_cnt** (int): number of inliners</span>
+<span class="sd">            - **inlier** (array, [N]): boolean inlier mask</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># inputs</span>
+    <span class="n">kp_cur</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;kp_cur&#39;</span><span class="p">]</span>
+    <span class="n">kp_ref</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;kp_ref&#39;</span><span class="p">]</span>
+    <span class="n">H_inliers</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;H_inliers&#39;</span><span class="p">]</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">]</span>
+    <span class="n">cam_intrinsics</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cam_intrinsics&#39;</span><span class="p">]</span>
+
+    <span class="c1"># initialization</span>
+    <span class="n">valid_cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">validity</span>
+    <span class="n">principal_points</span> <span class="o">=</span> <span class="p">(</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cx</span><span class="p">,</span> <span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cy</span><span class="p">)</span>
+    <span class="n">fx</span> <span class="o">=</span> <span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span>
+
+    <span class="c1"># compute Ess</span>
+    <span class="n">E</span><span class="p">,</span> <span class="n">inliers</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findEssentialMat</span><span class="p">(</span>
+                        <span class="n">kp_cur</span><span class="p">,</span>
+                        <span class="n">kp_ref</span><span class="p">,</span>
+                        <span class="n">focal</span><span class="o">=</span><span class="n">fx</span><span class="p">,</span>
+                        <span class="n">pp</span><span class="o">=</span><span class="n">principal_points</span><span class="p">,</span>
+                        <span class="n">method</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">RANSAC</span><span class="p">,</span>
+                        <span class="n">prob</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                        <span class="n">threshold</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">reproj_thre</span><span class="p">,</span>
+                        <span class="p">)</span>
+    <span class="c1"># check homography inlier ratio</span>
+    <span class="k">if</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;homo_ratio&quot;</span><span class="p">:</span>
+        <span class="n">H_inliers_ratio</span> <span class="o">=</span> <span class="n">H_inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">H_inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">+</span><span class="n">inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">valid_case</span> <span class="o">=</span> <span class="n">H_inliers_ratio</span> <span class="o">&lt;</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">thre</span>
+    <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;flow&quot;</span><span class="p">:</span>
+        <span class="n">cheirality_cnt</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">recoverPose</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">kp_cur</span><span class="p">,</span> <span class="n">kp_ref</span><span class="p">,</span>
+                                <span class="n">focal</span><span class="o">=</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span><span class="p">,</span>
+                                <span class="n">pp</span><span class="o">=</span><span class="n">principal_points</span><span class="p">,)</span>
+        <span class="n">valid_case</span> <span class="o">=</span> <span class="n">cheirality_cnt</span> <span class="o">&gt;</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">0.05</span>
+    <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GRIC&quot;</span><span class="p">:</span>
+        <span class="n">H_gric</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;H_gric&#39;</span><span class="p">]</span>
+        <span class="c1"># get F from E</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">mat</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">@</span> <span class="n">E</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        <span class="n">E_res</span> <span class="o">=</span> <span class="n">compute_fundamental_residual</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">kp_cur</span><span class="p">,</span> <span class="n">kp_ref</span><span class="p">)</span>
+
+        <span class="n">E_gric</span> <span class="o">=</span> <span class="n">calc_GRIC</span><span class="p">(</span>
+            <span class="n">res</span><span class="o">=</span><span class="n">E_res</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">model</span><span class="o">=</span><span class="s1">&#39;EMat&#39;</span>
+        <span class="p">)</span>
+        <span class="n">valid_case</span> <span class="o">=</span> <span class="n">H_gric</span> <span class="o">&gt;</span> <span class="n">E_gric</span>
+    
+    <span class="c1"># gather output</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;valid_case&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_case</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;inlier_cnt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;inlier&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inliers</span>
+
+    <span class="k">return</span> <span class="n">outputs</span></div>
+
+
+<div class="viewcode-block" id="get_E_from_pose"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.get_E_from_pose">[docs]</a><span class="k">def</span> <span class="nf">get_E_from_pose</span><span class="p">(</span><span class="n">pose</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Recover essential matrix from a pose</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        pose (SE3): SE3</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        E (array, [3x3]): essential matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">pose</span><span class="o">.</span><span class="n">R</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pose</span><span class="o">.</span><span class="n">t</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pose</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">t_ssym</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">t_ssym</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">t_ssym</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">t_ssym</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">t_ssym</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">t_ssym</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">t_ssym</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">E</span> <span class="o">=</span> <span class="n">t_ssym</span> <span class="o">@</span> <span class="n">R</span>
+    <span class="k">return</span> <span class="n">E</span></div>
+
+<div class="viewcode-block" id="EssTracker"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker">[docs]</a><span class="k">class</span> <span class="nc">EssTracker</span><span class="p">():</span>
+<div class="viewcode-block" id="EssTracker.__init__"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">cam_intrinsics</span><span class="p">,</span> <span class="n">timers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            cfg (edict): configuration dictionary</span>
+<span class="sd">            cam_intrinsics (Intrinsics): camera intrinsics</span>
+<span class="sd">            timers (Timer): timers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_scale</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span> <span class="o">=</span> <span class="n">cam_intrinsics</span>
+
+        <span class="c1"># multiprocessing (not used since doesn&#39;t speed up much)</span>
+        <span class="c1"># if self.cfg.use_multiprocessing:</span>
+        <span class="c1">#     self.p = mp.Pool(2)</span>
+        
+        <span class="c1"># Rigid flow data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span><span class="o">.</span><span class="n">rigid_flow_kp</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inv_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">mat</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inv_K</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">inv_mat</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inv_K</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inv_K</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rigid_flow_layer</span> <span class="o">=</span> <span class="n">RigidFlow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        
+        <span class="c1"># FIXME: For DOM</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_tri_depth</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># FIXME: For debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timers</span> <span class="o">=</span> <span class="n">timers</span></div>
+
+<div class="viewcode-block" id="EssTracker.compute_pose_2d2d"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.compute_pose_2d2d">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pose_2d2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kp_ref</span><span class="p">,</span> <span class="n">kp_cur</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the pose from view2 to view1</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            kp_ref (array, [Nx2]): keypoints for reference view</span>
+<span class="sd">            kp_cur (array, [Nx2]): keypoints for current view</span>
+<span class="sd">            cam_intrinsics (Intrinsics): camera intrinsics</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **pose** (SE3): relative pose from current to reference view</span>
+<span class="sd">                - **best_inliers** (array, [N]): boolean inlier mask</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">principal_points</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cy</span><span class="p">)</span>
+
+        <span class="c1"># validity check</span>
+        <span class="n">valid_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">validity</span>
+        <span class="n">valid_case</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># initialize ransac setup</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">best_Rt</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
+        <span class="n">best_inlier_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_ransac_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">repeat</span>
+        <span class="n">best_inliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">kp_ref</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;flow&quot;</span><span class="p">:</span>
+            <span class="c1"># check flow magnitude</span>
+            <span class="n">avg_flow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">kp_ref</span><span class="o">-</span><span class="n">kp_cur</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">valid_case</span> <span class="o">=</span> <span class="n">avg_flow</span> <span class="o">&gt;</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">thre</span>        
+        <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;homo_ratio&quot;</span><span class="p">:</span>
+            <span class="c1"># Find homography</span>
+            <span class="n">H</span><span class="p">,</span> <span class="n">H_inliers</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findHomography</span><span class="p">(</span>
+                        <span class="n">kp_cur</span><span class="p">,</span>
+                        <span class="n">kp_ref</span><span class="p">,</span>
+                        <span class="n">method</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">RANSAC</span><span class="p">,</span>
+                        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                        <span class="n">ransacReprojThreshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                        <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GRIC&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;GRIC-H&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;find H&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+            <span class="n">H</span><span class="p">,</span> <span class="n">H_inliers</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findHomography</span><span class="p">(</span>
+                        <span class="n">kp_cur</span><span class="p">,</span>
+                        <span class="n">kp_ref</span><span class="p">,</span>
+                        <span class="n">method</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">RANSAC</span><span class="p">,</span>
+                        <span class="c1"># method=cv2.LMEDS,</span>
+                        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                        <span class="n">ransacReprojThreshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;find H&#39;</span><span class="p">)</span>
+
+            <span class="n">H_res</span> <span class="o">=</span> <span class="n">compute_homography_residual</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">kp_cur</span><span class="p">,</span> <span class="n">kp_ref</span><span class="p">)</span>
+            <span class="n">H_gric</span> <span class="o">=</span> <span class="n">calc_GRIC</span><span class="p">(</span>
+                        <span class="n">res</span><span class="o">=</span><span class="n">H_res</span><span class="p">,</span>
+                        <span class="n">sigma</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                        <span class="n">n</span><span class="o">=</span><span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;HMat&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;GRIC-H&#39;</span><span class="p">)</span>
+
+        
+        <span class="k">if</span> <span class="n">valid_case</span><span class="p">:</span>
+            <span class="n">num_valid_case</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;find-Ess (full)&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_ransac_iter</span><span class="p">):</span> <span class="c1"># repeat ransac for several times for stable result</span>
+                <span class="c1"># shuffle kp_cur and kp_ref (only useful when random seed is fixed)	</span>
+                <span class="n">new_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>	
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">new_list</span><span class="p">)</span>
+                <span class="n">new_kp_cur</span> <span class="o">=</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">new_list</span><span class="p">]</span>
+                <span class="n">new_kp_ref</span> <span class="o">=</span> <span class="n">kp_ref</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">new_list</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;find-Ess&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+                <span class="n">E</span><span class="p">,</span> <span class="n">inliers</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findEssentialMat</span><span class="p">(</span>
+                            <span class="n">new_kp_cur</span><span class="p">,</span>
+                            <span class="n">new_kp_ref</span><span class="p">,</span>
+                            <span class="n">focal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span><span class="p">,</span>
+                            <span class="n">pp</span><span class="o">=</span><span class="n">principal_points</span><span class="p">,</span>
+                            <span class="n">method</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">RANSAC</span><span class="p">,</span>
+                            <span class="n">prob</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                            <span class="n">threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">reproj_thre</span><span class="p">,</span>
+                            <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;find-Ess&#39;</span><span class="p">)</span>
+
+                <span class="c1"># check homography inlier ratio</span>
+                <span class="k">if</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;homo_ratio&quot;</span><span class="p">:</span>
+                    <span class="n">H_inliers_ratio</span> <span class="o">=</span> <span class="n">H_inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">H_inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">+</span><span class="n">inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+                    <span class="n">valid_case</span> <span class="o">=</span> <span class="n">H_inliers_ratio</span> <span class="o">&lt;</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">thre</span>
+                    <span class="c1"># print(&quot;valid: {} ratio: {}&quot;.format(valid_case, H_inliers_ratio))</span>
+
+                    <span class="c1"># inlier check</span>
+                    <span class="n">inlier_check</span> <span class="o">=</span> <span class="n">inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">best_inlier_cnt</span>
+                <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;flow&quot;</span><span class="p">:</span>
+                    <span class="n">cheirality_cnt</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">recoverPose</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">new_kp_cur</span><span class="p">,</span> <span class="n">new_kp_ref</span><span class="p">,</span>
+                                            <span class="n">focal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span><span class="p">,</span>
+                                            <span class="n">pp</span><span class="o">=</span><span class="n">principal_points</span><span class="p">)</span>
+                    <span class="n">valid_case</span> <span class="o">=</span> <span class="n">cheirality_cnt</span> <span class="o">&gt;</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">0.1</span>
+                    
+                    <span class="c1"># inlier check</span>
+                    <span class="n">inlier_check</span> <span class="o">=</span> <span class="n">inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">best_inlier_cnt</span> <span class="ow">and</span> <span class="n">cheirality_cnt</span> <span class="o">&gt;</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">0.05</span>               
+                <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GRIC&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;GRIC-E&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+                    <span class="c1"># get F from E</span>
+                    <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">mat</span>
+                    <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">@</span> <span class="n">E</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+                    <span class="n">E_res</span> <span class="o">=</span> <span class="n">compute_fundamental_residual</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">new_kp_cur</span><span class="p">,</span> <span class="n">new_kp_ref</span><span class="p">)</span>
+
+                    <span class="n">E_gric</span> <span class="o">=</span> <span class="n">calc_GRIC</span><span class="p">(</span>
+                        <span class="n">res</span><span class="o">=</span><span class="n">E_res</span><span class="p">,</span>
+                        <span class="n">sigma</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                        <span class="n">n</span><span class="o">=</span><span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">model</span><span class="o">=</span><span class="s1">&#39;EMat&#39;</span>
+                    <span class="p">)</span>
+                    <span class="n">valid_case</span> <span class="o">=</span> <span class="n">H_gric</span> <span class="o">&gt;</span> <span class="n">E_gric</span>
+
+                    <span class="c1"># inlier check</span>
+                    <span class="n">inlier_check</span> <span class="o">=</span> <span class="n">inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">best_inlier_cnt</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;GRIC-E&#39;</span><span class="p">)</span>
+
+                <span class="c1"># save best_E</span>
+                <span class="k">if</span> <span class="n">inlier_check</span><span class="p">:</span>
+                    <span class="n">best_E</span> <span class="o">=</span> <span class="n">E</span>
+                    <span class="n">best_inlier_cnt</span> <span class="o">=</span> <span class="n">inliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+                    <span class="n">revert_new_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">new_list</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">new_list</span><span class="p">):</span>
+                        <span class="n">revert_new_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span>
+                    <span class="n">best_inliers</span> <span class="o">=</span> <span class="n">inliers</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">revert_new_list</span><span class="p">)]</span>
+                <span class="n">num_valid_case</span> <span class="o">+=</span> <span class="p">(</span><span class="n">valid_case</span> <span class="o">*</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;find-Ess (full)&#39;</span><span class="p">)</span>
+            <span class="n">major_valid</span> <span class="o">=</span> <span class="n">num_valid_case</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">max_ransac_iter</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">major_valid</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;recover pose&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+                <span class="n">cheirality_cnt</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">recoverPose</span><span class="p">(</span><span class="n">best_E</span><span class="p">,</span> <span class="n">kp_cur</span><span class="p">,</span> <span class="n">kp_ref</span><span class="p">,</span>
+                                        <span class="n">focal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span><span class="p">,</span>
+                                        <span class="n">pp</span><span class="o">=</span><span class="n">principal_points</span><span class="p">,</span>
+                                        <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;recover pose&#39;</span><span class="p">)</span>
+
+                <span class="c1"># cheirality_check</span>
+                <span class="k">if</span> <span class="n">cheirality_cnt</span> <span class="o">&gt;</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">0.1</span><span class="p">:</span>
+                    <span class="n">best_Rt</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
+
+        <span class="n">R</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">best_Rt</span>
+        <span class="n">pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">()</span>
+        <span class="n">pose</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="n">R</span>
+        <span class="n">pose</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="n">pose</span><span class="p">,</span> <span class="s2">&quot;inliers&quot;</span><span class="p">:</span> <span class="n">best_inliers</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="EssTracker.compute_pose_2d2d_mp"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.compute_pose_2d2d_mp">[docs]</a>    <span class="k">def</span> <span class="nf">compute_pose_2d2d_mp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kp_ref</span><span class="p">,</span> <span class="n">kp_cur</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the pose from view2 to view1 (multiprocessing version)</span>
+<span class="sd">        Speed doesn&#39;t change much</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            kp_ref (array, [Nx2]): keypoints for reference view</span>
+<span class="sd">            kp_cur (array, [Nx2]): keypoints for current view</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **pose** (SE3): relative pose from current to reference view</span>
+<span class="sd">                - **best_inliers** (array, [N]): boolean inlier mask</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">principal_points</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cy</span><span class="p">)</span>
+
+        <span class="c1"># validity check</span>
+        <span class="n">valid_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">validity</span>
+        <span class="n">valid_case</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># initialize ransac setup</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">best_Rt</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
+        <span class="n">max_ransac_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">repeat</span>
+
+        <span class="k">if</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;flow&quot;</span><span class="p">:</span>
+            <span class="c1"># check flow magnitude</span>
+            <span class="n">avg_flow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">kp_ref</span><span class="o">-</span><span class="n">kp_cur</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">valid_case</span> <span class="o">=</span> <span class="n">avg_flow</span> <span class="o">&gt;</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">thre</span>
+        
+        <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;homo_ratio&quot;</span><span class="p">:</span>
+            <span class="c1"># Find homography</span>
+            <span class="n">H</span><span class="p">,</span> <span class="n">H_inliers</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findHomography</span><span class="p">(</span>
+                        <span class="n">kp_cur</span><span class="p">,</span>
+                        <span class="n">kp_ref</span><span class="p">,</span>
+                        <span class="n">method</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">RANSAC</span><span class="p">,</span>
+                        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                        <span class="n">ransacReprojThreshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GRIC&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;GRIC-H&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;find H&#39;</span><span class="p">,</span> <span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+            <span class="n">H</span><span class="p">,</span> <span class="n">H_inliers</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findHomography</span><span class="p">(</span>
+                        <span class="n">kp_cur</span><span class="p">,</span>
+                        <span class="n">kp_ref</span><span class="p">,</span>
+                        <span class="n">method</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">RANSAC</span><span class="p">,</span>
+                        <span class="c1"># method=cv2.LMEDS,</span>
+                        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                        <span class="n">ransacReprojThreshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;find H&#39;</span><span class="p">)</span>
+
+            <span class="n">H_res</span> <span class="o">=</span> <span class="n">compute_homography_residual</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">kp_cur</span><span class="p">,</span> <span class="n">kp_ref</span><span class="p">)</span>
+            <span class="n">H_gric</span> <span class="o">=</span> <span class="n">calc_GRIC</span><span class="p">(</span>
+                        <span class="n">res</span><span class="o">=</span><span class="n">H_res</span><span class="p">,</span>
+                        <span class="n">sigma</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                        <span class="n">n</span><span class="o">=</span><span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;HMat&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;GRIC-H&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">valid_case</span><span class="p">:</span>
+            <span class="n">inputs_mp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">outputs_mp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_ransac_iter</span><span class="p">):</span>
+                <span class="c1"># shuffle kp_cur and kp_ref</span>
+                <span class="n">new_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">new_list</span><span class="p">)</span>
+                <span class="n">new_kp_cur</span> <span class="o">=</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">new_list</span><span class="p">]</span>
+                <span class="n">new_kp_ref</span> <span class="o">=</span> <span class="n">kp_ref</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">new_list</span><span class="p">]</span>
+
+                <span class="n">inputs</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;kp_cur&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_kp_cur</span>
+                <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;kp_ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_kp_ref</span>
+                <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;H_inliers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_inliers</span>
+                <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cfg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span>
+                <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cam_intrinsics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span>
+                <span class="k">if</span> <span class="n">valid_cfg</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GRIC&quot;</span><span class="p">:</span>
+                    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;H_gric&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">H_gric</span>
+                <span class="n">inputs_mp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+            <span class="n">outputs_mp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">find_Ess_mat</span><span class="p">,</span> <span class="n">inputs_mp</span><span class="p">)</span>
+
+            <span class="c1"># Gather result</span>
+            <span class="n">num_valid_case</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">best_inlier_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">best_inliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">kp_ref</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">outputs</span> <span class="ow">in</span> <span class="n">outputs_mp</span><span class="p">:</span>
+                <span class="n">num_valid_case</span> <span class="o">+=</span> <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;valid_case&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;inlier_cnt&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">best_inlier_cnt</span><span class="p">:</span>
+                    <span class="n">best_E</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="p">]</span>
+                    <span class="n">best_inlier_cnt</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;inlier_cnt&#39;</span><span class="p">]</span>
+                    <span class="n">best_inliers</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;inlier&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Recover pose</span>
+            <span class="n">major_valid</span> <span class="o">=</span> <span class="n">num_valid_case</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">max_ransac_iter</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">major_valid</span><span class="p">:</span>
+                <span class="n">cheirality_cnt</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">recoverPose</span><span class="p">(</span><span class="n">best_E</span><span class="p">,</span> <span class="n">new_kp_cur</span><span class="p">,</span> <span class="n">new_kp_ref</span><span class="p">,</span>
+                                        <span class="n">focal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span><span class="p">,</span>
+                                        <span class="n">pp</span><span class="o">=</span><span class="n">principal_points</span><span class="p">,)</span>
+
+                <span class="c1"># cheirality_check</span>
+                <span class="k">if</span> <span class="n">cheirality_cnt</span> <span class="o">&gt;</span> <span class="n">kp_cur</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">0.1</span><span class="p">:</span>
+                    <span class="n">best_Rt</span> <span class="o">=</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
+
+        <span class="n">R</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">best_Rt</span>
+        <span class="n">pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">()</span>
+        <span class="n">pose</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="n">R</span>
+        <span class="n">pose</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pose&quot;</span><span class="p">:</span> <span class="n">pose</span><span class="p">,</span> <span class="s2">&quot;inliers&quot;</span><span class="p">:</span> <span class="n">best_inliers</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="EssTracker.scale_recovery"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.scale_recovery">[docs]</a>    <span class="k">def</span> <span class="nf">scale_recovery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">E_pose</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;recover depth scale</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cur_data (dict): current data</span>
+<span class="sd">            ref_data (dict): reference data</span>
+<span class="sd">            E_pose (SE3): SE3 pose</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **scale** (float): estimated scaling factor</span>
+<span class="sd">                - **cur_kp_depth** (array, [Nx2]): keypoints at current view</span>
+<span class="sd">                - **ref_kp_depth** (array, [Nx2]): keypoints at referenceview</span>
+<span class="sd">                - **rigid_flow_mask** (array, [HxW]): rigid flow mask</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;simple&quot;</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_recovery_simple</span><span class="p">(</span><span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">E_pose</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;iterative&quot;</span><span class="p">:</span>
+            <span class="n">iter_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_recovery_iterative</span><span class="p">(</span><span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">E_pose</span><span class="p">)</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">iter_outputs</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;cur_kp_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iter_outputs</span><span class="p">[</span><span class="s1">&#39;cur_kp&#39;</span><span class="p">]</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;ref_kp_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iter_outputs</span><span class="p">[</span><span class="s1">&#39;ref_kp&#39;</span><span class="p">]</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iter_outputs</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span>
+        
+        <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="EssTracker.scale_recovery_simple"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.scale_recovery_simple">[docs]</a>    <span class="k">def</span> <span class="nf">scale_recovery_simple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">E_pose</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;recover depth scale by comparing triangulated depths and CNN depths</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            cur_data (dict): current data</span>
+<span class="sd">            ref_data (dict): reference data</span>
+<span class="sd">            E_pose (SE3): SE3 pose</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **scale** (float): estimated scaling factor</span>
+<span class="sd">                - **cur_kp_depth** (array, [Nx2]): keypoints at current view</span>
+<span class="sd">                - **ref_kp_depth** (array, [Nx2]): keypoints at referenceview</span>
+<span class="sd">                - **rigid_flow_mask** (array, [HxW]): rigid flow mask</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            scale (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ref_kp</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">kp_src</span><span class="p">]</span>
+        <span class="n">cur_kp</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">kp_src</span><span class="p">]</span>
+
+        <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_scale_from_depth</span><span class="p">(</span>
+            <span class="n">ref_kp</span><span class="p">,</span>
+            <span class="n">cur_kp</span><span class="p">,</span>
+            <span class="n">E_pose</span><span class="o">.</span><span class="n">inv_pose</span><span class="p">,</span> 
+            <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">scale</span></div>
+
+<div class="viewcode-block" id="EssTracker.scale_recovery_iterative"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.scale_recovery_iterative">[docs]</a>    <span class="k">def</span> <span class="nf">scale_recovery_iterative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">E_pose</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;recover depth scale by comparing triangulated depths and CNN depths</span>
+<span class="sd">        Iterative scale recovery is applied</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            cur_data (dict): current data</span>
+<span class="sd">            ref_data (dict): reference data</span>
+<span class="sd">            E_pose (SE3): SE3 pose</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **scale** (float): estimated scaling factor</span>
+<span class="sd">                - **cur_kp** (array, [Nx2]): keypoints at current view</span>
+<span class="sd">                - **ref_kp** (array, [Nx2]): keypoints at referenceview</span>
+<span class="sd">                - **rigid_flow_mask** (array, [HxW]): rigid flow mask</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Initialization</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_scale</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.001</span>
+        <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>    
+            <span class="n">rigid_flow_pose</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">E_pose</span><span class="p">)</span>
+            <span class="n">rigid_flow_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">*=</span> <span class="n">scale</span>
+
+            <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="n">rigid_flow_pose</span><span class="o">.</span><span class="n">inv_pose</span><span class="p">)</span>
+
+            <span class="c1"># kp selection</span>
+            <span class="n">kp_sel_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kp_selection_good_depth</span><span class="p">(</span><span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">)</span>
+            <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;kp_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;kp_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp_sel_outputs</span><span class="p">[</span><span class="s1">&#39;kp1_depth&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;kp_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp_sel_outputs</span><span class="p">[</span><span class="s1">&#39;kp2_depth&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp_sel_outputs</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span>
+
+            <span class="c1"># translation scale from triangulation v.s. CNN-depth</span>
+            <span class="n">ref_kp</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">kp_src</span><span class="p">]</span>
+            <span class="n">cur_kp</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">kp_src</span><span class="p">]</span>
+
+            <span class="n">new_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_scale_from_depth</span><span class="p">(</span>
+                <span class="n">ref_kp</span><span class="p">,</span>
+                <span class="n">cur_kp</span><span class="p">,</span>
+                <span class="n">E_pose</span><span class="o">.</span><span class="n">inv_pose</span><span class="p">,</span> 
+                <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="n">delta_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">new_scale</span><span class="o">-</span><span class="n">scale</span><span class="p">)</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">new_scale</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prev_scale</span> <span class="o">=</span> <span class="n">new_scale</span>
+
+            <span class="c1"># Get outputs</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;cur_kp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;kp_depth&#39;</span><span class="p">]</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;ref_kp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;kp_depth&#39;</span><span class="p">]</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="n">delta_scale</span> <span class="o">&lt;</span> <span class="n">delta</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">outputs</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="EssTracker.find_scale_from_depth"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.find_scale_from_depth">[docs]</a>    <span class="k">def</span> <span class="nf">find_scale_from_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">,</span> <span class="n">T_21</span><span class="p">,</span> <span class="n">depth2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute VO scaling factor for T_21</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kp1 (array, [Nx2]): reference kp</span>
+<span class="sd">            kp2 (array, [Nx2]): current kp</span>
+<span class="sd">            T_21 (array, [4x4]): relative pose; from view 1 to view 2</span>
+<span class="sd">            depth2 (array, [HxW]): depth 2</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            scale (float): scaling factor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Triangulation</span>
+        <span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">image_shape</span><span class="p">(</span><span class="n">depth2</span><span class="p">)</span>
+        <span class="n">kp1_norm</span> <span class="o">=</span> <span class="n">kp1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">kp2_norm</span> <span class="o">=</span> <span class="n">kp2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">kp1_norm</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">kp1</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cx</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span>
+        <span class="n">kp1_norm</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">kp1</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cy</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fy</span>
+        <span class="n">kp2_norm</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">kp2</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cx</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fx</span>
+        <span class="n">kp2_norm</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">kp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">cy</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">fy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;triangulation&#39;</span><span class="p">,</span> <span class="s1">&#39;scale_recovery&#39;</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">X2_tri</span> <span class="o">=</span> <span class="n">triangulation</span><span class="p">(</span><span class="n">kp1_norm</span><span class="p">,</span> <span class="n">kp2_norm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">T_21</span><span class="p">)</span>
+
+        <span class="c1"># Triangulation outlier removal</span>
+        <span class="n">depth2_tri</span> <span class="o">=</span> <span class="n">convert_sparse3D_to_depth</span><span class="p">(</span><span class="n">kp2</span><span class="p">,</span> <span class="n">X2_tri</span><span class="p">,</span> <span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span><span class="p">)</span>
+        <span class="n">depth2_tri</span><span class="p">[</span><span class="n">depth2_tri</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;triangulation&#39;</span><span class="p">)</span>
+
+        <span class="c1"># common mask filtering</span>
+        <span class="n">non_zero_mask_pred2</span> <span class="o">=</span> <span class="p">(</span><span class="n">depth2</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">non_zero_mask_tri2</span> <span class="o">=</span> <span class="p">(</span><span class="n">depth2_tri</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">valid_mask2</span> <span class="o">=</span> <span class="n">non_zero_mask_pred2</span> <span class="o">*</span> <span class="n">non_zero_mask_tri2</span>
+
+        <span class="n">depth_pred_non_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">depth2</span><span class="p">[</span><span class="n">valid_mask2</span><span class="p">]])</span>
+        <span class="n">depth_tri_non_zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">depth2_tri</span><span class="p">[</span><span class="n">valid_mask2</span><span class="p">]])</span>
+        <span class="n">depth_ratio</span> <span class="o">=</span> <span class="n">depth_tri_non_zero</span> <span class="o">/</span> <span class="n">depth_pred_non_zero</span>
+        
+        <span class="c1"># Estimate scale (ransac)</span>
+        <span class="k">if</span> <span class="n">valid_mask2</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="c1"># RANSAC scaling solver</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;scale ransac&#39;</span><span class="p">,</span> <span class="s1">&#39;scale_recovery&#39;</span><span class="p">)</span>
+            <span class="n">ransac</span> <span class="o">=</span> <span class="n">linear_model</span><span class="o">.</span><span class="n">RANSACRegressor</span><span class="p">(</span>
+                        <span class="n">base_estimator</span><span class="o">=</span><span class="n">linear_model</span><span class="o">.</span><span class="n">LinearRegression</span><span class="p">(</span>
+                            <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                        <span class="n">min_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">min_samples</span><span class="p">,</span>
+                        <span class="n">max_trials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">max_trials</span><span class="p">,</span>
+                        <span class="n">stop_probability</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">stop_prob</span><span class="p">,</span>
+                        <span class="n">residual_threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">thre</span>
+                        <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;depth_ratio&quot;</span><span class="p">:</span>
+                <span class="n">ransac</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+                    <span class="n">depth_ratio</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">depth_ratio</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">ransac</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;abs_diff&quot;</span><span class="p">:</span>
+                <span class="n">ransac</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+                    <span class="n">depth_tri_non_zero</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="n">depth_pred_non_zero</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">ransac</span><span class="o">.</span><span class="n">estimator_</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;scale ransac&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># FIXME: For DOM</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_tri_depth</span><span class="p">:</span>
+            <span class="c1"># save triangulated depths</span>
+            <span class="n">depth2_tri</span> <span class="o">*=</span> <span class="n">scale</span>
+            <span class="n">png_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">result_dir</span><span class="p">,</span> <span class="s2">&quot;depth_tri_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+            <span class="n">mkdir_if_not_exists</span><span class="p">(</span><span class="n">png_dir</span><span class="p">)</span>
+            <span class="n">png_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">png_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:06}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnt</span><span class="p">))</span>
+            <span class="n">save_depth_png</span><span class="p">(</span><span class="n">depth2_tri</span><span class="p">,</span> <span class="n">png_path</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+
+            <span class="c1"># save cnn depth</span>
+            <span class="n">png_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">result_dir</span><span class="p">,</span> <span class="s2">&quot;depth_cnn_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+            <span class="n">mkdir_if_not_exists</span><span class="p">(</span><span class="n">png_dir</span><span class="p">)</span>
+            <span class="n">png_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">png_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:06}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnt</span><span class="p">))</span>
+            <span class="n">save_depth_png</span><span class="p">(</span><span class="n">depth2</span><span class="p">,</span> <span class="n">png_path</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+        <span class="k">return</span> <span class="n">scale</span></div>
+
+<div class="viewcode-block" id="EssTracker.kp_selection_good_depth"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.E_tracker.html#libs.tracker.E_tracker.EssTracker.kp_selection_good_depth">[docs]</a>    <span class="k">def</span> <span class="nf">kp_selection_good_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">rigid_kp_method</span><span class="o">=</span><span class="s2">&quot;uniform&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Choose valid kp from a series of operations</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cur_data (dict): current data</span>
+<span class="sd">            ref_data (dict): reference data</span>
+<span class="sd">            rigid_kp_method (str) : [uniform, best]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                </span>
+<span class="sd">                - **kp1_depth** (array, [Nx2]): keypoints in view-1</span>
+<span class="sd">                - **kp2_depth** (array, [Nx2]): keypoints in view-2</span>
+<span class="sd">                - **rigid_flow_mask** (array, [HxW]): rigid-optical flow consistency </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># initialization</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">kp1</span> <span class="o">=</span> <span class="n">image_grid</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="n">kp1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">tmp_flow_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">kp2</span> <span class="o">=</span> <span class="n">kp1</span> <span class="o">+</span> <span class="n">tmp_flow_data</span>
+
+        <span class="sd">&quot;&quot;&quot; opt-rigid flow consistent kp selection &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span><span class="o">.</span><span class="n">rigid_flow_kp</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># compute rigid flow</span>
+            <span class="n">rigid_flow_pose</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_pose&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pose</span>
+
+            <span class="c1"># Compute rigid flow</span>
+            <span class="n">pose_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">rigid_flow_pose</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">rigid_flow_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rigid_flow_layer</span><span class="p">(</span>
+                                <span class="n">depth</span><span class="p">,</span>
+                                <span class="n">pose_tensor</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">inv_K</span><span class="p">,</span>
+                                <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">rigid_flow</span> <span class="o">=</span> <span class="n">rigid_flow_tensor</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># compute optical-rigid flow difference</span>
+            <span class="n">rigid_flow_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                                <span class="n">rigid_flow</span> <span class="o">-</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">],</span>
+                                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">rigid_flow_diff</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="c1"># get depth-flow consistent kp</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">opt_rigid_flow_kp</span><span class="p">(</span>
+                        <span class="n">kp1</span><span class="o">=</span><span class="n">kp1</span><span class="p">,</span>
+                        <span class="n">kp2</span><span class="o">=</span><span class="n">kp2</span><span class="p">,</span>
+                        <span class="n">ref_data</span><span class="o">=</span><span class="n">ref_data</span><span class="p">,</span>
+                        <span class="n">cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span>
+                        <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">,</span>
+                        <span class="n">method</span><span class="o">=</span><span class="n">rigid_kp_method</span>
+                        <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">outputs</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

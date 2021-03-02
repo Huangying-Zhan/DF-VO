@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.camera_modules &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="libs.html">libs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>libs.camera_modules</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.camera_modules.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.camera_modules">
+<span id="libs-camera-modules"></span><h1>libs.camera_modules<a class="headerlink" href="#module-libs.camera_modules" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.camera_modules.Intrinsics">
+<em class="property">class </em><code class="sig-name descname">Intrinsics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/camera_modules.html#Intrinsics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.camera_modules.Intrinsics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Camera intrinsics object
+.. attribute:: mat</p>
+<blockquote>
+<div><p>intrinsics matrix
+[fx 0 cx]
+[0 fy cy]
+[0 0  1 ]</p>
+<dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p>3x3 numpy array</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="py attribute">
+<dt id="libs.camera_modules.Intrinsics.inv_mat">
+<code class="sig-name descname">inv_mat</code><a class="headerlink" href="#libs.camera_modules.Intrinsics.inv_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>perspective transformation matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x3 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.Intrinsics.cx">
+<code class="sig-name descname">cx</code><a class="headerlink" href="#libs.camera_modules.Intrinsics.cx" title="Permalink to this definition">¶</a></dt>
+<dd><p>principal point x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.Intrinsics.cy">
+<code class="sig-name descname">cy</code><a class="headerlink" href="#libs.camera_modules.Intrinsics.cy" title="Permalink to this definition">¶</a></dt>
+<dd><p>principal point y</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.Intrinsics.fx">
+<code class="sig-name descname">fx</code><a class="headerlink" href="#libs.camera_modules.Intrinsics.fx" title="Permalink to this definition">¶</a></dt>
+<dd><p>focal length x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.Intrinsics.fy">
+<code class="sig-name descname">fy</code><a class="headerlink" href="#libs.camera_modules.Intrinsics.fy" title="Permalink to this definition">¶</a></dt>
+<dd><p>focal length y</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.camera_modules.Intrinsics.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">param</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/camera_modules.html#Intrinsics.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.camera_modules.Intrinsics.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param</strong> – [cx, cy, fx, fy]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">cx</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id1">
+<em class="property">property </em><code class="sig-name descname">cy</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id2">
+<em class="property">property </em><code class="sig-name descname">fx</code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id3">
+<em class="property">property </em><code class="sig-name descname">fy</code><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id4">
+<em class="property">property </em><code class="sig-name descname">inv_mat</code><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="libs.camera_modules.Intrinsics.mat">
+<em class="property">property </em><code class="sig-name descname">mat</code><a class="headerlink" href="#libs.camera_modules.Intrinsics.mat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.camera_modules.PinholeCamera">
+<em class="property">class </em><code class="sig-name descname">PinholeCamera</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">K</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/camera_modules.html#PinholeCamera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.camera_modules.PinholeCamera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Pinhole camera model
+.. attribute:: height</p>
+<blockquote>
+<div><p>image height</p>
+<dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="py attribute">
+<dt id="libs.camera_modules.PinholeCamera.width">
+<code class="sig-name descname">width</code><a class="headerlink" href="#libs.camera_modules.PinholeCamera.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>image width</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.PinholeCamera.SE3">
+<code class="sig-name descname">SE3</code><a class="headerlink" href="#libs.camera_modules.PinholeCamera.SE3" title="Permalink to this definition">¶</a></dt>
+<dd><p>camera pose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#libs.camera_modules.SE3" title="libs.camera_modules.SE3">SE3</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.PinholeCamera.K">
+<code class="sig-name descname">K</code><a class="headerlink" href="#libs.camera_modules.PinholeCamera.K" title="Permalink to this definition">¶</a></dt>
+<dd><p>camera intrinsics</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>intrinsics</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id5">
+<em class="property">property </em><code class="sig-name descname">K</code><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id6">
+<em class="property">property </em><code class="sig-name descname">SE3</code><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="libs.camera_modules.PinholeCamera.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">K</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/camera_modules.html#PinholeCamera.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.camera_modules.PinholeCamera.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pose</strong> (<em>4x4 matrix</em>) – camera pose</p></li>
+<li><p><strong>K</strong> (<em>float list</em>) – [cx, cy, fx, fy]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.camera_modules.PinholeCamera.height">
+<em class="property">property </em><code class="sig-name descname">height</code><a class="headerlink" href="#libs.camera_modules.PinholeCamera.height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id7">
+<em class="property">property </em><code class="sig-name descname">width</code><a class="headerlink" href="#id7" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.camera_modules.SE3">
+<em class="property">class </em><code class="sig-name descname">SE3</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">np_arr</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/camera_modules.html#SE3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.camera_modules.SE3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>SE3 object consists rotation and translation components
+.. attribute:: pose</p>
+<blockquote>
+<div><p>camera pose</p>
+<dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p>4x4 numpy array</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="py attribute">
+<dt id="libs.camera_modules.SE3.inv_pose">
+<code class="sig-name descname">inv_pose</code><a class="headerlink" href="#libs.camera_modules.SE3.inv_pose" title="Permalink to this definition">¶</a></dt>
+<dd><p>inverse camera pose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>4x4 numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.SE3.R">
+<code class="sig-name descname">R</code><a class="headerlink" href="#libs.camera_modules.SE3.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x3 numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="libs.camera_modules.SE3.t">
+<code class="sig-name descname">t</code><a class="headerlink" href="#libs.camera_modules.SE3.t" title="Permalink to this definition">¶</a></dt>
+<dd><p>translation component,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id8">
+<em class="property">property </em><code class="sig-name descname">R</code><a class="headerlink" href="#id8" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id9">
+<em class="property">property </em><code class="sig-name descname">inv_pose</code><a class="headerlink" href="#id9" title="Permalink to this definition">¶</a></dt>
+<dd><p>inverse camera pose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>inv_pose (4x4 numpy array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.camera_modules.SE3.pose">
+<em class="property">property </em><code class="sig-name descname">pose</code><a class="headerlink" href="#libs.camera_modules.SE3.pose" title="Permalink to this definition">¶</a></dt>
+<dd><p>camera pose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>pose (4x4 numpy array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id10">
+<em class="property">property </em><code class="sig-name descname">t</code><a class="headerlink" href="#id10" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

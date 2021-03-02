@@ -1,0 +1,471 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.deep_models.depth.monodepth2.layers &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.deep_models.depth.monodepth2.monodepth2" href="libs.deep_models.depth.monodepth2.monodepth2.html" />
+    <link rel="prev" title="libs.deep_models.depth.monodepth2.depth_decoder" href="libs.deep_models.depth.monodepth2.depth_decoder.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="libs.deep_models.depth.html">libs.deep_models.depth</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="libs.deep_models.depth.monodepth2.html">libs.deep_models.depth.monodepth2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="libs.deep_models.depth.deep_depth.html">libs.deep_models.depth.deep_depth</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.flow.html">libs.deep_models.flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.pose.html">libs.deep_models.pose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.deep_models.html">libs.deep_models.deep_models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.deep_models.html">libs.deep_models</a> &raquo;</li>
+        
+          <li><a href="libs.deep_models.depth.html">libs.deep_models.depth</a> &raquo;</li>
+        
+          <li><a href="libs.deep_models.depth.monodepth2.html">libs.deep_models.depth.monodepth2</a> &raquo;</li>
+        
+      <li>libs.deep_models.depth.monodepth2.layers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.deep_models.depth.monodepth2.layers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.deep_models.depth.monodepth2.layers">
+<span id="libs-deep-models-depth-monodepth2-layers"></span><h1>libs.deep_models.depth.monodepth2.layers<a class="headerlink" href="#module-libs.deep_models.depth.monodepth2.layers" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.layers.BackprojectDepth">
+<em class="property">class </em><code class="sig-name descname">BackprojectDepth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">width</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#BackprojectDepth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.BackprojectDepth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Layer to transform a depth image into a point cloud</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.BackprojectDepth.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">inv_K</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#BackprojectDepth.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.BackprojectDepth.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.layers.Conv3x3">
+<em class="property">class </em><code class="sig-name descname">Conv3x3</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_channels</span></em>, <em class="sig-param"><span class="n">out_channels</span></em>, <em class="sig-param"><span class="n">use_refl</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#Conv3x3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.Conv3x3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Layer to pad and convolve input</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.Conv3x3.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#Conv3x3.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.Conv3x3.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.layers.ConvBlock">
+<em class="property">class </em><code class="sig-name descname">ConvBlock</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">in_channels</span></em>, <em class="sig-param"><span class="n">out_channels</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#ConvBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.ConvBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Layer to perform a convolution followed by ELU</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.ConvBlock.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#ConvBlock.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.ConvBlock.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.layers.FlowToPix">
+<em class="property">class </em><code class="sig-name descname">FlowToPix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">width</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#FlowToPix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.FlowToPix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Layer to transform flow into camera pixel coordiantes</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.FlowToPix.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">width</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#FlowToPix.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.FlowToPix.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare regular grid (Nx2xHxW)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.FlowToPix.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span></em>, <em class="sig-param"><span class="n">normalized</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#FlowToPix.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.FlowToPix.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward
+:param flow: [x, y]
+:type flow: tensor, [Nx2xHxW]
+:param normalized: normalized to [-1, 1] if True; otherwise [0, H-1 or W-1]
+:type normalized: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>pix_coords (tensor, [NxHxWx2])</em> – pixel coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.layers.PixToFlow">
+<em class="property">class </em><code class="sig-name descname">PixToFlow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">width</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#PixToFlow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.PixToFlow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Layer to transform flow into camera pixel coordiantes</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.PixToFlow.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">width</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#PixToFlow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.PixToFlow.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare regular grid (Nx2xHxW)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.PixToFlow.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pix_coords</span></em>, <em class="sig-param"><span class="n">normalized</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#PixToFlow.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.PixToFlow.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pix_coords</strong> (<em>tensor</em><em>, </em><em>[</em><em>NxHxWx2</em><em>]</em>) – pixel coordinates (normalized)</p></li>
+<li><p><strong>normalized</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – flow vector normalized by image size</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>flow (tensor, [Nx2xHxW])</em> – [x, y] flow vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.layers.Project3D">
+<em class="property">class </em><code class="sig-name descname">Project3D</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">eps</span><span class="o">=</span><span class="default_value">1e-07</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#Project3D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.Project3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Layer which projects 3D points into a camera with intrinsics K and at position T</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.Project3D.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">points</span></em>, <em class="sig-param"><span class="n">K</span></em>, <em class="sig-param"><span class="n">T</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#Project3D.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.Project3D.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.layers.SSIM">
+<em class="property">class </em><code class="sig-name descname">SSIM</code><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#SSIM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.SSIM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<p>Layer to compute the SSIM loss between a pair of images</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.layers.SSIM.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#SSIM.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.SSIM.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.compute_depth_errors">
+<code class="sig-name descname">compute_depth_errors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gt</span></em>, <em class="sig-param"><span class="n">pred</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#compute_depth_errors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.compute_depth_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computation of error metrics between predicted and ground truth depths</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.disp_to_depth">
+<code class="sig-name descname">disp_to_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disp</span></em>, <em class="sig-param"><span class="n">min_depth</span></em>, <em class="sig-param"><span class="n">max_depth</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#disp_to_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.disp_to_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert network’s sigmoid output into depth prediction
+The formula for this conversion is given in the ‘additional considerations’
+section of the paper.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.get_smooth_loss">
+<code class="sig-name descname">get_smooth_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disp</span></em>, <em class="sig-param"><span class="n">img</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#get_smooth_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.get_smooth_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the smoothness loss for a disparity image
+The color image is used for edge-aware smoothness</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.get_translation_matrix">
+<code class="sig-name descname">get_translation_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">translation_vector</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#get_translation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.get_translation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a translation vector into a 4x4 transformation matrix</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.get_warp_flow">
+<code class="sig-name descname">get_warp_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source_forward_flow</span></em>, <em class="sig-param"><span class="n">source_backward_flow</span></em>, <em class="sig-param"><span class="n">pix_forward</span></em>, <em class="sig-param"><span class="n">pix_backward</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#get_warp_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.get_warp_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute warped flows
+:param source_forward_flow: source “image”
+:type source_forward_flow: Nx2xHxW
+:param source_backward_flow: source “image”
+:type source_backward_flow: Nx2xHxW
+:param pix_forward: forward pixel coordinates
+:type pix_forward: Nx2xHxW
+:param pix_backward: backward pixel coordinates
+:type pix_backward: Nx2xHxW</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>flow_data (dict)</em> –     - forward: warped forward flow
+- backward: warped backward flow
+- forward_diff: flow diff between forward and warp_forward
+- backward_diff: flow diff between backward and warp_backward</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.rot_from_axisangle">
+<code class="sig-name descname">rot_from_axisangle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#rot_from_axisangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.rot_from_axisangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an axisangle rotation into a 4x4 transformation matrix
+(adapted from <a class="reference external" href="https://github.com/Wallacoloo/printipi">https://github.com/Wallacoloo/printipi</a>)
+Input ‘vec’ has to be Bx1x3</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.transformation_from_parameters">
+<code class="sig-name descname">transformation_from_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axisangle</span></em>, <em class="sig-param"><span class="n">translation</span></em>, <em class="sig-param"><span class="n">invert</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#transformation_from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.transformation_from_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the network’s (axisangle, translation) output into a 4x4 matrix</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.deep_models.depth.monodepth2.layers.upsample">
+<code class="sig-name descname">upsample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/layers.html#upsample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.layers.upsample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upsample input tensor by a factor of 2</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.deep_models.depth.monodepth2.monodepth2.html" class="btn btn-neutral float-right" title="libs.deep_models.depth.monodepth2.monodepth2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.deep_models.depth.monodepth2.depth_decoder.html" class="btn btn-neutral float-left" title="libs.deep_models.depth.monodepth2.depth_decoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

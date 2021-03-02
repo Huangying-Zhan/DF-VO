@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.matching.depth_consistency &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.matching.keypoint_sampler" href="libs.matching.keypoint_sampler.html" />
+    <link rel="prev" title="libs.matching" href="libs.matching.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.matching.html">libs.matching</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.matching.depth_consistency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.matching.keypoint_sampler.html">libs.matching.keypoint_sampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.matching.kp_selection.html">libs.matching.kp_selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.matching.html">libs.matching</a> &raquo;</li>
+        
+      <li>libs.matching.depth_consistency</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.matching.depth_consistency.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.matching.depth_consistency">
+<span id="libs-matching-depth-consistency"></span><h1>libs.matching.depth_consistency<a class="headerlink" href="#module-libs.matching.depth_consistency" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.matching.depth_consistency.DepthConsistency">
+<em class="property">class </em><code class="sig-name descname">DepthConsistency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em>, <em class="sig-param"><span class="n">cam_intrinsics</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/depth_consistency.html#DepthConsistency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.depth_consistency.DepthConsistency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>DepthConsistency computes depth consistency between depth maps</p>
+<dl class="py method">
+<dt id="libs.matching.depth_consistency.DepthConsistency.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/depth_consistency.html#DepthConsistency.compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.depth_consistency.DepthConsistency.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute depth consistency using CNN pose and CNN depths
+New data added to ref_data</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>depth_diff</strong> (array, [HxW]): depth consistency data</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.matching.depth_consistency.DepthConsistency.compute_depth_diff">
+<code class="sig-name descname">compute_depth_diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth_data</span></em>, <em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/depth_consistency.html#DepthConsistency.compute_depth_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.depth_consistency.DepthConsistency.compute_depth_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute depth difference</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>depth_data</strong> – <p>a dictionary containing</p>
+<ul>
+<li><p><strong>(‘warp_depth’, 0, frame_id)</strong> (tensor, [1x1xHxW]): warped depth map</p></li>
+<li><p><strong>(‘reproj_depth’, 0, frame_id)</strong> (tensor, [1x1xHxW]): reprojected depth map</p></li>
+</ul>
+</p></li>
+<li><p><strong>inputs</strong> – <p>a dictionary containing</p>
+<ul>
+<li><p><strong>cur_id</strong> (int): index of current frame</p></li>
+<li><p><strong>ref_id</strong> (int): index of reference frame</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>outputs (dict), a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>(depth_diff, cur_id, ref_id)</strong> (array, [HxW]): depth difference</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.matching.depth_consistency.DepthConsistency.prepare_depth_consistency_data">
+<code class="sig-name descname">prepare_depth_consistency_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/depth_consistency.html#DepthConsistency.prepare_depth_consistency_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.depth_consistency.DepthConsistency.prepare_depth_consistency_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare data for computing depth consistency</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>inv_K</strong> (tensor, [1x4x4]): inverse camera intrinsics</p></li>
+<li><p><strong>K</strong> (tensor, [1x4x4]): camera intrinsics</p></li>
+<li><p><strong>depth</strong> (tensor, 1x1xHxW): depth map</p></li>
+<li><p><strong>pose_T</strong> (tensor, [1x4x4]): relative pose</p></li>
+<li><p><strong>cur_id</strong> (int): index of current frame</p></li>
+<li><p><strong>ref_id</strong> (int): index of reference frame</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.matching.depth_consistency.DepthConsistency.warp_and_reproj_depth">
+<code class="sig-name descname">warp_and_reproj_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/depth_consistency.html#DepthConsistency.warp_and_reproj_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.depth_consistency.DepthConsistency.warp_and_reproj_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get reprojected depths and warp depths;
+- reproj_depth: the reference depths in source view;
+- warp_depth: the warped reference depths in source view</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – <p>a dictionary containing</p>
+<ul class="simple">
+<li><p><strong>inv_K</strong> (tensor, [1x4x4]): inverse camera intrinsics</p></li>
+<li><p><strong>K</strong> (tensor, [1x4x4]): camera intrinsics</p></li>
+<li><p><strong>depth</strong> (tensor, 1x1xHxW): depth map</p></li>
+<li><p><strong>pose_T</strong> (tensor, [1x4x4]): relative pose</p></li>
+<li><p><strong>cur_id</strong> (int): index of current frame</p></li>
+<li><p><strong>ref_id</strong> (int): index of reference frame</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>(‘warp_depth’, cur_id, ref_id)</strong> (tensor, [1x1xHxW]): synthesized current depth map</p></li>
+<li><p><strong>(‘reproj_depth’, cur_id, ref_id)</strong> (tensor, [1x1xHxW]): transformed current depth map</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.matching.keypoint_sampler.html" class="btn btn-neutral float-right" title="libs.matching.keypoint_sampler" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.matching.html" class="btn btn-neutral float-left" title="libs.matching" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

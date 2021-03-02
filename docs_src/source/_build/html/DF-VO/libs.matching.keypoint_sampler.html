@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.matching.keypoint_sampler &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.matching.kp_selection" href="libs.matching.kp_selection.html" />
+    <link rel="prev" title="libs.matching.depth_consistency" href="libs.matching.depth_consistency.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.matching.html">libs.matching</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="libs.matching.depth_consistency.html">libs.matching.depth_consistency</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.matching.keypoint_sampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.matching.kp_selection.html">libs.matching.kp_selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.matching.html">libs.matching</a> &raquo;</li>
+        
+      <li>libs.matching.keypoint_sampler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.matching.keypoint_sampler.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.matching.keypoint_sampler">
+<span id="libs-matching-keypoint-sampler"></span><h1>libs.matching.keypoint_sampler<a class="headerlink" href="#module-libs.matching.keypoint_sampler" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.matching.keypoint_sampler.KeypointSampler">
+<em class="property">class </em><code class="sig-name descname">KeypointSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/keypoint_sampler.html#KeypointSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.keypoint_sampler.KeypointSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>KeypointSampler is an interface for keypoint sampling</p>
+<dl class="py method">
+<dt id="libs.matching.keypoint_sampler.KeypointSampler.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/keypoint_sampler.html#KeypointSampler.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.keypoint_sampler.KeypointSampler.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<em>edict</em>) – configuration dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.matching.keypoint_sampler.KeypointSampler.generate_kp_samples">
+<code class="sig-name descname">generate_kp_samples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img_h</span></em>, <em class="sig-param"><span class="n">img_w</span></em>, <em class="sig-param"><span class="n">crop</span></em>, <em class="sig-param"><span class="n">N</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/keypoint_sampler.html#KeypointSampler.generate_kp_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.keypoint_sampler.KeypointSampler.generate_kp_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate uniform keypoint samples according to image height, width
+and cropping scheme</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_h</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – image height</p></li>
+<li><p><strong>img_w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – image width</p></li>
+<li><p><strong>crop</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – normalized cropping ratio, [[y0, y1],[x0, x1]]</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – number of keypoint</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>kp_list (array, [N])</em> – keypoint list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.matching.keypoint_sampler.KeypointSampler.get_feat_track_methods">
+<code class="sig-name descname">get_feat_track_methods</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method_idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/keypoint_sampler.html#KeypointSampler.get_feat_track_methods"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.keypoint_sampler.KeypointSampler.get_feat_track_methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get feature tracking method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>method_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – feature tracking method index</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>feat_track_method (str)</em> – feature tracking method</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.matching.keypoint_sampler.KeypointSampler.kp_selection">
+<code class="sig-name descname">kp_selection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/keypoint_sampler.html#KeypointSampler.kp_selection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.keypoint_sampler.KeypointSampler.kp_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose valid kp from a series of operations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – data of current frame</p></li>
+<li><p><strong>ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – data of reference frame</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><em>outputs (dict)</em> –</p>
+<p>a dictionary containing some of the following items</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>kp1_best</strong> (array, [Nx2]): keypoints on view-1</p></li>
+<li><p><strong>kp2_best</strong> (array, [Nx2]): keypoints on view-2</p></li>
+<li><p><strong>kp1_list</strong> (array, [Nx2]): keypoints on view-1</p></li>
+<li><p><strong>kp2_list</strong> (array, [Nx2]): keypoints on view-2</p></li>
+<li><p><strong>kp1_depth</strong> (array, [Nx2]): keypoints in view-1</p></li>
+<li><p><strong>kp2_depth</strong> (array, [Nx2]): keypoints in view-2</p></li>
+<li><p><strong>rigid_flow_mask</strong> (array, [HxW]): rigid-optical flow consistency</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.matching.keypoint_sampler.KeypointSampler.update_kp_data">
+<code class="sig-name descname">update_kp_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em>, <em class="sig-param"><span class="n">kp_sel_outputs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/matching/keypoint_sampler.html#KeypointSampler.update_kp_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.matching.keypoint_sampler.KeypointSampler.update_kp_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>update cur_data and ref_data with the kp_selection output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – data of current frame</p></li>
+<li><p><strong>ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – data of reference frame</p></li>
+<li><p><strong>kp_sel_outputs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – data of keypoint selection outputs</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.matching.kp_selection.html" class="btn btn-neutral float-right" title="libs.matching.kp_selection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.matching.depth_consistency.html" class="btn btn-neutral float-left" title="libs.matching.depth_consistency" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

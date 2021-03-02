@@ -36,7 +36,7 @@ The demo video can be found `here <https://www.youtube.com/watch?v=Nl8mFU4SJKY>`
          primaryClass={cs.CV}
    }
 
-:raw-html-m2r:`<img src='docs/source/misc/dfvo_eg.gif' width=640 height=320>`
+:raw-html-m2r:`<img src='https://raw.githubusercontent.com/Huangying-Zhan/DF-VO/docs/docs/source/misc/dfvo_eg.gif' width=640 height=320>`
 
 This repo includes
 
@@ -102,9 +102,9 @@ Please check the ``options/examples/default_configuration.yml`` or `Configuratio
 Part 4. Result evaluation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:raw-html-m2r:`<img src='docs/source/misc/dfvo_result.png' width=320 height=480>`
+:raw-html-m2r:`<img src='https://github.com/Huangying-Zhan/DF-VO/blob/docs/docs/source/misc/dfvo_result.png?raw=true' width=320 height=480>`
 
-:raw-html-m2r:`<img src='docs/source/misc/dfvo_result2.png' width=400 height=100>`
+:raw-html-m2r:`<img src='https://github.com/Huangying-Zhan/DF-VO/blob/docs/docs/source/misc/dfvo_result2.png?raw=true' width=400 height=100>`
 
 The original results, including related works, can be found `here <https://www.dropbox.com/sh/u7x3rt4lz6zx8br/AADshjd33Q3TLCy2stKt6qpJa?dl=0>`_.
 

@@ -1,22 +1,37 @@
 # Introduction
 
-This repo implements the system described in the paper:
+This repo implements the system described in the ICRA-2020 paper and the extended report.:
 
 [Visual Odometry Revisited: What Should Be Learnt? 
 ](https://arxiv.org/abs/1909.09803) 
 
-Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ian Reid
+[DF-VO: What Should Be Learnt for Visual Odometry?
+](https://arxiv.org/abs/2103.00933) 
+
+
+
+Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ravi Garg, Ian Reid
 
 The demo video can be found [here](https://www.youtube.com/watch?v=Nl8mFU4SJKY).
 
 ```
-# The paper is accepted to ICRA-2020. Updated bibtex will be provided in the future.
+@INPROCEEDINGS{zhan2019dfvo,
+  author={H. {Zhan} and C. S. {Weerasekera} and J. -W. {Bian} and I. {Reid}},
+  booktitle={2020 IEEE International Conference on Robotics and Automation (ICRA)}, 
+  title={Visual Odometry Revisited: What Should Be Learnt?}, 
+  year={2020},
+  volume={},
+  number={},
+  pages={4203-4210},
+  doi={10.1109/ICRA40945.2020.9197374}}
 
-@article{zhan2019dfvo,
-  title={Visual Odometry Revisited: What Should Be Learnt?},
-  author={Zhan, Huangying and Weerasekera, Chamara Saroj and Bian, Jiawang and Reid, Ian},
-  journal={arXiv preprint arXiv:1909.09803},
-  year={2019}
+@misc{zhan2021dfvo,
+      title={DF-VO: What Should Be Learnt for Visual Odometry?}, 
+      author={Huangying Zhan and Chamara Saroj Weerasekera and Jia-Wang Bian and Ravi Garg and Ian Reid},
+      year={2021},
+      eprint={2103.00933},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
 
@@ -37,7 +52,7 @@ This repo includes
 
 ### Part 1. Requirements
 
-This code was tested with Python 3.6, CUDA 9.0, Ubuntu 16.04, and [PyTorch](https://pytorch.org/).
+This code was tested with Python 3.6, CUDA 9.0, Ubuntu 16.04, and [PyTorch-1.1](https://pytorch.org/).
 
 We suggest use [Anaconda](https://www.anaconda.com/distribution/) for installing the prerequisites.
 
@@ -57,19 +72,24 @@ ln -s KITTI_ODOMETRY/sequences dataset/kitti_odom/odom_data
 For our trained models, please visit [here](https://www.dropbox.com/sh/9by21564eb0xloh/AABHFMlWd_ja14c5wU4R1KUua?dl=0) to download the models and save the models into the directory `model_zoo/`.
 
 ### Part 3. DF-VO
-We have created different configurations for running the algrithm.
+We have created some examples for running the algorithm.
 
 ``` 
 # Example 1: run default kitti setup
-python apis/run.py -d options/kitti/default_configuration.yml  
+python apis/run.py -d options/examples/default_configuration.yml  
 
 # Example 2: Run custom kitti setup
-# kitti_default_configuration.yml and kitti_stereo_0.yml are merged
-python apis/run.py -d options/kitti/default_configuration.yml -c options/kitti/kitti_stereo_0.yml  
+python apis/run.py \
+-d options/examples/default_configuration.yml \
+-c options/examples/kitti_stereo_train_icra.yml \
+--no_confirm
+
+# More examples and our experiments can be found in scripts/experiment.sh
 ```
 
 The result (trajectory pose file) is saved in `result_dir` defined in the configuration file.
-Please check the `options/kitti/default_configuration.yml` for reference. 
+Please check the `options/examples/default_configuration.yml` for reference. 
+
 FIXME: add link to RTD page
 
 ### Part 4. Result evaluation

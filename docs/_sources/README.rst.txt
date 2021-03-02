@@ -24,7 +24,7 @@ The demo video can be found `here <https://www.youtube.com/watch?v=Nl8mFU4SJKY>`
      year={2019}
    }
 
-:raw-html-m2r:`<img src='../../misc/dfvo_eg.gif' width=640 height=320>`
+:raw-html-m2r:`<img src='misc/dfvo_eg.gif' width=640 height=320>`
 
 This repo includes
 
@@ -86,11 +86,11 @@ Please check the ``kitti_default_configuration.yml`` for more possible configura
 Part 4. Result evaluation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:raw-html-m2r:`<img src='../../misc/dfvo_result.png' width=320 height=480>`
+:raw-html-m2r:`<img src='misc/dfvo_result.png' width=320 height=480>`
 
 Note that, we have cleaned and optimized the code for better readability and it changes the randomness such that the quantitative result is slightly different from the result reported in the paper. 
 
-:raw-html-m2r:`<img src='../../misc/dfvo_result2.png' width=400 height=100>`
+:raw-html-m2r:`<img src='misc/dfvo_result2.png' width=400 height=100>`
 
 The original results, including related works, can be found `here <https://www.dropbox.com/sh/u7x3rt4lz6zx8br/AADshjd33Q3TLCy2stKt6qpJa?dl=0>`_.
 

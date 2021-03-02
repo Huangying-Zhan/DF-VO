@@ -86,7 +86,7 @@ class Monodepth2DepthNet(DeepDepth):
         else:
             self.min_depth = 0.1
             self.max_depth = 100
-            self.stereo_baseline_multiplier = 1
+            self.stereo_baseline_multiplier = 5.4
 
     def inference(self, img):
         """Depth prediction

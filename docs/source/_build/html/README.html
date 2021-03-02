@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsts/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsts/unit_test.html">Unit Test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/README.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>This repo implements the system described in the paper:</p>
+<p><a class="reference external" href="https://arxiv.org/abs/1909.09803">Visual Odometry Revisited: What Should Be Learnt?</a></p>
+<p>Huangying Zhan, Chamara Saroj Weerasekera, Jiawang Bian, Ian Reid</p>
+<p>The demo video can be found <a class="reference external" href="https://www.youtube.com/watch?v=Nl8mFU4SJKY">here</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># The paper is accepted to ICRA-2020. Updated bibtex will be provided in the future.
+
+@article{zhan2019dfvo,
+  title={Visual Odometry Revisited: What Should Be Learnt?},
+  author={Zhan, Huangying and Weerasekera, Chamara Saroj and Bian, Jiawang and Reid, Ian},
+  journal={arXiv preprint arXiv:1909.09803},
+  year={2019}
+}
+</pre></div>
+</div>
+<p><span class="raw-html-m2r"><img src='../../misc/dfvo_eg.gif' width=640 height=320></span></p>
+<p>This repo includes</p>
+<ol class="arabic simple">
+<li><p>the frame-to-frame tracking system <strong>DF-VO</strong>;</p></li>
+<li><p>evaluation scripts for visual odometry;</p></li>
+<li><p>trained models and VO results</p></li>
+</ol>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="#part-1-requirements">Requirements</a></p></li>
+<li><p><a class="reference external" href="#part-2-download-dataset-and-models">Prepare dataset</a></p></li>
+<li><p><a class="reference external" href="#part-3-DF-VO">DF-VO</a></p></li>
+<li><p><a class="reference external" href="#part-4-result-evaluation">Result evaluation</a></p></li>
+</ol>
+</div>
+<div class="section" id="part-1-requirements">
+<h2>Part 1. Requirements<a class="headerlink" href="#part-1-requirements" title="Permalink to this headline">¶</a></h2>
+<p>This code was tested with Python 3.6, CUDA 9.0, Ubuntu 16.04, and <a class="reference external" href="https://pytorch.org/">PyTorch</a>.</p>
+<p>We suggest use <a class="reference external" href="https://www.anaconda.com/distribution/">Anaconda</a> for installing the prerequisites.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">requirement</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">p</span> <span class="n">dfvo</span> <span class="c1"># install prerequisites</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">dfvo</span>  <span class="c1"># activate the environment [dfvo]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="part-2-download-dataset-and-models">
+<h2>Part 2. Download dataset and models<a class="headerlink" href="#part-2-download-dataset-and-models" title="Permalink to this headline">¶</a></h2>
+<p>The main dataset used in this project is <a class="reference external" href="http://www.cvlibs.net/datasets/kitti/eval_odometry.php">KITTI Driving Dataset</a>. After downloaing the dataset, create a softlink in the current repo.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="n">KITTI_ODOMETRY</span><span class="o">/</span><span class="n">sequences</span> <span class="n">dataset</span><span class="o">/</span><span class="n">kitti_odom</span><span class="o">/</span><span class="n">odom_data</span>
+</pre></div>
+</div>
+<p>For our trained models, please visit <a class="reference external" href="https://www.dropbox.com/sh/9by21564eb0xloh/AABHFMlWd_ja14c5wU4R1KUua?dl=0">here</a> to download the models and save the models into the directory <code class="docutils literal notranslate"><span class="pre">model_zoo/</span></code>.</p>
+</div>
+<div class="section" id="part-3-df-vo">
+<h2>Part 3. DF-VO<a class="headerlink" href="#part-3-df-vo" title="Permalink to this headline">¶</a></h2>
+<p>The main algorithm is inplemented in <code class="docutils literal notranslate"><span class="pre">vo_moduels.py</span></code>.
+We have created different configurations for running the algrithm.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example 1: run default kitti setup</span>
+<span class="n">python</span> <span class="n">run</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">d</span> <span class="n">options</span><span class="o">/</span><span class="n">kitti_default_configuration</span><span class="o">.</span><span class="n">yml</span>
+
+<span class="c1"># Example 2: Run custom kitti setup</span>
+<span class="c1"># kitti_default_configuration.yml and kitti_stereo_0.yml are merged</span>
+<span class="n">python</span> <span class="n">run</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">options</span><span class="o">/</span><span class="n">kitti</span><span class="o">/</span><span class="n">kitti_stereo_0</span><span class="o">.</span><span class="n">yml</span>
+</pre></div>
+</div>
+<p>The result (trajectory pose file) is saved in <code class="docutils literal notranslate"><span class="pre">result_dir</span></code> defined in the configuration file.
+Please check the <code class="docutils literal notranslate"><span class="pre">kitti_default_configuration.yml</span></code> for more possible configuration.</p>
+</div>
+<div class="section" id="part-4-result-evaluation">
+<h2>Part 4. Result evaluation<a class="headerlink" href="#part-4-result-evaluation" title="Permalink to this headline">¶</a></h2>
+<p><span class="raw-html-m2r"><img src='../../misc/dfvo_result.png' width=320 height=480></span></p>
+<p>Note that, we have cleaned and optimized the code for better readability and it changes the randomness such that the quantitative result is slightly different from the result reported in the paper.</p>
+<p><span class="raw-html-m2r"><img src='../../misc/dfvo_result2.png' width=400 height=100></span></p>
+<p>The original results, including related works, can be found <a class="reference external" href="https://www.dropbox.com/sh/u7x3rt4lz6zx8br/AADshjd33Q3TLCy2stKt6qpJa?dl=0">here</a>.</p>
+<div class="section" id="kitti">
+<h3>KITTI<a class="headerlink" href="#kitti" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://www.cvlibs.net/datasets/kitti/eval_odometry.php">KITTI Odometry benchmark</a> contains 22 stereo sequences, in which 11 sequences are provided with ground truth. The 11 sequences are used for evaluating visual odometry.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">tool</span><span class="o">/</span><span class="n">evaluation</span><span class="o">/</span><span class="n">eval_odom</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">result</span> <span class="n">result</span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="mi">0</span> <span class="o">--</span><span class="n">align</span> <span class="mi">6</span><span class="n">dof</span>
+</pre></div>
+</div>
+<p>For more information about the evaluation toolkit, please check the <a class="reference external" href="https://github.com/Huangying-Zhan/kitti_odom_eval">toolbox page</a> or the <a class="reference external" href="https://github.com/Huangying-Zhan/DF-VO/wiki">wiki page</a>.</p>
+</div>
+</div>
+<div class="section" id="add-your-new-dataset">
+<h2>Add your new dataset<a class="headerlink" href="#add-your-new-dataset" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>configuration [seq, dataset, dataset_dir]</p></li>
+<li><p>dfvo.py datasets dictionary</p></li>
+<li><p>libs/datasets/<strong>init</strong>.py</p></li>
+<li><p>libs/datasets/DATASET_LOADER.py</p></li>
+<li><p>libs/deep_depth/monodepth2 (dataset parameters, min/max depth, stereo)</p></li>
+<li><p>libs/general/frame_drawer.py (vmax for depth)</p></li>
+</ul>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>For academic usage, the code is released under the permissive MIT license. Our intension of sharing the project is for research/personal purpose. For any commercial purpose, please contact the authors.</p>
+</div>
+<div class="section" id="acknowledgement">
+<h2>Acknowledgement<a class="headerlink" href="#acknowledgement" title="Permalink to this headline">¶</a></h2>
+<p>Some of the codes were borrowed from the excellent works of <a class="reference external" href="https://github.com/nianticlabs/monodepth2">monodepth2</a>, <a class="reference external" href="https://github.com/twhui/LiteFlowNet">LiteFlowNet</a> and <a class="reference external" href="https://github.com/sniklaus/pytorch-liteflownet">pytorch-liteflownet</a>. The borrowed files are licensed under their original license respectively.</p>
+</div>
+<div class="section" id="to-do-list">
+<h2>To-do list<a class="headerlink" href="#to-do-list" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Release more pretrained models</p></li>
+<li><p>Release more results</p></li>
+<li><p>(maybe) training code: it takes longer time to clean the training code. Also, the current training code involves other projects which increases the difficulty in cleaning the code.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

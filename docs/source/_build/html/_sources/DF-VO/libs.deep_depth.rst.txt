@@ -1,0 +1,14 @@
+libs.deep\_depth
+================
+
+   .. automodule:: libs.deep_depth
+      :members:
+      :undoc-members:
+      :show-inheritance:
+
+   Submodules
+
+   
+      .. toctree::
+   
+      libs.deep_depth.monodepth2

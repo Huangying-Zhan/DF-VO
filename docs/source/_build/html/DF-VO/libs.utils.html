@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.utils &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="libs.html">libs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>libs.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.utils">
+<span id="libs-utils"></span><h1>libs.utils<a class="headerlink" href="#module-libs.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="libs.utils.convert_SE3_to_arr">
+<code class="sig-name descname">convert_SE3_to_arr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">SE3_dict</span></em>, <em class="sig-param"><span class="n">timestamps</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#convert_SE3_to_arr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.convert_SE3_to_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert SE3 dictionary to array dictionary
+:param SE3_dict: SE3 dictionary
+:type SE3_dict: SE3 dict
+:param timestamps: timestamp list
+:type timestamps: float list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>poses_dict (array dict)</em> – each pose contains 4x4 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.image_grid">
+<code class="sig-name descname">image_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#image_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.image_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate regular image grid
+:param h: image height
+:type h: int
+:param w: image width
+:type w: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>grid (HxWx2)</em> – regular image grid contains [x,y]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.image_shape">
+<code class="sig-name descname">image_shape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#image_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.image_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>return image shape
+:param img: image
+:type img: HxWx(c) array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>h,w,c (int)</em> – if image has 3 channels
+h,w,1 (int): if image has 2 channels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.load_kitti_odom_intrinsics">
+<code class="sig-name descname">load_kitti_odom_intrinsics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">new_h</span></em>, <em class="sig-param"><span class="n">new_w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#load_kitti_odom_intrinsics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.load_kitti_odom_intrinsics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load kitti odometry data intrinscis
+:param file_name: txt file path
+:type file_name: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><em>params (dict)</em> –</p>
+<dl class="simple">
+<dt>each element contains [cx, cy, fx, fy]</dt><dd><ul class="simple">
+<li><p>0: [cx, cy, fx, fy]_cam0</p></li>
+<li><p>1: [cx, cy, fx, fy]_cam1</p></li>
+<li><p>…</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.load_kitti_raw_intrinsics">
+<code class="sig-name descname">load_kitti_raw_intrinsics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">new_h</span></em>, <em class="sig-param"><span class="n">new_w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#load_kitti_raw_intrinsics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.load_kitti_raw_intrinsics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load kitti raw data intrinscis
+:param file_name: txt file path
+:type file_name: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><em>params (dict)</em> –</p>
+<dl class="simple">
+<dt>each element contains [cx, cy, fx, fy]</dt><dd><ul class="simple">
+<li><p>0: [cx, cy, fx, fy]_cam0</p></li>
+<li><p>1: [cx, cy, fx, fy]_cam1</p></li>
+<li><p>…</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.load_poses_from_oxts">
+<code class="sig-name descname">load_poses_from_oxts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oxts_dir</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#load_poses_from_oxts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.load_poses_from_oxts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load absolute camera poses from oxts files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>oxts_dir</strong> – directory stores oxts data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>poses</em> – dictionary of poses, each pose is 4x4 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.load_poses_from_txt">
+<code class="sig-name descname">load_poses_from_txt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#load_poses_from_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.load_poses_from_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load absolute camera poses from text file
+Each line in the file should follow one of the following structures</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>idx pose(3x4 matrix in terms of 12 numbers)</p></li>
+<li><p>pose(3x4 matrix in terms of 12 numbers)</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> – txt file path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>poses</em> – dictionary of poses, each pose is 4x4 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.load_poses_from_txt_tum">
+<code class="sig-name descname">load_poses_from_txt_tum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#load_poses_from_txt_tum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.load_poses_from_txt_tum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load absolute camera poses from text file (tum format)
+Each line in the file should follow the following structure</p>
+<blockquote>
+<div><p>timestamp tx ty tz qx qy qz qw</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> – txt file path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>poses</em> – dictionary of poses, each pose is 4x4 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.preprocess_depth">
+<code class="sig-name descname">preprocess_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">crop</span></em>, <em class="sig-param"><span class="n">depth_range</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#preprocess_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.preprocess_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>preprocess depth map
+:param depth: depth map
+:type depth: HxW array
+:param crop: normalized crop regions. non-cropped regions set to 0</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>[[y0, y1], [x0, x1]]</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>depth_range</strong> (<em>float list</em>) – [min_depth, max_depth]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>depth (HxW array)</em> – processed depth map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.read_depth">
+<code class="sig-name descname">read_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">scale</span></em>, <em class="sig-param"><span class="n">target_size</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#read_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.read_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read depth png and resize it if necessary
+:param path: depth png path
+:type path: str
+:param scale: scaling factor for reading png
+:type scale: float
+:param target_szie: [target_height, target_width]
+:type target_szie: int list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>depth (HxW array)</em> – depth map</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.read_image">
+<code class="sig-name descname">read_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#read_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.read_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>read image data and convert to RGB
+:param path: image path
+:type path: str</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>img (HxWx3 array)</em> – image data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.save_depth_png">
+<code class="sig-name descname">save_depth_png</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">depth</span></em>, <em class="sig-param"><span class="n">png</span></em>, <em class="sig-param"><span class="n">png_scale</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#save_depth_png"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.save_depth_png" title="Permalink to this definition">¶</a></dt>
+<dd><p>save depth map
+:param depth: depth map
+:type depth: HxW
+:param png: path for saving depth map PNG file
+:type png: str
+:param png_scale: scaling factor for saving PNG file
+:type png_scale: float</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.save_traj">
+<code class="sig-name descname">save_traj</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">txt</span></em>, <em class="sig-param"><span class="n">poses</span></em>, <em class="sig-param"><span class="n">format</span><span class="o">=</span><span class="default_value">'kitti'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#save_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.save_traj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save trajectory (absolute poses) as KITTI odometry file format
+:param txt: pose text file path
+:type txt: str
+:param poses: poses, each pose is 4x4 array
+:type poses: array dict
+:param format: trajectory format</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>kitti: 12 parameters</p></li>
+<li><p>tum: timestamp tx ty tz qx qy qz qw</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.utils.skew">
+<code class="sig-name descname">skew</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/utils.html#skew"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.utils.skew" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create skew-symetric matrix from a vector
+:param x: 1D vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>M (3x3 np.array)</em> – skew-symetric matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

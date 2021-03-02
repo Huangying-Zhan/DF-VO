@@ -1,0 +1,7 @@
+libs.deep\_pose.monodepth2
+==========================
+
+.. automodule:: libs.deep_pose.monodepth2
+   :members:
+   :undoc-members:
+   :show-inheritance:

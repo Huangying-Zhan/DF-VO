@@ -1,0 +1,7 @@
+libs.camera\_modules
+====================
+
+.. automodule:: libs.camera_modules
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.general.kitti_utils &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.general.timer" href="libs.general.timer.html" />
+    <link rel="prev" title="libs.general.kitti_raw_utils" href="libs.general.kitti_raw_utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.general.html">libs.general</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="libs.general.configuration.html">libs.general.configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.frame_drawer.html">libs.general.frame_drawer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.kitti_raw_utils.html">libs.general.kitti_raw_utils</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.general.kitti_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.timer.html">libs.general.timer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.general.utils.html">libs.general.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.general.html">libs.general</a> &raquo;</li>
+        
+      <li>libs.general.kitti_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.general.kitti_utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.general.kitti_utils">
+<span id="libs-general-kitti-utils"></span><h1>libs.general.kitti_utils<a class="headerlink" href="#module-libs.general.kitti_utils" title="Permalink to this headline">¶</a></h1>
+<p>Provides helper methods for loading and parsing KITTI data.</p>
+<dl class="py function">
+<dt id="libs.general.kitti_utils.load_stereo_pairs">
+<code class="sig-name descname">load_stereo_pairs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imL_files</span></em>, <em class="sig-param"><span class="n">imR_files</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/kitti_utils.html#load_stereo_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.kitti_utils.load_stereo_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to read stereo image pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>imL_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – left image file paths</p></li>
+<li><p><strong>imR_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – right image file paths</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a list containing tuples</dt><dd><ul class="simple">
+<li><p><strong>left</strong> (HxWxC): left image</p></li>
+<li><p><strong>right</strong> (HxWxC): left image</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.kitti_utils.load_velo_scans">
+<code class="sig-name descname">load_velo_scans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">velo_files</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/kitti_utils.html#load_velo_scans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.kitti_utils.load_velo_scans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to parse velodyne binary files into a list of scans.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>velo_files</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – velodyne data paths</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>scan_list (list)</em> – list of velodyne scans, each scan is a [Nx4] array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.kitti_utils.read_calib_file">
+<code class="sig-name descname">read_calib_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/kitti_utils.html#read_calib_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.kitti_utils.read_calib_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a calibration file and parse into a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – file path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>data (dict)</em> – a dictionary containing intrinsics for different sensors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.kitti_utils.rotx">
+<code class="sig-name descname">rotx</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/kitti_utils.html#rotx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.kitti_utils.rotx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation about the x-axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>R (array, [3x3])</em> – rotation matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.kitti_utils.roty">
+<code class="sig-name descname">roty</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/kitti_utils.html#roty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.kitti_utils.roty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation about the y-axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>R (array, [3x3])</em> – rotation matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.kitti_utils.rotz">
+<code class="sig-name descname">rotz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/kitti_utils.html#rotz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.kitti_utils.rotz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation about the z-axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>R (array, [3x3])</em> – rotation matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.general.kitti_utils.transform_from_rot_trans">
+<code class="sig-name descname">transform_from_rot_trans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R</span></em>, <em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/general/kitti_utils.html#transform_from_rot_trans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.general.kitti_utils.transform_from_rot_trans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforation matrix from rotation matrix and translation vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>R</strong> (<em>array</em><em>, </em><em>[</em><em>3x3</em><em>]</em>) – rotation matrix</p></li>
+<li><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>T (array, [4x4])</em> – transformation matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.general.timer.html" class="btn btn-neutral float-right" title="libs.general.timer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.general.kitti_raw_utils.html" class="btn btn-neutral float-left" title="libs.general.kitti_raw_utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

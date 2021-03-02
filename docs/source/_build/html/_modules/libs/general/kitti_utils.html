@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.general.kitti_utils &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.general.kitti_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.general.kitti_utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Provides helper methods for loading and parsing KITTI data.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.image</span> <span class="k">as</span> <span class="nn">mpimg</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Lee Clement&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;lee.clement@robotics.utias.utoronto.ca&quot;</span>
+
+
+<div class="viewcode-block" id="rotx"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_utils.html#libs.general.kitti_utils.rotx">[docs]</a><span class="k">def</span> <span class="nf">rotx</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Rotation about the x-axis.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        t (float): angle</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        R (array, [3x3]): rotation matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span>  <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span>  <span class="n">s</span><span class="p">,</span>  <span class="n">c</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="roty"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_utils.html#libs.general.kitti_utils.roty">[docs]</a><span class="k">def</span> <span class="nf">roty</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Rotation about the y-axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t (float): angle</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        R (array, [3x3]): rotation matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="n">s</span><span class="p">],</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+                     <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">c</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="rotz"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_utils.html#libs.general.kitti_utils.rotz">[docs]</a><span class="k">def</span> <span class="nf">rotz</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Rotation about the z-axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t (float): angle</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        R (array, [3x3]): rotation matrix</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+                     <span class="p">[</span><span class="n">s</span><span class="p">,</span>  <span class="n">c</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="transform_from_rot_trans"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_utils.html#libs.general.kitti_utils.transform_from_rot_trans">[docs]</a><span class="k">def</span> <span class="nf">transform_from_rot_trans</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Transforation matrix from rotation matrix and translation vector.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        R (array, [3x3]): rotation matrix</span>
+<span class="sd">        t (float): angle</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        T (array, [4x4]): transformation matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">]),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="read_calib_file"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_utils.html#libs.general.kitti_utils.read_calib_file">[docs]</a><span class="k">def</span> <span class="nf">read_calib_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read in a calibration file and parse into a dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filepath (str): file path</span>
+<span class="sd">    </span>
+<span class="sd">    Return:</span>
+<span class="sd">        data (dict): a dictionary containing intrinsics for different sensors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># The only non-float values in these files are dates, which</span>
+            <span class="c1"># we don&#39;t care about anyway</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="load_stereo_pairs"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_utils.html#libs.general.kitti_utils.load_stereo_pairs">[docs]</a><span class="k">def</span> <span class="nf">load_stereo_pairs</span><span class="p">(</span><span class="n">imL_files</span><span class="p">,</span> <span class="n">imR_files</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper method to read stereo image pairs.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        imL_files (list): left image file paths</span>
+<span class="sd">        imR_files (list): right image file paths</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        a list containing tuples </span>
+<span class="sd">            - **left** (HxWxC): left image</span>
+<span class="sd">            - **right** (HxWxC): left image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">StereoPair</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;StereoPair&#39;</span><span class="p">,</span> <span class="s1">&#39;left, right&#39;</span><span class="p">)</span>
+
+    <span class="n">impairs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">imfiles</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">imL_files</span><span class="p">,</span> <span class="n">imR_files</span><span class="p">):</span>
+        <span class="c1"># Convert to uint8 and BGR for OpenCV if requested</span>
+        <span class="n">imformat</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">imformat</span> <span class="ow">is</span> <span class="s1">&#39;cv2&#39;</span><span class="p">:</span>
+            <span class="n">imL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">imfiles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+            <span class="n">imR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">imfiles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+
+            <span class="c1"># Convert RGB to BGR</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">imL</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">imL</span> <span class="o">=</span> <span class="n">imL</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">imR</span> <span class="o">=</span> <span class="n">imR</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">imL</span> <span class="o">=</span> <span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">imfiles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">imR</span> <span class="o">=</span> <span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">imfiles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">impairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StereoPair</span><span class="p">(</span><span class="n">imL</span><span class="p">,</span> <span class="n">imR</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">impairs</span></div>
+
+
+<div class="viewcode-block" id="load_velo_scans"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_utils.html#libs.general.kitti_utils.load_velo_scans">[docs]</a><span class="k">def</span> <span class="nf">load_velo_scans</span><span class="p">(</span><span class="n">velo_files</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper method to parse velodyne binary files into a list of scans.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        velo_files (list): velodyne data paths</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        scan_list (list): list of velodyne scans, each scan is a [Nx4] array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scan_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">velo_files</span><span class="p">:</span>
+        <span class="n">scan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">scan_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">scan_list</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

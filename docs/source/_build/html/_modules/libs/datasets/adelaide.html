@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.datasets.adelaide &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.datasets.adelaide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.datasets.adelaide</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2020-05-13</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-05-28</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: Dataset loaders for Adelaide Driving Sequence</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Adelaide"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide">[docs]</a><span class="k">class</span> <span class="nc">Adelaide</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class of dataset loaders for Adelaide Driving Sequence</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Adelaide</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="sd">&#39;&#39;&#39; In general, you don&#39;t need to change this part &#39;&#39;&#39;</span> 
+<div class="viewcode-block" id="Adelaide.synchronize_timestamps"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.synchronize_timestamps">[docs]</a>    <span class="k">def</span> <span class="nf">synchronize_timestamps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Synchronize RGB, Depth, and Pose timestamps to form pairs</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **rgb_timestamp** : {&#39;depth&#39;: depth_timestamp, &#39;pose&#39;: pose_timestamp}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">len_seq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> <span class="s2">&quot;*.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ext</span><span class="p">))))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_seq</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span></div>
+    
+<div class="viewcode-block" id="Adelaide.get_timestamp"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.get_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">get_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get timestamp for the query img_id</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img_id (int): query image id</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            timestamp (int): timestamp for query image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">img_id</span></div>
+
+<div class="viewcode-block" id="Adelaide.save_result_traj"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.save_result_traj">[docs]</a>    <span class="k">def</span> <span class="nf">save_result_traj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traj_txt</span><span class="p">,</span> <span class="n">poses</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save trajectory (absolute poses) as KITTI odometry file format</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            txt (str): pose text file path</span>
+<span class="sd">            poses (dict): poses, each pose is a [4x4] array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">global_poses_arr</span> <span class="o">=</span> <span class="n">convert_SE3_to_arr</span><span class="p">(</span><span class="n">poses</span><span class="p">)</span>
+        <span class="n">save_traj</span><span class="p">(</span><span class="n">traj_txt</span><span class="p">,</span> <span class="n">global_poses_arr</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;kitti&#39;</span><span class="p">)</span></div>
+
+    <span class="sd">&#39;&#39;&#39; In general, you need to write the following functions for your own dataset&#39;&#39;&#39;</span> 
+<div class="viewcode-block" id="Adelaide.get_intrinsics_param"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.get_intrinsics_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_intrinsics_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read intrinsics parameters for each dataset</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            intrinsics_param (list): [cx, cy, fx, fy]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Reference image size</span>
+        <span class="c1"># Camera one </span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span> <span class="o">==</span> <span class="s2">&quot;adelaide1&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">256</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">832</span>
+        
+        <span class="c1"># Camera two </span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span> <span class="o">==</span> <span class="s2">&quot;adelaide2&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">512</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">1664</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Wrong dataset is given&quot;</span>
+
+        <span class="n">img_seq_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">img_seq_dir</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span>
+                            <span class="p">)</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_seq_dir</span><span class="p">,</span> <span class="s2">&quot;cam.txt&quot;</span><span class="p">))</span>
+        <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="n">intrinsics_param</span> <span class="o">=</span> <span class="p">[</span><span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">intrinsics_param</span></div>
+    
+<div class="viewcode-block" id="Adelaide.get_data_dir"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.get_data_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get data directory</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **img** (str) : image data directory</span>
+<span class="sd">                - (optional) **depth** (str) : depth data direcotry or None</span>
+<span class="sd">                - (optional) **depth_src** (str) : depth data type [gt/None]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;depth_src&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
+        <span class="c1"># get image data directory</span>
+        <span class="n">img_seq_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">img_seq_dir</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span>
+                            <span class="p">)</span>
+        <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_seq_dir</span><span class="p">)</span>
+ 
+        <span class="k">return</span> <span class="n">data_dir</span></div>
+    
+<div class="viewcode-block" id="Adelaide.get_image"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get image data given the image timestamp</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timestamp (int): timestamp for the image</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            img (array, [CxHxW]): image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> 
+                            <span class="s2">&quot;</span><span class="si">{:06d}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ext</span><span class="p">)</span>
+                            <span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">read_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span></div>
+    
+    <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">        These functions are not necessary to run DF-VO. </span>
+<span class="sd">        However, if you want to use RGB-D data, get_depth() is required.</span>
+<span class="sd">        If you have gt poses as well for comparison, get_gt_poses() is required.</span>
+<span class="sd">    &#39;&#39;&#39;</span> 
+<div class="viewcode-block" id="Adelaide.get_depth"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.get_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get GT/precomputed depth data given the timestamp</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timestamp (int): timestamp for the depth</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            depth (array, [HxW]): depth data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Adelaide.get_gt_poses"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.adelaide.html#libs.datasets.adelaide.Adelaide.get_gt_poses">[docs]</a>    <span class="k">def</span> <span class="nf">get_gt_poses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load ground-truth poses</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            gt_poses (dict): each pose is a [4x4] array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.tracker.E_tracker &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.tracker.gric" href="libs.tracker.gric.html" />
+    <link rel="prev" title="libs.tracker" href="libs.tracker.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.tracker.html">libs.tracker</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.tracker.E_tracker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.tracker.gric.html">libs.tracker.gric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.tracker.pnp_tracker.html">libs.tracker.pnp_tracker</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.tracker.html">libs.tracker</a> &raquo;</li>
+        
+      <li>libs.tracker.E_tracker</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.tracker.E_tracker.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.tracker.E_tracker">
+<span id="libs-tracker-e-tracker"></span><h1>libs.tracker.E_tracker<a class="headerlink" href="#module-libs.tracker.E_tracker" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.tracker.E_tracker.EssTracker">
+<em class="property">class </em><code class="sig-name descname">EssTracker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em>, <em class="sig-param"><span class="n">cam_intrinsics</span></em>, <em class="sig-param"><span class="n">timers</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em>, <em class="sig-param"><span class="n">cam_intrinsics</span></em>, <em class="sig-param"><span class="n">timers</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> (<em>edict</em>) – configuration dictionary</p></li>
+<li><p><strong>cam_intrinsics</strong> (<a class="reference internal" href="libs.geometry.camera_modules.html#libs.geometry.camera_modules.Intrinsics" title="libs.geometry.camera_modules.Intrinsics"><em>Intrinsics</em></a>) – camera intrinsics</p></li>
+<li><p><strong>timers</strong> (<a class="reference internal" href="libs.general.timer.html#libs.general.timer.Timer" title="libs.general.timer.Timer"><em>Timer</em></a>) – timers</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.compute_pose_2d2d">
+<code class="sig-name descname">compute_pose_2d2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kp_ref</span></em>, <em class="sig-param"><span class="n">kp_cur</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.compute_pose_2d2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.compute_pose_2d2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the pose from view2 to view1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kp_ref</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoints for reference view</p></li>
+<li><p><strong>kp_cur</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoints for current view</p></li>
+<li><p><strong>cam_intrinsics</strong> (<a class="reference internal" href="libs.geometry.camera_modules.html#libs.geometry.camera_modules.Intrinsics" title="libs.geometry.camera_modules.Intrinsics"><em>Intrinsics</em></a>) – camera intrinsics</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>pose</strong> (SE3): relative pose from current to reference view</p></li>
+<li><p><strong>best_inliers</strong> (array, [N]): boolean inlier mask</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.compute_pose_2d2d_mp">
+<code class="sig-name descname">compute_pose_2d2d_mp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kp_ref</span></em>, <em class="sig-param"><span class="n">kp_cur</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.compute_pose_2d2d_mp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.compute_pose_2d2d_mp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the pose from view2 to view1 (multiprocessing version)
+Speed doesn’t change much</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kp_ref</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoints for reference view</p></li>
+<li><p><strong>kp_cur</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoints for current view</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>pose</strong> (SE3): relative pose from current to reference view</p></li>
+<li><p><strong>best_inliers</strong> (array, [N]): boolean inlier mask</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.find_scale_from_depth">
+<code class="sig-name descname">find_scale_from_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kp1</span></em>, <em class="sig-param"><span class="n">kp2</span></em>, <em class="sig-param"><span class="n">T_21</span></em>, <em class="sig-param"><span class="n">depth2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.find_scale_from_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.find_scale_from_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute VO scaling factor for T_21</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kp1</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – reference kp</p></li>
+<li><p><strong>kp2</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – current kp</p></li>
+<li><p><strong>T_21</strong> (<em>array</em><em>, </em><em>[</em><em>4x4</em><em>]</em>) – relative pose; from view 1 to view 2</p></li>
+<li><p><strong>depth2</strong> (<em>array</em><em>, </em><em>[</em><em>HxW</em><em>]</em>) – depth 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>scale (float)</em> – scaling factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.kp_selection_good_depth">
+<code class="sig-name descname">kp_selection_good_depth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em>, <em class="sig-param"><span class="n">rigid_kp_method</span><span class="o">=</span><span class="default_value">'uniform'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.kp_selection_good_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.kp_selection_good_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose valid kp from a series of operations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – current data</p></li>
+<li><p><strong>ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – reference data</p></li>
+<li><p><strong>rigid_kp_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – [uniform, best]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>a dictionary containing</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>kp1_depth</strong> (array, [Nx2]): keypoints in view-1</p></li>
+<li><p><strong>kp2_depth</strong> (array, [Nx2]): keypoints in view-2</p></li>
+<li><p><strong>rigid_flow_mask</strong> (array, [HxW]): rigid-optical flow consistency</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.scale_recovery">
+<code class="sig-name descname">scale_recovery</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em>, <em class="sig-param"><span class="n">E_pose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.scale_recovery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.scale_recovery" title="Permalink to this definition">¶</a></dt>
+<dd><p>recover depth scale</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – current data</p></li>
+<li><p><strong>ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – reference data</p></li>
+<li><p><strong>E_pose</strong> (<a class="reference internal" href="libs.geometry.camera_modules.html#libs.geometry.camera_modules.SE3" title="libs.geometry.camera_modules.SE3"><em>SE3</em></a>) – SE3 pose</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>scale</strong> (float): estimated scaling factor</p></li>
+<li><p><strong>cur_kp_depth</strong> (array, [Nx2]): keypoints at current view</p></li>
+<li><p><strong>ref_kp_depth</strong> (array, [Nx2]): keypoints at referenceview</p></li>
+<li><p><strong>rigid_flow_mask</strong> (array, [HxW]): rigid flow mask</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.scale_recovery_iterative">
+<code class="sig-name descname">scale_recovery_iterative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em>, <em class="sig-param"><span class="n">E_pose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.scale_recovery_iterative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.scale_recovery_iterative" title="Permalink to this definition">¶</a></dt>
+<dd><p>recover depth scale by comparing triangulated depths and CNN depths
+Iterative scale recovery is applied</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – current data</p></li>
+<li><p><strong>ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – reference data</p></li>
+<li><p><strong>E_pose</strong> (<a class="reference internal" href="libs.geometry.camera_modules.html#libs.geometry.camera_modules.SE3" title="libs.geometry.camera_modules.SE3"><em>SE3</em></a>) – SE3 pose</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>scale</strong> (float): estimated scaling factor</p></li>
+<li><p><strong>cur_kp</strong> (array, [Nx2]): keypoints at current view</p></li>
+<li><p><strong>ref_kp</strong> (array, [Nx2]): keypoints at referenceview</p></li>
+<li><p><strong>rigid_flow_mask</strong> (array, [HxW]): rigid flow mask</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.tracker.E_tracker.EssTracker.scale_recovery_simple">
+<code class="sig-name descname">scale_recovery_simple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cur_data</span></em>, <em class="sig-param"><span class="n">ref_data</span></em>, <em class="sig-param"><span class="n">E_pose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#EssTracker.scale_recovery_simple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.EssTracker.scale_recovery_simple" title="Permalink to this definition">¶</a></dt>
+<dd><p>recover depth scale by comparing triangulated depths and CNN depths</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – current data</p></li>
+<li><p><strong>ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – reference data</p></li>
+<li><p><strong>E_pose</strong> (<a class="reference internal" href="libs.geometry.camera_modules.html#libs.geometry.camera_modules.SE3" title="libs.geometry.camera_modules.SE3"><em>SE3</em></a>) – SE3 pose</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>scale</strong> (float): estimated scaling factor</p></li>
+<li><p><strong>cur_kp_depth</strong> (array, [Nx2]): keypoints at current view</p></li>
+<li><p><strong>ref_kp_depth</strong> (array, [Nx2]): keypoints at referenceview</p></li>
+<li><p><strong>rigid_flow_mask</strong> (array, [HxW]): rigid flow mask</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>scale (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.tracker.E_tracker.find_Ess_mat">
+<code class="sig-name descname">find_Ess_mat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#find_Ess_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.find_Ess_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find essetial matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dictionary containing</strong> (<em>a</em>) – <ul class="simple">
+<li><p><strong>kp_cur</strong> (array, [Nx2]): keypoints at current view</p></li>
+<li><p><strong>kp_ref</strong> (array, [Nx2]): keypoints at reference view</p></li>
+<li><p><strong>H_inliers</strong> (array, [N]): boolean inlier mask</p></li>
+<li><p><strong>cfg</strong> (edict): configuration dictionary related to pose estimation from 2D-2D matches</p></li>
+<li><p><strong>cam_intrinsics</strong> (Intrinsics): camera intrinsics</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing</dt><dd><ul class="simple">
+<li><p><strong>E</strong> (array, [3x3]): essential matrix</p></li>
+<li><p><strong>valid_case</strong> (bool): validity of the solution</p></li>
+<li><p><strong>inlier_cnt</strong> (int): number of inliners</p></li>
+<li><p><strong>inlier</strong> (array, [N]): boolean inlier mask</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.tracker.E_tracker.get_E_from_pose">
+<code class="sig-name descname">get_E_from_pose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pose</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/E_tracker.html#get_E_from_pose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.tracker.E_tracker.get_E_from_pose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover essential matrix from a pose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pose</strong> (<a class="reference internal" href="libs.geometry.camera_modules.html#libs.geometry.camera_modules.SE3" title="libs.geometry.camera_modules.SE3"><em>SE3</em></a>) – SE3</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>E (array, [3x3])</em> – essential matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.tracker.gric.html" class="btn btn-neutral float-right" title="libs.tracker.gric" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.tracker.html" class="btn btn-neutral float-left" title="libs.tracker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

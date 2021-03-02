@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.kitti_raw_utils &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="libs.html">libs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>libs.kitti_raw_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.kitti_raw_utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.kitti_raw_utils">
+<span id="libs-kitti-raw-utils"></span><h1>libs.kitti_raw_utils<a class="headerlink" href="#module-libs.kitti_raw_utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.kitti_raw_utils.OxtsPacket">
+<em class="property">class </em><code class="sig-name descname">OxtsPacket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lat</span></em>, <em class="sig-param"><span class="n">lon</span></em>, <em class="sig-param"><span class="n">alt</span></em>, <em class="sig-param"><span class="n">roll</span></em>, <em class="sig-param"><span class="n">pitch</span></em>, <em class="sig-param"><span class="n">yaw</span></em>, <em class="sig-param"><span class="n">vn</span></em>, <em class="sig-param"><span class="n">ve</span></em>, <em class="sig-param"><span class="n">vf</span></em>, <em class="sig-param"><span class="n">vl</span></em>, <em class="sig-param"><span class="n">vu</span></em>, <em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">ay</span></em>, <em class="sig-param"><span class="n">az</span></em>, <em class="sig-param"><span class="n">af</span></em>, <em class="sig-param"><span class="n">al</span></em>, <em class="sig-param"><span class="n">au</span></em>, <em class="sig-param"><span class="n">wx</span></em>, <em class="sig-param"><span class="n">wy</span></em>, <em class="sig-param"><span class="n">wz</span></em>, <em class="sig-param"><span class="n">wf</span></em>, <em class="sig-param"><span class="n">wl</span></em>, <em class="sig-param"><span class="n">wu</span></em>, <em class="sig-param"><span class="n">pos_accuracy</span></em>, <em class="sig-param"><span class="n">vel_accuracy</span></em>, <em class="sig-param"><span class="n">navstat</span></em>, <em class="sig-param"><span class="n">numsats</span></em>, <em class="sig-param"><span class="n">posmode</span></em>, <em class="sig-param"><span class="n">velmode</span></em>, <em class="sig-param"><span class="n">orimode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></p>
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.__getnewargs__">
+<code class="sig-name descname">__getnewargs__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.__getnewargs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self as a plain tuple.  Used by copy and pickle.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.__new__">
+<em class="property">static </em><code class="sig-name descname">__new__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_cls</span></em>, <em class="sig-param"><span class="n">lat</span></em>, <em class="sig-param"><span class="n">lon</span></em>, <em class="sig-param"><span class="n">alt</span></em>, <em class="sig-param"><span class="n">roll</span></em>, <em class="sig-param"><span class="n">pitch</span></em>, <em class="sig-param"><span class="n">yaw</span></em>, <em class="sig-param"><span class="n">vn</span></em>, <em class="sig-param"><span class="n">ve</span></em>, <em class="sig-param"><span class="n">vf</span></em>, <em class="sig-param"><span class="n">vl</span></em>, <em class="sig-param"><span class="n">vu</span></em>, <em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">ay</span></em>, <em class="sig-param"><span class="n">az</span></em>, <em class="sig-param"><span class="n">af</span></em>, <em class="sig-param"><span class="n">al</span></em>, <em class="sig-param"><span class="n">au</span></em>, <em class="sig-param"><span class="n">wx</span></em>, <em class="sig-param"><span class="n">wy</span></em>, <em class="sig-param"><span class="n">wz</span></em>, <em class="sig-param"><span class="n">wf</span></em>, <em class="sig-param"><span class="n">wl</span></em>, <em class="sig-param"><span class="n">wu</span></em>, <em class="sig-param"><span class="n">pos_accuracy</span></em>, <em class="sig-param"><span class="n">vel_accuracy</span></em>, <em class="sig-param"><span class="n">navstat</span></em>, <em class="sig-param"><span class="n">numsats</span></em>, <em class="sig-param"><span class="n">posmode</span></em>, <em class="sig-param"><span class="n">velmode</span></em>, <em class="sig-param"><span class="n">orimode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.__new__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new instance of OxtsPacket(lat, lon, alt, roll, pitch, yaw, vn, ve, vf, vl, vu, ax, ay, az, af, al, au, wx, wy, wz, wf, wl, wu, pos_accuracy, vel_accuracy, navstat, numsats, posmode, velmode, orimode)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a nicely formatted representation string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.af">
+<em class="property">property </em><code class="sig-name descname">af</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.af" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 14</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.al">
+<em class="property">property </em><code class="sig-name descname">al</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.al" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 15</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.alt">
+<em class="property">property </em><code class="sig-name descname">alt</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.alt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.au">
+<em class="property">property </em><code class="sig-name descname">au</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.au" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 16</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.ax">
+<em class="property">property </em><code class="sig-name descname">ax</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.ax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 11</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.ay">
+<em class="property">property </em><code class="sig-name descname">ay</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.ay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 12</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.az">
+<em class="property">property </em><code class="sig-name descname">az</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.az" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 13</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.lat">
+<em class="property">property </em><code class="sig-name descname">lat</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.lat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.lon">
+<em class="property">property </em><code class="sig-name descname">lon</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.lon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.navstat">
+<em class="property">property </em><code class="sig-name descname">navstat</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.navstat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 25</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.numsats">
+<em class="property">property </em><code class="sig-name descname">numsats</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.numsats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 26</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.orimode">
+<em class="property">property </em><code class="sig-name descname">orimode</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.orimode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 29</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.pitch">
+<em class="property">property </em><code class="sig-name descname">pitch</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.pitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.pos_accuracy">
+<em class="property">property </em><code class="sig-name descname">pos_accuracy</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.pos_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 23</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.posmode">
+<em class="property">property </em><code class="sig-name descname">posmode</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.posmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 27</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.roll">
+<em class="property">property </em><code class="sig-name descname">roll</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.roll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.ve">
+<em class="property">property </em><code class="sig-name descname">ve</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.ve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 7</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.vel_accuracy">
+<em class="property">property </em><code class="sig-name descname">vel_accuracy</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.vel_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 24</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.velmode">
+<em class="property">property </em><code class="sig-name descname">velmode</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.velmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 28</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.vf">
+<em class="property">property </em><code class="sig-name descname">vf</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.vf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 8</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.vl">
+<em class="property">property </em><code class="sig-name descname">vl</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.vl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 9</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.vn">
+<em class="property">property </em><code class="sig-name descname">vn</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.vn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 6</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.vu">
+<em class="property">property </em><code class="sig-name descname">vu</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.vu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 10</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.wf">
+<em class="property">property </em><code class="sig-name descname">wf</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.wf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 20</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.wl">
+<em class="property">property </em><code class="sig-name descname">wl</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.wl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 21</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.wu">
+<em class="property">property </em><code class="sig-name descname">wu</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.wu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 22</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.wx">
+<em class="property">property </em><code class="sig-name descname">wx</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.wx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 17</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.wy">
+<em class="property">property </em><code class="sig-name descname">wy</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.wy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 18</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.wz">
+<em class="property">property </em><code class="sig-name descname">wz</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.wz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 19</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.kitti_raw_utils.OxtsPacket.yaw">
+<em class="property">property </em><code class="sig-name descname">yaw</code><a class="headerlink" href="#libs.kitti_raw_utils.OxtsPacket.yaw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.kitti_raw_utils.flip_rotation">
+<code class="sig-name descname">flip_rotation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">R</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/kitti_raw_utils.html#flip_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.kitti_raw_utils.flip_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>R</strong> (<em>3x3</em>) – rotation matrix</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>new_R (3x3)</em> – new rotation matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.kitti_raw_utils.generate_pose">
+<code class="sig-name descname">generate_pose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em>, <em class="sig-param"><span class="n">frame_idx</span></em>, <em class="sig-param"><span class="n">do_flip</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/kitti_raw_utils.html#generate_pose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.kitti_raw_utils.generate_pose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get pose for a frame in a sequence
+:param seq: sequence oxts_dir directory
+:type seq: str
+:param frame_idx: frame index
+:type frame_idx: int
+:param do_flip: flip sequence horizontally
+:type do_flip: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>pose (4x4 array)</em> – absolute pose w.r.t frame-0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.kitti_raw_utils.poses_from_oxts">
+<code class="sig-name descname">poses_from_oxts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oxts_packets</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/kitti_raw_utils.html#poses_from_oxts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.kitti_raw_utils.poses_from_oxts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to compute SE(3) pose matrices from OXTS packets.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

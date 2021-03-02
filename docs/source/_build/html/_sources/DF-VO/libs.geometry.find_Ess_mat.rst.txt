@@ -1,0 +1,7 @@
+libs.geometry.find\_Ess\_mat
+============================
+
+.. automodule:: libs.geometry.find_Ess_mat
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.utils &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/unit_test.html">Unit Test</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) Huangying Zhan 2019. All rights reserved.</span>
+<span class="c1"># This software is licensed under the terms in the LICENSE file </span>
+<span class="c1"># which allows for non-commercial use only.</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+<span class="kn">from</span> <span class="nn">tools.evaluation.tum_tool.pose_evaluation_utils</span> <span class="k">import</span> <span class="n">quat2mat</span>
+<span class="kn">from</span> <span class="nn">.kitti_raw_utils</span> <span class="k">import</span> <span class="n">generate_pose</span>
+
+
+<div class="viewcode-block" id="read_image"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.read_image">[docs]</a><span class="k">def</span> <span class="nf">read_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;read image data and convert to RGB</span>
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): image path</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        img (HxWx3 array): image data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">img</span></div>
+
+
+<div class="viewcode-block" id="read_depth"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.read_depth">[docs]</a><span class="k">def</span> <span class="nf">read_depth</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">target_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read depth png and resize it if necessary</span>
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): depth png path</span>
+<span class="sd">        scale (float): scaling factor for reading png</span>
+<span class="sd">        target_szie (int list): [target_height, target_width]</span>
+<span class="sd">    Return:</span>
+<span class="sd">        depth (HxW array): depth map</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+    <span class="k">if</span> <span class="n">target_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span> <span class="o">=</span> <span class="n">target_size</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">img_w</span><span class="p">,</span> <span class="n">img_h</span><span class="p">),</span>
+                        <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_NEAREST</span>
+                        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">depth</span></div>
+
+
+<div class="viewcode-block" id="save_depth_png"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.save_depth_png">[docs]</a><span class="k">def</span> <span class="nf">save_depth_png</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">png</span><span class="p">,</span> <span class="n">png_scale</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;save depth map</span>
+<span class="sd">    Args:</span>
+<span class="sd">        depth (HxW): depth map</span>
+<span class="sd">        png (str): path for saving depth map PNG file</span>
+<span class="sd">        png_scale (float): scaling factor for saving PNG file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">65535</span> <span class="o">/</span> <span class="n">png_scale</span><span class="p">)</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="p">(</span><span class="n">depth</span> <span class="o">*</span> <span class="n">png_scale</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span></div>
+    
+
+<div class="viewcode-block" id="preprocess_depth"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.preprocess_depth">[docs]</a><span class="k">def</span> <span class="nf">preprocess_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">crop</span><span class="p">,</span> <span class="n">depth_range</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;preprocess depth map</span>
+<span class="sd">    Args:</span>
+<span class="sd">        depth (HxW array): depth map</span>
+<span class="sd">        crop (list): normalized crop regions. non-cropped regions set to 0</span>
+<span class="sd">            - [[y0, y1], [x0, x1]]</span>
+<span class="sd">        depth_range (float list): [min_depth, max_depth]</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        depth (HxW array): processed depth map</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">min_depth</span><span class="p">,</span> <span class="n">max_depth</span> <span class="o">=</span> <span class="n">depth_range</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">crop</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">crop</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">crop</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">crop</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">depth_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+    <span class="n">depth_mask</span><span class="p">[</span><span class="n">y0</span><span class="p">:</span><span class="n">y1</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span><span class="n">x1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">depth_range_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">max_depth</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">depth</span> <span class="o">&gt;</span> <span class="n">min_depth</span><span class="p">)</span>
+    <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">depth_mask</span> <span class="o">*</span> <span class="n">depth_range_mask</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">*</span> <span class="n">valid_mask</span>
+    <span class="k">return</span> <span class="n">depth</span></div>
+
+
+<div class="viewcode-block" id="image_shape"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.image_shape">[docs]</a><span class="k">def</span> <span class="nf">image_shape</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return image shape</span>
+<span class="sd">    Args:</span>
+<span class="sd">        img (HxWx(c) array): image</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        h,w,c (int): if image has 3 channels</span>
+<span class="sd">        h,w,1 (int): if image has 2 channels</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="skew"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.skew">[docs]</a><span class="k">def</span> <span class="nf">skew</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create skew-symetric matrix from a vector</span>
+<span class="sd">    Args:</span>
+<span class="sd">        x: 1D vector</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        M (3x3 np.array): skew-symetric matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                     <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                     <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="load_poses_from_txt"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.load_poses_from_txt">[docs]</a><span class="k">def</span> <span class="nf">load_poses_from_txt</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Load absolute camera poses from text file</span>
+<span class="sd">    Each line in the file should follow one of the following structures</span>
+<span class="sd">        (1) idx pose(3x4 matrix in terms of 12 numbers)</span>
+<span class="sd">        (2) pose(3x4 matrix in terms of 12 numbers)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_name: txt file path</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        poses: dictionary of poses, each pose is 4x4 array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">poses</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">line_split</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)]</span>
+        <span class="n">withIdx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line_split</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">P</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">line_split</span><span class="p">[</span><span class="n">row</span><span class="o">*</span><span class="mi">4</span> <span class="o">+</span> <span class="n">col</span> <span class="o">+</span> <span class="n">withIdx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">withIdx</span><span class="p">:</span>
+            <span class="n">frame_idx</span> <span class="o">=</span> <span class="n">line_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frame_idx</span> <span class="o">=</span> <span class="n">cnt</span>
+        <span class="n">poses</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span>
+    <span class="k">return</span> <span class="n">poses</span></div>
+
+
+<div class="viewcode-block" id="load_poses_from_oxts"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.load_poses_from_oxts">[docs]</a><span class="k">def</span> <span class="nf">load_poses_from_oxts</span><span class="p">(</span><span class="n">oxts_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Load absolute camera poses from oxts files</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        oxts_dir: directory stores oxts data</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        poses: dictionary of poses, each pose is 4x4 array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">poses</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">len_seq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">oxts_dir</span><span class="p">,</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_seq</span><span class="p">):</span>
+        <span class="n">poses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_pose</span><span class="p">(</span><span class="n">oxts_dir</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">do_flip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">poses</span></div>
+
+
+<div class="viewcode-block" id="load_poses_from_txt_tum"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.load_poses_from_txt_tum">[docs]</a><span class="k">def</span> <span class="nf">load_poses_from_txt_tum</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Load absolute camera poses from text file (tum format)</span>
+<span class="sd">    Each line in the file should follow the following structure</span>
+<span class="sd">        timestamp tx ty tz qx qy qz qw</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_name: txt file path</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        poses: dictionary of poses, each pose is 4x4 array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">poses</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">line_split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+        <span class="c1"># Comments</span>
+        <span class="k">if</span> <span class="n">line_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># Get raw data</span>
+        <span class="n">line_split</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)]</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">timestamp</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">tz</span><span class="p">,</span> <span class="n">qx</span><span class="p">,</span> <span class="n">qy</span><span class="p">,</span> <span class="n">qz</span><span class="p">,</span> <span class="n">qw</span> <span class="o">=</span> <span class="n">line_split</span>
+
+        <span class="c1"># quat -&gt; Rotation matrix</span>
+        <span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">quat2mat</span><span class="p">([</span><span class="n">qw</span><span class="p">,</span> <span class="n">qx</span><span class="p">,</span> <span class="n">qy</span><span class="p">,</span> <span class="n">qz</span><span class="p">])</span>
+        <span class="n">P</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">tz</span><span class="p">])</span>
+        
+        <span class="n">poses</span><span class="p">[</span><span class="n">timestamp</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span>
+    
+    <span class="n">pose_0</span> <span class="o">=</span> <span class="n">poses</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">poses</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">timestamp</span> <span class="ow">in</span> <span class="n">poses</span><span class="p">:</span>
+        <span class="n">poses</span><span class="p">[</span><span class="n">timestamp</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">pose_0</span><span class="p">)</span> <span class="o">@</span> <span class="n">poses</span><span class="p">[</span><span class="n">timestamp</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">poses</span></div>
+
+
+<div class="viewcode-block" id="load_kitti_odom_intrinsics"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.load_kitti_odom_intrinsics">[docs]</a><span class="k">def</span> <span class="nf">load_kitti_odom_intrinsics</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">new_h</span><span class="p">,</span> <span class="n">new_w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load kitti odometry data intrinscis</span>
+<span class="sd">    Args:</span>
+<span class="sd">        file_name (str): txt file path</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        params (dict): each element contains [cx, cy, fx, fy]</span>
+<span class="sd">            - 0: [cx, cy, fx, fy]_cam0</span>
+<span class="sd">            - 1: [cx, cy, fx, fy]_cam1</span>
+<span class="sd">            - ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw_img_h</span> <span class="o">=</span> <span class="mf">370.0</span>
+    <span class="n">raw_img_w</span> <span class="o">=</span> <span class="mf">1226.0</span>
+    <span class="n">intrinsics</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="n">line_split</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]</span> 
+            <span class="n">intrinsics</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">line_split</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_w</span><span class="o">*</span><span class="n">new_w</span><span class="p">,</span>
+                            <span class="n">line_split</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_h</span><span class="o">*</span><span class="n">new_h</span><span class="p">,</span>
+                            <span class="n">line_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_w</span><span class="o">*</span><span class="n">new_w</span><span class="p">,</span>
+                            <span class="n">line_split</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_h</span><span class="o">*</span><span class="n">new_h</span><span class="p">,</span>
+                            <span class="p">]</span>
+    <span class="k">return</span> <span class="n">intrinsics</span></div>
+
+
+<div class="viewcode-block" id="load_kitti_raw_intrinsics"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.load_kitti_raw_intrinsics">[docs]</a><span class="k">def</span> <span class="nf">load_kitti_raw_intrinsics</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">new_h</span><span class="p">,</span> <span class="n">new_w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load kitti raw data intrinscis</span>
+<span class="sd">    Args:</span>
+<span class="sd">        file_name (str): txt file path</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        params (dict): each element contains [cx, cy, fx, fy]</span>
+<span class="sd">            - 0: [cx, cy, fx, fy]_cam0</span>
+<span class="sd">            - 1: [cx, cy, fx, fy]_cam1</span>
+<span class="sd">            - ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw_img_h</span> <span class="o">=</span> <span class="mf">370.0</span>
+    <span class="n">raw_img_w</span> <span class="o">=</span> <span class="mf">1226.0</span>
+    <span class="n">intrinsics</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;P_rect&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">line_split</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="n">cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+                <span class="n">intrinsics</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                                <span class="n">line_split</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_w</span><span class="o">*</span><span class="n">new_w</span><span class="p">,</span>
+                                <span class="n">line_split</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_h</span><span class="o">*</span><span class="n">new_h</span><span class="p">,</span>
+                                <span class="n">line_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_w</span><span class="o">*</span><span class="n">new_w</span><span class="p">,</span>
+                                <span class="n">line_split</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">/</span><span class="n">raw_img_h</span><span class="o">*</span><span class="n">new_h</span><span class="p">,</span>
+                                <span class="p">]</span>
+    <span class="k">return</span> <span class="n">intrinsics</span></div>
+
+
+<div class="viewcode-block" id="image_grid"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.image_grid">[docs]</a><span class="k">def</span> <span class="nf">image_grid</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate regular image grid</span>
+<span class="sd">    Args:</span>
+<span class="sd">        h (int): image height</span>
+<span class="sd">        w (int): image width</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        grid (HxWx2): regular image grid contains [x,y]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+    <span class="n">xv</span><span class="p">,</span> <span class="n">yv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">xv</span><span class="p">,</span> <span class="n">yv</span><span class="p">]),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">grid</span></div>
+
+
+<div class="viewcode-block" id="convert_SE3_to_arr"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.convert_SE3_to_arr">[docs]</a><span class="k">def</span> <span class="nf">convert_SE3_to_arr</span><span class="p">(</span><span class="n">SE3_dict</span><span class="p">,</span> <span class="n">timestamps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert SE3 dictionary to array dictionary</span>
+<span class="sd">    Args:</span>
+<span class="sd">        SE3_dict (SE3 dict): SE3 dictionary</span>
+<span class="sd">        timestamps (float list): timestamp list</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        poses_dict (array dict): each pose contains 4x4 array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">poses_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">timestamps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">key_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">SE3_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">key_list</span> <span class="o">=</span> <span class="n">timestamps</span>
+    <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SE3_dict</span><span class="p">):</span>
+        <span class="n">poses_dict</span><span class="p">[</span><span class="n">key_list</span><span class="p">[</span><span class="n">cnt</span><span class="p">]]</span> <span class="o">=</span> <span class="n">SE3_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">pose</span>
+    <span class="k">return</span> <span class="n">poses_dict</span></div>
+
+
+<div class="viewcode-block" id="save_traj"><a class="viewcode-back" href="../../DF-VO/libs.utils.html#libs.utils.save_traj">[docs]</a><span class="k">def</span> <span class="nf">save_traj</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">poses</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;kitti&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save trajectory (absolute poses) as KITTI odometry file format</span>
+<span class="sd">    Args:</span>
+<span class="sd">        txt (str): pose text file path</span>
+<span class="sd">        poses (array dict): poses, each pose is 4x4 array</span>
+<span class="sd">        format (str): trajectory format</span>
+<span class="sd">            - kitti: 12 parameters</span>
+<span class="sd">            - tum: timestamp tx ty tz qx qy qz qw</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">poses</span><span class="p">:</span>
+            <span class="n">pose</span> <span class="o">=</span> <span class="n">poses</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;kitti&quot;</span><span class="p">:</span>
+                <span class="n">pose</span> <span class="o">=</span> <span class="n">pose</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[:</span><span class="mi">12</span><span class="p">]</span>
+                <span class="n">line_to_write</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">pose</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;tum&quot;</span><span class="p">:</span>
+                <span class="n">qw</span><span class="p">,</span> <span class="n">qx</span><span class="p">,</span> <span class="n">qy</span><span class="p">,</span> <span class="n">qz</span> <span class="o">=</span> <span class="n">rot2quat</span><span class="p">(</span><span class="n">pose</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">tz</span> <span class="o">=</span> <span class="n">pose</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="n">line_to_write</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                                    <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> 
+                                    <span class="nb">str</span><span class="p">(</span><span class="n">tx</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">ty</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">tz</span><span class="p">),</span>
+                                    <span class="nb">str</span><span class="p">(</span><span class="n">qx</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">qy</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">qz</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">qw</span><span class="p">)]</span>
+                                    <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">line_to_write</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Trajectory saved.&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

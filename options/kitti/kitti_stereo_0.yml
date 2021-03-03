@@ -1,6 +1,0 @@
-# This configuration corresponds to Ours (Stereo Train.) in the paper.
-
-# ----------------------------------------------------------------------------
-# Basic setup
-# ----------------------------------------------------------------------------
-result_dir: result/stereo/0

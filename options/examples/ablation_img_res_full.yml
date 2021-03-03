@@ -1,0 +1,10 @@
+# This configuration corresponds to Ablation study
+
+#-------------------------------------
+#- Basic setup
+#-------------------------------------
+dataset: kitti_odom                                       # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]
+seed: 4869                                                # random seed
+image:
+    height: 370                                           # image height
+    width: 1226                                           # image width

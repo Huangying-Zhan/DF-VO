@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.general.kitti_raw_utils &mdash; DF-VO 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.general.kitti_raw_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.general.kitti_raw_utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2019-09-01</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-05-20</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: Provides helper methods for loading and parsing KITTI Raw data</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.kitti_utils</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<span class="n">OxtsPacket</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;OxtsPacket&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;lat, lon, alt, &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;roll, pitch, yaw, &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;vn, ve, vf, vl, vu, &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;ax, ay, az, af, al, au, &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;wx, wy, wz, wf, wl, wu, &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;pos_accuracy, vel_accuracy, &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;navstat, numsats, &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;posmode, velmode, orimode&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="generate_pose"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_raw_utils.html#libs.general.kitti_raw_utils.generate_pose">[docs]</a><span class="k">def</span> <span class="nf">generate_pose</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">,</span> <span class="n">do_flip</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get pose for a frame in a sequence</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seq (str): sequence oxts_dir directory</span>
+<span class="sd">        frame_idx (int): frame index</span>
+<span class="sd">        do_flip (bool): flip sequence horizontally</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pose (array, [4x4]): absolute pose w.r.t frame-0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read oxts data</span>
+    <span class="n">oxts_files</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:010}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:010}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">))</span>
+            <span class="p">]</span>
+    <span class="n">oxts_packets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">oxts_files</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="c1"># Last five entries are flags and counts</span>
+                <span class="n">line</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]]</span>
+                <span class="n">line</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]]</span>
+
+                <span class="n">data</span> <span class="o">=</span> <span class="n">OxtsPacket</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">oxts_packets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># get absolute pose w.r.t frame-0</span>
+    <span class="n">gps_poses</span> <span class="o">=</span> <span class="n">poses_from_oxts</span><span class="p">(</span><span class="n">oxts_packets</span><span class="p">)</span>
+
+    <span class="c1"># convert from GPS coordinate system to camera coordinate system</span>
+    <span class="c1"># - Camera:   x: right,   y: down,  z: forward</span>
+    <span class="c1"># - GPS/IMU:  x: forward, y: left,  z: up</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+                <span class="p">)</span>
+    <span class="n">T_01</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">gps_poses</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">@</span> <span class="n">gps_poses</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># pose = (T @ gps_poses[0]) @ np.linalg.inv(T @ gps_poses[1])</span>
+    <span class="n">pose</span> <span class="o">=</span> <span class="n">T</span> <span class="o">@</span> <span class="n">T_01</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">do_flip</span><span class="p">:</span>
+        <span class="n">pose</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">flip_rotation</span><span class="p">(</span><span class="n">pose</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">pose</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">pose</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">pose</span></div>
+
+
+<div class="viewcode-block" id="flip_rotation"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_raw_utils.html#libs.general.kitti_raw_utils.flip_rotation">[docs]</a><span class="k">def</span> <span class="nf">flip_rotation</span><span class="p">(</span><span class="n">R</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Transform rotation when there is a flipping of image along x-axis</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        R (array, [3x3]): rotation matrix</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        new_R (array, [3x3]): new rotation matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">theta_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">theta_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="o">-</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">([</span><span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]]))</span>
+    <span class="n">theta_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">R_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_x</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_x</span><span class="p">)],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_x</span><span class="p">)]])</span>
+    <span class="n">R_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_y</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_y</span><span class="p">)],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_y</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_y</span><span class="p">)]])</span>
+    <span class="n">R_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_z</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_z</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_z</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta_z</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+    <span class="n">new_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">R_z</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">R_y</span><span class="p">)</span> <span class="o">@</span> <span class="n">R_x</span>
+    <span class="k">return</span> <span class="n">new_R</span></div>
+
+
+<div class="viewcode-block" id="poses_from_oxts"><a class="viewcode-back" href="../../../DF-VO/libs.general.kitti_raw_utils.html#libs.general.kitti_raw_utils.poses_from_oxts">[docs]</a><span class="k">def</span> <span class="nf">poses_from_oxts</span><span class="p">(</span><span class="n">oxts_packets</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper method to compute SE(3) pose matrices from OXTS packets.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        oxts_packets (namedtuple): oxts data</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        poses (list): list of sensor poses</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">er</span> <span class="o">=</span> <span class="mf">6378137.</span>  <span class="c1"># earth radius (approx.) in meters</span>
+
+    <span class="c1"># compute scale from first lat value</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">oxts_packets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lat</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.</span><span class="p">)</span>
+
+    <span class="n">t_0</span> <span class="o">=</span> <span class="p">[]</span>    <span class="c1"># initial position</span>
+    <span class="n">poses</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of poses computed from oxts</span>
+    <span class="k">for</span> <span class="n">packet</span> <span class="ow">in</span> <span class="n">oxts_packets</span><span class="p">:</span>
+        <span class="c1"># Use a Mercator projection to get the translation vector</span>
+        <span class="n">tx</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">packet</span><span class="o">.</span><span class="n">lon</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">er</span> <span class="o">/</span> <span class="mf">180.</span>
+        <span class="n">ty</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">er</span> <span class="o">*</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">((</span><span class="mf">90.</span> <span class="o">+</span> <span class="n">packet</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">360.</span><span class="p">))</span>
+        <span class="n">tz</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="n">alt</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">tz</span><span class="p">])</span>
+
+        <span class="c1"># We want the initial position to be the origin, but keep the ENU</span>
+        <span class="c1"># coordinate system</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">t_0</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="c1"># Use the Euler angles to get the rotation matrix</span>
+        <span class="n">Rx</span> <span class="o">=</span> <span class="n">rotx</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">roll</span><span class="p">)</span>
+        <span class="n">Ry</span> <span class="o">=</span> <span class="n">roty</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">pitch</span><span class="p">)</span>
+        <span class="n">Rz</span> <span class="o">=</span> <span class="n">rotz</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">yaw</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">Rz</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ry</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Rx</span><span class="p">))</span>
+
+        <span class="c1"># Combine the translation and rotation into a homogeneous transform</span>
+        <span class="c1"># poses.append(transform_from_rot_trans(R, t - t_0))</span>
+        <span class="n">poses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transform_from_rot_trans</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">poses</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

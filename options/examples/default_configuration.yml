@@ -1,0 +1,198 @@
+# This configuration corresponds to 
+# the Reference Model in the extended version.
+
+#-------------------------------------
+#- Basic setup
+#-------------------------------------
+dataset: kitti_odom                                       # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]
+seed: 4869                                                # random seed
+image:
+    height: 192                                           # image height
+    width: 640                                            # image width
+    ext: jpg                                              # image file extension for data loading
+seq: "10"                                                 # sequence to run
+frame_step: 1                                             # frame step
+cam_mode: mono                                            # camera mode: [mono, stereo]
+
+#-------------------------------------
+#- Directories
+#-------------------------------------
+directory:
+    result_dir: result/tmp/0/                             # directory to save result
+    img_seq_dir: dataset/kitti_odom/odom_data_jpg/        # image data directory
+    gt_pose_dir: dataset/kitti_odom/gt_poses/             # (optional) ground-truth pose data directory
+    depth_dir:                                            # (optional) external depth data, e.g. ground-truth depths
+
+#-------------------------------------
+#- Depth
+#-------------------------------------
+depth:                                                    # Depth configuration
+    depth_src:                                            # depth source [None, gt]
+    deep_depth:
+        network: monodepth2
+        pretrained_model: model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
+    max_depth: 50                                        # maximum depth 
+    min_depth: 0                                          # minimum depth 
+
+#-------------------------------------
+#- Deep flow
+#-------------------------------------
+deep_flow:                                                # Deep optical flow configuration
+    network: liteflow                                     # optical flow network, [liteflow]
+    flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
+    forward_backward: True                                # predict both forward/backward flows and compute forward-backward flow consistency
+
+#-------------------------------------
+#- Deep Pose (Experiment Ver. only)
+#-------------------------------------
+deep_pose:                                                # Deep pose network configuration
+    enable: False                                         # enable/disable pose network
+    pretrained_model: MODEL_DIR                           # model directory contains pose_encoder.pth and pose.pth
+
+#-------------------------------------
+#- Deep Stereo (Experiment Ver. only)
+#-------------------------------------
+stereo:
+    enable: False
+    disp_thre: 0.1
+    deep_stereo:
+        network: hd3                                     # stereo matching network, [hd3]
+        pretrained_model: model_zoo/stereo/hd3/hd3s_things_kitti-1243813e.pth
+        # pretrained_model: model_zoo/stereo/hd3/hd3s_things-8b4dcd6d.pth
+        forward_backward: True                                # predict both forward/backward flows and compute forward-backward consistency
+
+# ------------------------------------
+# Online Finetuning
+# ------------------------------------
+online_finetune:                                          # online fine-tuning configuration
+    enable: False                                         # enable/disable flow finetuning
+    save_model: False
+    lr: 0.00001                                           # learning rate
+    num_frames: 200                                           # number of frames to be fine-tuned, [None, int]
+    flow:                                                 # flow fine-tuning configuration
+        enable: True                                     # enable/disable flow finetuning
+        scales: [1, 2, 3, 4, 5]                           # scales to be used for training
+        loss:                                             # flow loss configuration
+            flow_consistency: 0.005                       # forward-backward flow consistency loss weight
+            flow_smoothness: 0.1                          # flow smoothness loss weight
+    depth:                                                # depth fine-tuning configuration
+        enable: False                                     # enable/disable depth finetuning
+        scales: [0, 1, 2, 3]                              # scales to be used for training
+        pose_src: DF-VO                                   # pose source for depth-pose finetuning [DF-Vo, deep_pose]
+        loss:                                             # depth loss configuration
+            apperance_loss: 1                             # apperance loss weight
+            disparity_smoothness: 0.001                   # disparity smoothness loss weight
+            depth_consistency: 0.001                      # depth consistency loss weight
+    pose:                                                 # pose finetuning configuration (with depth)                  
+        enable: False                                     # enable/disable pose finetuning
+    
+    stereo:
+        enable: False
+
+#-------------------------------------
+#- Preprocessing
+#-------------------------------------
+crop:                                                     # cropping configuration
+    depth_crop: [[0.3, 1], [0, 1]]                        # depth map cropping, format: [[y0, y1],[x0, x1]]
+    flow_crop: [[0, 1], [0, 1]]                           # optical flow map cropping, format: [[y0, y1],[x0, x1]]
+
+#-------------------------------------
+#- Correspondence (keypoint) selection
+#-------------------------------------
+kp_selection:                                             # correspondence selection configuration
+    local_bestN:                                          # local best-N configuration
+        enable: True                                      # enable/disable local best-N selection
+        num_bestN: 2000                                   # number of keypoints
+        num_row: 10                                       # number of divided rows
+        num_col: 10                                       # number of divided columns
+        score_method: flow                                # selection score, [flow, flow_ratio]
+        thre: 0.1                                         # flow consistency masking threshold
+    bestN:
+        enable: False                                     # enable/disable best-N selection
+        num_bestN: 2000                                   # number of keypoints
+    sampled_kp:                                           # random/uniform keypoint sampling
+        enable: False                                     # enable/disable random/uniform keypoint sampling
+        num_kp: 2000                                      # number of keypoints to be extracted
+    rigid_flow_kp:                                        # keypoint selection from optical-rigid flow consistency (for scale recovery)
+        enable: False                                     # enable/disable rigid-flow based keypoint selection
+        num_bestN: 2000                                   # number of keypoints
+        num_row: 10                                       # number of divided rows
+        num_col: 10                                       # number of divided columns
+        score_method: opt_flow                            # selection score, [rigid_flow, opt_flow]
+        rigid_flow_thre: 5                                # masking threshold for rigid-optical flow consistency 
+        optical_flow_thre: 0.1                            # masking threshold for forward-backward flow consistency 
+    depth_consistency:                                    # (Experiement Ver. only) depth consistency configuration
+        enable: False                                     # enable/disable depth consistency
+        thre: 0.05                                        # masking threshold
+
+#-------------------------------------
+#- Tracking
+#-------------------------------------
+tracking_method: hybrid                                   # tracking method [hybrid, PnP]
+e_tracker:                                                # E-tracker configuration
+    ransac:                                               # Ransac configuration
+        reproj_thre: 0.2                                  # inlier threshold value
+        repeat: 5                                         # number of repeated Ransac
+    validity:                                             # model selection condition
+        method: GRIC                                      # method of validating E-tracker, [flow, GRIC]
+        thre:                                             # threshold value for model selection, only used in [flow]
+    kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best]
+    iterative_kp:
+        enable: False
+        kp_src: kp_depth
+        score_method: opt_flow
+
+scale_recovery:                                           # scale recovery configuration
+    method: simple                                        # scale recovery method [simple, iterative]
+    ransac:                                               # Ransac configuration
+        method: depth_ratio                               # fitting target [depth_ratio, abs_diff]
+        min_samples: 3                                    # minimum number of min_samples
+        max_trials: 100                                   # maximum number of trials
+        stop_prob: 0.99                                   # The probability that the algorithm produces a useful result
+        thre: 0.1                                         # inlier threshold value
+    kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
+    iterative_kp:
+        enable: False
+        kp_src: kp_depth
+        score_method: rigid_flow
+
+pnp_tracker:                                              # PnP-tracker configuration
+    ransac:                                               # Ransac configuration
+        iter: 100                                         # number of iteration
+        reproj_thre: 1                                    # inlier threshold value
+        repeat: 5                                         # number of repeated Ransac
+    kp_src: kp_best                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
+    iterative_kp:
+        enable: False
+        kp_src: kp_depth
+        score_method: rigid_flow
+
+#-------------------------------------
+#- Visualization
+#-------------------------------------
+visualization:                                            # visualization configuration
+    enable: True                                          # enable/disable frame drawer
+    save_img: True                                        # enable/disable save frames
+    window_h: 600                                         # frame window height
+    window_w: 1000                                        # frame window width
+    kp_src: kp_best                                       # type of correspondences to be drawn
+    flow:                                                 # optical flow visualization configuration
+        vis_forward_flow: True                            # enable/disable forward flow visualization
+        vis_backward_flow: True                           # enable/disable backward flow visualization
+        vis_flow_diff: True                               # enable/disable forward-backward flow consistency visualization
+        vis_rigid_diff: True                              # enable/disable optical-rigid flow consistency visualization
+    kp_match:                                             # keypoint matching visualization
+        kp_num: 100                                       # number of selected keypoints to be visualized
+        vis_temp:                                         # keypoint matching in temporal 
+            enable: True                                  # enable/disable visualization
+        vis_side:                                         # keypoint matching side-by-side
+            enable: True                                  # enable/disable visualization
+            inlier_plot: False                            # enable/disable inlier plot
+    trajectory:                                           # trajectory visualization configuration
+        vis_traj: True                                    # enable/disable predicted trajectory visualization
+        vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
+        mono_scale: 1                                     # monocular prediction scaling factor
+        vis_scale: 1
+    depth:                                                # depth visualization configuration
+        use_tracking_depth: False                         # enable/disable visualizing depth map used for tracking (preprocessed, e.g. range capping)
+        depth_disp: disp                                  # visualize depth or disparity map [depth, disp, None]

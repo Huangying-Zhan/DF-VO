@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.flowlib.flowlib &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.flowlib.png" href="libs.flowlib.png.html" />
+    <link rel="prev" title="libs.flowlib" href="libs.flowlib.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.flowlib.flowlib</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.flowlib.png.html">libs.flowlib.png</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.flowlib.html">libs.flowlib</a> &raquo;</li>
+        
+      <li>libs.flowlib.flowlib</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.flowlib.flowlib.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.flowlib.flowlib">
+<span id="libs-flowlib-flowlib"></span><h1>libs.flowlib.flowlib<a class="headerlink" href="#module-libs.flowlib.flowlib" title="Permalink to this headline">¶</a></h1>
+<dl class="py data">
+<dt id="libs.flowlib.flowlib.LARGEFLOW">
+<code class="sig-name descname">LARGEFLOW</code><em class="property"> = 100000000.0</em><a class="headerlink" href="#libs.flowlib.flowlib.LARGEFLOW" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.TODO">
+<code class="sig-name descname">TODO</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#TODO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.TODO" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>update docstring in this page</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.compute_color">
+<code class="sig-name descname">compute_color</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#compute_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.compute_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>compute optical flow color map
+:param u: optical flow horizontal map
+:param v: optical flow vertical map
+:return: optical flow in color code</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.disp2flow">
+<code class="sig-name descname">disp2flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disp</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#disp2flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.disp2flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.evaluate_flow">
+<code class="sig-name descname">evaluate_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gt_flow</span></em>, <em class="sig-param"><span class="n">pred_flow</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#evaluate_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.evaluate_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>gt: ground-truth flow
+pred: estimated flow</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.evaluate_flow_file">
+<code class="sig-name descname">evaluate_flow_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gt_file</span></em>, <em class="sig-param"><span class="n">pred_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#evaluate_flow_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.evaluate_flow_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>evaluate the estimated optical flow end point error according to ground truth provided
+:param gt_file: ground truth file path
+:param pred_file: estimated optical flow file path
+:return: end point error, float32</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.evaluate_kitti_flow">
+<code class="sig-name descname">evaluate_kitti_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gt_flow</span></em>, <em class="sig-param"><span class="n">pred_flow</span></em>, <em class="sig-param"><span class="n">rigid_flow</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#evaluate_kitti_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.evaluate_kitti_flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.flow_error">
+<code class="sig-name descname">flow_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tu</span></em>, <em class="sig-param"><span class="n">tv</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#flow_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.flow_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate average end point error
+:param tu: ground-truth horizontal flow map
+:param tv: ground-truth vertical flow map
+:param u:  estimated horizontal flow map
+:param v:  estimated vertical flow map
+:return: End point error of the estimated flow</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.flow_kitti_error">
+<code class="sig-name descname">flow_kitti_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tu</span></em>, <em class="sig-param"><span class="n">tv</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">mask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#flow_kitti_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.flow_kitti_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate average end point error
+:param tu: ground-truth horizontal flow map
+:param tv: ground-truth vertical flow map
+:param u:  estimated horizontal flow map
+:param v:  estimated vertical flow map
+:param mask: ground-truth mask
+:return: End point error of the estimated flow</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.flow_kitti_mask_error">
+<code class="sig-name descname">flow_kitti_mask_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tu</span></em>, <em class="sig-param"><span class="n">tv</span></em>, <em class="sig-param"><span class="n">gt_mask</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">pd_mask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#flow_kitti_mask_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.flow_kitti_mask_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate average end point error
+:param tu: ground-truth horizontal flow map
+:param tv: ground-truth vertical flow map
+:param gt_mask: ground-truth mask</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> – estimated horizontal flow map</p></li>
+<li><p><strong>v</strong> – estimated vertical flow map</p></li>
+<li><p><strong>pd_mask</strong> – estimated flow mask</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>End point error of the estimated flow</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.flow_to_image">
+<code class="sig-name descname">flow_to_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span></em>, <em class="sig-param"><span class="n">maxrad</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#flow_to_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.flow_to_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert flow into middlebury color code image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>flow</strong> (<em>array</em><em>, </em><em>[</em><em>HxWx2</em><em>]</em>) – optical flow map</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>img (array, [HxWx3])</em> – optical flow image in middlebury color</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.flowfile_to_imagefile">
+<code class="sig-name descname">flowfile_to_imagefile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow_file</span></em>, <em class="sig-param"><span class="n">image_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#flowfile_to_imagefile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.flowfile_to_imagefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert flowfile into image file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – optical flow file path</p></li>
+<li><p><strong>image_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – image file path</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.horizontal_flip_flow">
+<code class="sig-name descname">horizontal_flip_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#horizontal_flip_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.horizontal_flip_flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.make_color_wheel">
+<code class="sig-name descname">make_color_wheel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#make_color_wheel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.make_color_wheel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate color wheel according Middlebury color code
+:return: Color wheel</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.read_disp">
+<code class="sig-name descname">read_disp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#read_disp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.read_disp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.read_flo_file">
+<code class="sig-name descname">read_flo_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#read_flo_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.read_flo_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read from Middlebury .flo file
+:param flow_file: name of the flow file
+:return: optical flow data in matrix</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.read_flow">
+<code class="sig-name descname">read_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#read_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.read_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>read optical flow data from flow file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of the flow file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>flow (array)</em> – optical flow data in numpy array (dtype: np.float32)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.read_kitti_png_file">
+<code class="sig-name descname">read_kitti_png_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#read_kitti_png_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.read_kitti_png_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.read_pfm_file">
+<code class="sig-name descname">read_pfm_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#read_pfm_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.read_pfm_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.read_png_file">
+<code class="sig-name descname">read_png_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#read_png_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.read_png_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read from KITTI .png file
+:param flow_file: name of the flow file
+:return: optical flow data in matrix</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.remove_ambiguity_flow">
+<code class="sig-name descname">remove_ambiguity_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow_img</span></em>, <em class="sig-param"><span class="n">err_img</span></em>, <em class="sig-param"><span class="n">threshold_err</span><span class="o">=</span><span class="default_value">10.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#remove_ambiguity_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.remove_ambiguity_flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.resize_flow">
+<code class="sig-name descname">resize_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span></em>, <em class="sig-param"><span class="n">des_width</span></em>, <em class="sig-param"><span class="n">des_height</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'bilinear'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#resize_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.resize_flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.save_flow_image">
+<code class="sig-name descname">save_flow_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span></em>, <em class="sig-param"><span class="n">image_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#save_flow_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.save_flow_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>save flow visualization into image file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> (<em>array</em><em>, </em><em>[</em><em>HxWx2</em><em>]</em>) – optical flow data</p></li>
+<li><p><strong>image_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – image file path to be saved</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.vertical_flip_flow">
+<code class="sig-name descname">vertical_flip_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#vertical_flip_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.vertical_flip_flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.write_flow">
+<code class="sig-name descname">write_flow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#write_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.write_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>write optical flow in Middlebury .flo format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> (<em>array</em><em>, </em><em>[</em><em>HxWx2</em><em>]</em>) – optical flow map</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – optical flow file path to be saved</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.flowlib.flowlib.write_kitti_png_file">
+<code class="sig-name descname">write_kitti_png_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">flow_fn</span></em>, <em class="sig-param"><span class="n">flow_data</span></em>, <em class="sig-param"><span class="n">mask_data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/flowlib/flowlib.html#write_kitti_png_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#libs.flowlib.flowlib.write_kitti_png_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.flowlib.png.html" class="btn btn-neutral float-right" title="libs.flowlib.png" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.flowlib.html" class="btn btn-neutral float-left" title="libs.flowlib" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

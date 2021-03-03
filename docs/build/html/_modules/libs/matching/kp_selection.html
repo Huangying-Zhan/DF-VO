@@ -1,0 +1,573 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.matching.kp_selection &mdash; DF-VO 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.matching.kp_selection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.matching.kp_selection</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2019-09-01</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-07-07</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: this file contains different correspondence selection methods</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="convert_idx_to_global_coord"><a class="viewcode-back" href="../../../DF-VO/libs.matching.kp_selection.html#libs.matching.kp_selection.convert_idx_to_global_coord">[docs]</a><span class="k">def</span> <span class="nf">convert_idx_to_global_coord</span><span class="p">(</span><span class="n">local_idx</span><span class="p">,</span> <span class="n">local_kp_list</span><span class="p">,</span> <span class="n">x0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert pixel index on a local window to global pixel index</span>
+
+<span class="sd">    Args: </span>
+<span class="sd">        local_idx (list): K indexs of selected pixels </span>
+<span class="sd">        local_kp_list (4xN): </span>
+<span class="sd">        x0 (list): top-left offset of the local window [y, x]</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        coord (array, [4xK]): selected pixels on global image coordinate </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">local_kp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">local_idx</span><span class="p">],</span> <span class="n">local_kp_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">local_idx</span><span class="p">],</span> <span class="n">local_kp_list</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">local_idx</span><span class="p">],</span> <span class="n">local_kp_list</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="n">local_idx</span><span class="p">]]</span>
+    <span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+    <span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># h</span>
+    <span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># w</span>
+    <span class="k">return</span> <span class="n">coord</span></div>
+
+
+<div class="viewcode-block" id="bestN_flow_kp"><a class="viewcode-back" href="../../../DF-VO/libs.matching.kp_selection.html#libs.matching.kp_selection.bestN_flow_kp">[docs]</a><span class="k">def</span> <span class="nf">bestN_flow_kp</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;select best-N keypoints with least flow inconsistency</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        kp1 (array, [1xHxWx2]): keypoints on view-1</span>
+<span class="sd">        kp2 (array, [1xHxWx2]): keypoints on view-2</span>
+<span class="sd">        ref_data (dict): data of reference view, a dictionary containing</span>
+
+<span class="sd">            - **id** (int): index</span>
+<span class="sd">            - **flow_diff** (array, [HxWx1]): flow difference</span>
+<span class="sd">        cfg (edict): configuration dictionary</span>
+<span class="sd">        outputs (dict): output data dictionary</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        outputs (dict): output data dictionary. New data added</span>
+
+<span class="sd">            - **kp1_best** (array, [Nx2]): keypoints on view-1</span>
+<span class="sd">            - **kp2_best** (array, [Nx2]): keypoints on view-</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bestN_cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span><span class="o">.</span><span class="n">bestN</span>
+
+    <span class="c1"># initialization</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">num_bestN</span>
+
+    <span class="c1"># get data</span>
+    <span class="n">flow_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># kp selection</span>
+    <span class="n">tmp_kp_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">flow_diff</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># select all points as intialization</span>
+    <span class="n">sel_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="n">flow_diff</span><span class="p">[</span><span class="n">tmp_kp_list</span><span class="p">],</span> <span class="n">N</span><span class="p">)[:</span><span class="n">N</span><span class="p">]</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">convert_idx_to_global_coord</span><span class="p">(</span><span class="n">sel_list</span><span class="p">,</span> <span class="n">tmp_kp_list</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">kp1_best</span> <span class="o">=</span> <span class="n">kp1</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">kp2_best</span> <span class="o">=</span> <span class="n">kp2</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp1_best&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp1_best</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp2_best&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp2_best</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;fb_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_diff</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">outputs</span></div>
+
+
+<div class="viewcode-block" id="local_bestN"><a class="viewcode-back" href="../../../DF-VO/libs.matching.kp_selection.html#libs.matching.kp_selection.local_bestN">[docs]</a><span class="k">def</span> <span class="nf">local_bestN</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;select best-N filtered keypoints from uniformly divided regions</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        kp1 (array, [1xHxWx2]): keypoints on view-1</span>
+<span class="sd">        kp2 (array, [1xHxWx2]): keypoints on view-2</span>
+<span class="sd">        ref_data (dict): data of reference view, a dictionary containing</span>
+
+<span class="sd">            - **id** (int): index</span>
+<span class="sd">            - **flow_diff** (array, [HxWx1]): flow difference</span>
+<span class="sd">            - **depth_diff** (array, [HxWx1]): depth difference</span>
+<span class="sd">        cfg (edict): configuration dictionary</span>
+<span class="sd">        outputs (dict): output data dictionary</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        outputs (dict): output data dictionary. New data added</span>
+
+<span class="sd">            - **kp1_best** (array, [Nx2]): keypoints on view-1</span>
+<span class="sd">            - **kp2_best** (array, [Nx2]): keypoints on view-2</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># configuration setup</span>
+    <span class="n">kp_cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span>
+    <span class="n">bestN_cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span><span class="o">.</span><span class="n">local_bestN</span>
+
+    <span class="c1"># initialization</span>
+    <span class="n">num_row</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">num_row</span>
+    <span class="n">num_col</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">num_col</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">num_bestN</span>
+    <span class="n">score_method</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">score_method</span>
+    <span class="n">flow_diff_thre</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">thre</span>
+    <span class="n">depth_diff_thre</span> <span class="o">=</span> <span class="n">kp_cfg</span><span class="o">.</span><span class="n">depth_consistency</span><span class="o">.</span><span class="n">thre</span>
+    <span class="n">good_region_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+    
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp1_best&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp2_best&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">n_best</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="p">(</span><span class="n">num_col</span><span class="o">*</span><span class="n">num_row</span><span class="p">))</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># get data</span>
+    <span class="n">flow_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kp_cfg</span><span class="o">.</span><span class="n">depth_consistency</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+        <span class="n">depth_diff</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;depth_diff&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># Insufficent keypoint case 1</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">flow_diff</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">flow_diff_thre</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot find enough good keypoints!&quot;</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;good_kp_found&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">outputs</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_row</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_col</span><span class="p">):</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="n">num_row</span><span class="o">*</span><span class="n">row</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="n">num_col</span><span class="o">*</span><span class="n">col</span><span class="p">)]</span> <span class="c1"># top_left</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="n">num_row</span><span class="o">*</span><span class="p">(</span><span class="n">row</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="n">num_col</span><span class="o">*</span><span class="p">(</span><span class="n">col</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># bottom right</span>
+
+            <span class="c1"># computing masks</span>
+            <span class="n">tmp_flow_diff</span> <span class="o">=</span> <span class="n">flow_diff</span><span class="p">[:,</span> <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x0</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s2">&quot;flow&quot;</span><span class="p">:</span>
+                <span class="n">flow_mask</span> <span class="o">=</span> <span class="n">tmp_flow_diff</span> <span class="o">&lt;</span> <span class="n">flow_diff_thre</span>
+            <span class="k">elif</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s2">&quot;flow_ratio&quot;</span><span class="p">:</span>
+                <span class="n">tmp_flow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">][:,</span> <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x0</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">tmp_flow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tmp_flow</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">tmp_flow_diff_ratio</span> <span class="o">=</span> <span class="n">tmp_flow_diff</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">tmp_flow</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">flow_mask</span> <span class="o">=</span> <span class="n">tmp_flow_diff_ratio</span> <span class="o">&lt;</span> <span class="n">flow_diff_thre</span>
+
+            <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">flow_mask</span>
+
+            <span class="k">if</span> <span class="n">kp_cfg</span><span class="o">.</span><span class="n">depth_consistency</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="n">tmp_depth_diff</span> <span class="o">=</span> <span class="n">depth_diff</span><span class="p">[:,</span> <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">x0</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">depth_mask</span> <span class="o">=</span> <span class="n">tmp_depth_diff</span> <span class="o">&lt;</span> <span class="n">depth_diff_thre</span>
+                <span class="n">valid_mask</span> <span class="o">*=</span> <span class="n">depth_mask</span>
+            
+            <span class="c1"># computing scores</span>
+            <span class="k">if</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s1">&#39;flow&#39;</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">tmp_flow_diff</span>
+            <span class="k">elif</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s1">&#39;flow_depth&#39;</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">tmp_flow_diff</span> <span class="o">*</span> <span class="n">tmp_depth_diff</span>
+            <span class="k">elif</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s1">&#39;flow_ratio&#39;</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">tmp_flow_diff_ratio</span>
+
+            <span class="c1"># kp selection</span>
+            <span class="n">tmp_kp_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">)</span>
+
+            <span class="n">num_to_pick</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_best</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_kp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+            <span class="k">if</span> <span class="n">num_to_pick</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">good_region_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="k">if</span> <span class="n">num_to_pick</span> <span class="o">&lt;=</span> <span class="n">n_best</span><span class="p">:</span>
+                <span class="n">sel_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">tmp_kp_list</span><span class="p">],</span> <span class="n">num_to_pick</span><span class="o">-</span><span class="mi">1</span><span class="p">)[:</span><span class="n">num_to_pick</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sel_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">tmp_kp_list</span><span class="p">],</span> <span class="n">num_to_pick</span><span class="p">)[:</span><span class="n">num_to_pick</span><span class="p">]</span>
+            
+            <span class="n">sel_global_coords</span> <span class="o">=</span> <span class="n">convert_idx_to_global_coord</span><span class="p">(</span><span class="n">sel_list</span><span class="p">,</span> <span class="n">tmp_kp_list</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sel_global_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">sel_kps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sel_global_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="c1"># Insufficent keypoint case 2</span>
+    <span class="k">if</span> <span class="n">good_region_cnt</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">num_row</span> <span class="o">*</span> <span class="n">num_col</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot find enough good keypoints from diversed regions!&quot;</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;good_kp_found&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">outputs</span>
+
+    <span class="c1"># reshape selected keypoints</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">)</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">,</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">kp1_best</span> <span class="o">=</span> <span class="n">kp1</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">kp2_best</span> <span class="o">=</span> <span class="n">kp2</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp1_best&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp1_best</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp2_best&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp2_best</span>
+
+    <span class="c1"># mask generation</span>
+    <span class="k">if</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s1">&#39;flow_ratio&#39;</span><span class="p">:</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">flow_diff_ratio</span> <span class="o">=</span> <span class="n">flow_diff</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;fb_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_diff_ratio</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s1">&#39;flow&#39;</span><span class="p">:</span>
+        <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;fb_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_diff</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">outputs</span></div>
+
+
+<div class="viewcode-block" id="opt_rigid_flow_kp"><a class="viewcode-back" href="../../../DF-VO/libs.matching.kp_selection.html#libs.matching.kp_selection.opt_rigid_flow_kp">[docs]</a><span class="k">def</span> <span class="nf">opt_rigid_flow_kp</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">score_method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;select best-N filtered keypoints from uniformly divided regions </span>
+<span class="sd">    with rigid-flow mask</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        kp1 (array, [1xHxWx2]): keypoints on view-1</span>
+<span class="sd">        kp2 (array, [1xHxWx2]): keypoints on view-2</span>
+<span class="sd">        ref_data (dict):</span>
+
+<span class="sd">            - **rigid_flow_diff** (array, [HxWx1]): rigid-optical flow consistency</span>
+<span class="sd">            - **flow_diff** (array, [HxWx1]): forward-backward flow consistency</span>
+<span class="sd">        cfg (edict): configuration dictionary</span>
+<span class="sd">        outputs (dict): output data </span>
+<span class="sd">        method (str): [uniform, best]</span>
+<span class="sd">        score_method (str): [opt_flow, rigid_flow]</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        outputs (dict): output data with the new data</span>
+
+<span class="sd">            - **kp1_depth** (array, [Nx2]): keypoints in view-1, best in terms of score_method</span>
+<span class="sd">            - **kp2_depth** (array, [Nx2]): keypoints in view-2, best in terms of score_method</span>
+<span class="sd">            - **kp1_depth_uniform** (array, [Nx2]): keypoints in view-1, uniformly sampled</span>
+<span class="sd">            - **kp2_depth_uniform** (array, [Nx2]): keypoints in view-2, uniformly sampled</span>
+<span class="sd">            - **rigid_flow_mask** (array, [HxW]): rigid-optical flow consistency </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kp_cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span>
+    <span class="n">bestN_cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span><span class="o">.</span><span class="n">rigid_flow_kp</span>
+
+    <span class="c1"># initialization</span>
+    <span class="n">num_row</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">num_row</span>
+    <span class="n">num_col</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">num_col</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">bestN_cfg</span><span class="o">.</span><span class="n">num_bestN</span>
+    <span class="n">rigid_flow_diff_thre</span> <span class="o">=</span> <span class="n">kp_cfg</span><span class="o">.</span><span class="n">rigid_flow_kp</span><span class="o">.</span><span class="n">rigid_flow_thre</span>
+    <span class="n">opt_flow_diff_thre</span> <span class="o">=</span> <span class="n">kp_cfg</span><span class="o">.</span><span class="n">rigid_flow_kp</span><span class="o">.</span><span class="n">optical_flow_thre</span>
+
+    <span class="n">n_best</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="p">(</span><span class="n">num_col</span><span class="o">*</span><span class="n">num_row</span><span class="p">))</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sel_kps_uniform</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># get data</span>
+    <span class="c1"># flow diff</span>
+    <span class="n">rigid_flow_diff</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_diff&#39;</span><span class="p">]</span>
+    <span class="n">rigid_flow_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">rigid_flow_diff</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">rigid_flow_diff</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># optical flow diff</span>
+    <span class="n">opt_flow_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_row</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_col</span><span class="p">):</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="n">num_row</span><span class="o">*</span><span class="n">row</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="n">num_col</span><span class="o">*</span><span class="n">col</span><span class="p">)]</span> <span class="c1"># top_left</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="n">num_row</span><span class="o">*</span><span class="p">(</span><span class="n">row</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="n">num_col</span><span class="o">*</span><span class="p">(</span><span class="n">col</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># bottom right</span>
+
+            <span class="c1"># computing masks</span>
+            <span class="n">tmp_opt_flow_diff</span> <span class="o">=</span> <span class="n">opt_flow_diff</span><span class="p">[:,</span> <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x0</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="n">tmp_rigid_flow_diff</span> <span class="o">=</span> <span class="n">rigid_flow_diff</span><span class="p">[:,</span> <span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x0</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">x1</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">flow_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_rigid_flow_diff</span> <span class="o">&lt;</span> <span class="n">rigid_flow_diff_thre</span><span class="p">)</span> 
+            
+            <span class="n">flow_mask</span> <span class="o">=</span> <span class="n">flow_mask</span> <span class="o">*</span> <span class="p">(</span><span class="n">tmp_opt_flow_diff</span> <span class="o">&lt;</span> <span class="n">opt_flow_diff_thre</span><span class="p">)</span>
+            <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">flow_mask</span>
+
+            <span class="c1"># computing scores</span>
+            <span class="k">if</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s2">&quot;rigid_flow&quot;</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">tmp_rigid_flow_diff</span>
+            <span class="k">elif</span> <span class="n">score_method</span> <span class="o">==</span> <span class="s2">&quot;opt_flow&quot;</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">tmp_opt_flow_diff</span>
+
+            <span class="c1"># kp selection</span>
+            <span class="n">tmp_kp_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">)</span>
+            <span class="n">num_to_pick</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_best</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_kp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            
+            <span class="c1"># Pick uniform kps</span>
+            <span class="c1"># if method == &#39;uniform&#39;:</span>
+            <span class="k">if</span> <span class="n">num_to_pick</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp_kp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_to_pick</span><span class="p">))</span>
+                <span class="n">sel_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_kp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">step</span><span class="p">)[:</span><span class="n">num_to_pick</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sel_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">sel_global_coords</span> <span class="o">=</span> <span class="n">convert_idx_to_global_coord</span><span class="p">(</span><span class="n">sel_list</span><span class="p">,</span> <span class="n">tmp_kp_list</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sel_global_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">sel_kps_uniform</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sel_global_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="c1"># elif method == &#39;best&#39;:</span>
+            <span class="k">if</span> <span class="n">num_to_pick</span> <span class="o">&lt;=</span> <span class="n">n_best</span><span class="p">:</span>
+                <span class="n">sel_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">tmp_kp_list</span><span class="p">],</span> <span class="n">num_to_pick</span><span class="o">-</span><span class="mi">1</span><span class="p">)[:</span><span class="n">num_to_pick</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sel_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="n">tmp_kp_list</span><span class="p">],</span> <span class="n">num_to_pick</span><span class="p">)[:</span><span class="n">num_to_pick</span><span class="p">]</span>
+
+            <span class="n">sel_global_coords</span> <span class="o">=</span> <span class="n">convert_idx_to_global_coord</span><span class="p">(</span><span class="n">sel_list</span><span class="p">,</span> <span class="n">tmp_kp_list</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sel_global_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">sel_kps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sel_global_coords</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># best</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">sel_kps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;sampling threshold is too small.&quot;</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">,</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">kp1_best</span> <span class="o">=</span> <span class="n">kp1</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">kp2_best</span> <span class="o">=</span> <span class="n">kp2</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp1_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp1_best</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp2_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp2_best</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># uniform</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sel_kps_uniform</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">sel_kps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;sampling threshold is too small.&quot;</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">sel_kps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sel_kps</span><span class="p">,</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">kp1_best</span> <span class="o">=</span> <span class="n">kp1</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">kp2_best</span> <span class="o">=</span> <span class="n">kp2</span><span class="p">[:,</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sel_kps</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp1_depth_uniform&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp1_best</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp2_depth_uniform&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp2_best</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
+
+    <span class="c1"># mask generation</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rigid_flow_diff</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">outputs</span></div>
+
+
+<div class="viewcode-block" id="sampled_kp"><a class="viewcode-back" href="../../../DF-VO/libs.matching.kp_selection.html#libs.matching.kp_selection.sampled_kp">[docs]</a><span class="k">def</span> <span class="nf">sampled_kp</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">kp_list</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;select sampled keypoints with given keypoint index list</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        kp1 (array, [1xHxWx2]): keypoints on view-1</span>
+<span class="sd">        kp2 (array, [1xHxWx2]): keypoints on view-2</span>
+<span class="sd">        ref_data (dict): data of reference view, a dictionary containing</span>
+<span class="sd">        kp_list (list): list of keypoint index</span>
+<span class="sd">        cfg (edict): configuration dictionary</span>
+<span class="sd">        outputs (dict): output data dictionary</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        outputs (dict): output data dictionary. New data added</span>
+
+<span class="sd">            - **kp1_list** (array, [Nx2]): keypoints on view-1</span>
+<span class="sd">            - **kp2_list** (array, [Nx2]): keypoints on view-2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kp_cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span>
+    <span class="n">img_crop</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">flow_crop</span>
+
+    <span class="c1"># initialization</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp1_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp2_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">w</span>
+
+    <span class="c1"># Get uniform sampled keypoints</span>
+    <span class="k">if</span> <span class="n">img_crop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">img_crop</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">img_crop</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">img_crop</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">img_crop</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">kp1</span> <span class="o">=</span> <span class="n">kp1</span><span class="p">[:,</span> <span class="n">y0</span><span class="p">:</span><span class="n">y1</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span><span class="n">x1</span><span class="p">]</span>
+        <span class="n">kp2</span> <span class="o">=</span> <span class="n">kp2</span><span class="p">[:,</span> <span class="n">y0</span><span class="p">:</span><span class="n">y1</span><span class="p">,</span> <span class="n">x0</span><span class="p">:</span><span class="n">x1</span><span class="p">]</span>
+
+    <span class="n">kp1_list</span> <span class="o">=</span> <span class="n">kp1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">kp2_list</span> <span class="o">=</span> <span class="n">kp2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">kp1_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp1_list</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">kp2_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp2_list</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># select kp from sampled kp_list</span>
+    <span class="n">kp1_list</span> <span class="o">=</span> <span class="n">kp1_list</span><span class="p">[</span><span class="n">kp_list</span><span class="p">]</span>
+    <span class="n">kp2_list</span> <span class="o">=</span> <span class="n">kp2_list</span><span class="p">[</span><span class="n">kp_list</span><span class="p">]</span>
+    <span class="n">kp1_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp1_list</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">kp2_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp2_list</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp1_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp1_list</span>
+    <span class="n">outputs</span><span class="p">[</span><span class="s1">&#39;kp2_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp2_list</span>
+    <span class="k">return</span> <span class="n">outputs</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

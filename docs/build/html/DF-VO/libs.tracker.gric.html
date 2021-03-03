@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.tracker.gric &mdash; DF-VO latest documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.tracker.pnp_tracker" href="libs.tracker.pnp_tracker.html" />
+    <link rel="prev" title="libs.tracker.E_tracker" href="libs.tracker.E_tracker.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.tracker.html">libs.tracker</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="libs.tracker.E_tracker.html">libs.tracker.E_tracker</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">libs.tracker.gric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.tracker.pnp_tracker.html">libs.tracker.pnp_tracker</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.tracker.html">libs.tracker</a> &raquo;</li>
+        
+      <li>libs.tracker.gric</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.tracker.gric.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.tracker.gric">
+<span id="libs-tracker-gric"></span><h1>libs.tracker.gric<a class="headerlink" href="#module-libs.tracker.gric" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="libs.tracker.gric.calc_GRIC">
+<code class="sig-name descname"><span class="pre">calc_GRIC</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/gric.html#calc_GRIC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.tracker.gric.calc_GRIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate GRIC</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>res</strong> (<em>array</em><em>, </em><em>[</em><em>N</em><em>]</em>) – residual</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – assumed variance of the error</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – number of residuals</p></li>
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – model type
+- FMat
+- EMat
+- HMat</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.tracker.gric.compute_fundamental_residual">
+<code class="sig-name descname"><span class="pre">compute_fundamental_residual</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kp2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/gric.html#compute_fundamental_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.tracker.gric.compute_fundamental_residual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute fundamental matrix residual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>F</strong> (<em>array</em><em>, </em><em>[</em><em>3x3</em><em>]</em>) – Fundamental matrix (from view-1 to view-2)</p></li>
+<li><p><strong>kp1</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint 1</p></li>
+<li><p><strong>kp2</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>res (array, [N])</em> – residual</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="libs.tracker.gric.compute_homography_residual">
+<code class="sig-name descname"><span class="pre">compute_homography_residual</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kp2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/tracker/gric.html#compute_homography_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.tracker.gric.compute_homography_residual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute homography matrix residual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H</strong> (<em>array</em><em>, </em><em>[</em><em>3x3</em><em>]</em>) – homography matrix (Transformation from view-1 to view-2)</p></li>
+<li><p><strong>kp1</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint 1</p></li>
+<li><p><strong>kp2</strong> (<em>array</em><em>, </em><em>[</em><em>Nx2</em><em>]</em>) – keypoint 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>res (array, [N])</em> – residual</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.tracker.pnp_tracker.html" class="btn btn-neutral float-right" title="libs.tracker.pnp_tracker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.tracker.E_tracker.html" class="btn btn-neutral float-left" title="libs.tracker.E_tracker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

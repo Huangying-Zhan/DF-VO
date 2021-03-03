@@ -1,0 +1,598 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tools.evaluation.odometry.kitti_odometry &mdash; DF-VO latest documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tools.generate_flow_prediction" href="tools.generate_flow_prediction.html" />
+    <link rel="prev" title="tools.evaluation.odometry.eval_odom" href="tools.evaluation.odometry.eval_odom.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="libs.html">libs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tools.html">tools</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tools.evaluation.html">tools.evaluation</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tools.evaluation.odometry.html">tools.evaluation.odometry</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tools.evaluation.odometry.eval_odom.html">tools.evaluation.odometry.eval_odom</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">tools.evaluation.odometry.kitti_odometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tools.generate_flow_prediction.html">tools.generate_flow_prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.generate_kitti_raw_pose.html">tools.generate_kitti_raw_pose</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="tools.html">tools</a> &raquo;</li>
+        
+          <li><a href="tools.evaluation.html">tools.evaluation</a> &raquo;</li>
+        
+          <li><a href="tools.evaluation.odometry.html">tools.evaluation.odometry</a> &raquo;</li>
+        
+      <li>tools.evaluation.odometry.kitti_odometry</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/tools.evaluation.odometry.kitti_odometry.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-tools.evaluation.odometry.kitti_odometry">
+<span id="tools-evaluation-odometry-kitti-odometry"></span><h1>tools.evaluation.odometry.kitti_odometry<a class="headerlink" href="#module-tools.evaluation.odometry.kitti_odometry" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">KittiEvalOdom</span></code><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Evaluate odometry result</p>
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.calc_sequence_errors">
+<code class="sig-name descname"><span class="pre">calc_sequence_errors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poses_gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poses_result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.calc_sequence_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.calc_sequence_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate sequence error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poses_gt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – {idx: 4x4 array}, ground truth poses</p></li>
+<li><p><strong>poses_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – {idx: 4x4 array}, predicted poses</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a list of list containing [first_frame, rotation error, translation error, length, speed]</dt><dd><ul class="simple">
+<li><p><strong>first_frame</strong> (int): frist frame index</p></li>
+<li><p><strong>rotation error</strong> (float): rotation error per length</p></li>
+<li><p><strong>translation error</strong> (float): translation error per length</p></li>
+<li><p><strong>length</strong> (float): evaluation trajectory length</p></li>
+<li><p><strong>speed</strong> (float): car speed (#FIXME: 10FPS is assumed)</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_ATE">
+<code class="sig-name descname"><span class="pre">compute_ATE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.compute_ATE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_ATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute RMSE of ATE</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – ground-truth poses as [4x4] array</p></li>
+<li><p><strong>pred</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – predicted poses as [4x4] array</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_RPE">
+<code class="sig-name descname"><span class="pre">compute_RPE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.compute_RPE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_RPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute RPE</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – ground-truth poses as [4x4] array</p></li>
+<li><p><strong>pred</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – predicted poses as [4x4] array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>trans_errors (list)</em> – list of rpe translation error
+rot_errors (list): list of RPE rotation error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_overall_err">
+<code class="sig-name descname"><span class="pre">compute_overall_err</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq_err</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.compute_overall_err"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_overall_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute average translation &amp; rotation errors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seq_err</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – <ul class="simple">
+<li><p><strong>r_err</strong> (float): rotation error</p></li>
+<li><p><strong>t_err</strong> (float): translation error</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a tuple containing</dt><dd><ul class="simple">
+<li><p><strong>ave_t_err</strong> (float): average translation error</p></li>
+<li><p><strong>ave_r_err</strong> (float): average rotation error</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_segment_error">
+<code class="sig-name descname"><span class="pre">compute_segment_error</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq_errs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.compute_segment_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_segment_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculates average errors for different segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seq_errs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – <p>a list of list containing [first_frame, rotation error, translation error, length, speed]</p>
+<ul class="simple">
+<li><p><strong>first_frame</strong> (int): frist frame index</p></li>
+<li><p><strong>rotation error</strong> (float): rotation error per length</p></li>
+<li><p><strong>translation error</strong> (float): translation error per length</p></li>
+<li><p><strong>length</strong> (float): evaluation trajectory length</p></li>
+<li><p><strong>speed</strong> (float): car speed (#FIXME: 10FPS is assumed)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>avg_segment_errs (dict)</em> – {100:[avg_t_err, avg_r_err],…}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_trajectory_length">
+<code class="sig-name descname"><span class="pre">compute_trajectory_length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.compute_trajectory_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.compute_trajectory_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute trajectory length</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – ground-truth poses as [4x4] array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>length (float)</em> – trajectory length</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.eval">
+<code class="sig-name descname"><span class="pre">eval</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaulate required/available sequences</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gt_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – ground truth poses txt files directory</p></li>
+<li><p><strong>result_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – pose predictions txt files directory</p></li>
+<li><p><strong>alignment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>if not None, optimize poses by</p>
+<ul>
+<li><p>scale: optimize scale factor for trajectory alignment and evaluation</p></li>
+<li><p>scale_7dof: optimize 7dof for alignment and use scale for trajectory evaluation</p></li>
+<li><p>7dof: optimize 7dof for alignment and evaluation</p></li>
+<li><p>6dof: optimize 6dof for alignment and evaluation</p></li>
+</ul>
+</p></li>
+<li><p><strong>seqs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – <ul>
+<li><p>None: Evalute all available seqs in result_dir</p></li>
+<li><p>list: list of sequence indexs to be evaluated</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.last_frame_from_segment_length">
+<code class="sig-name descname"><span class="pre">last_frame_from_segment_length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.last_frame_from_segment_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.last_frame_from_segment_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find frame (index) that away from the first_frame with
+the required distance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – distance of each pose w.r.t frame-0</p></li>
+<li><p><strong>first_frame</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – start-frame index</p></li>
+<li><p><strong>length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – required distance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>i (int)</em> – end-frame index. if not found return -1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.load_poses_from_txt">
+<code class="sig-name descname"><span class="pre">load_poses_from_txt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.load_poses_from_txt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.load_poses_from_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load poses from txt (KITTI format)
+Each line in the file should follow one of the following structures</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>idx pose(3x4 matrix in terms of 12 numbers)</p></li>
+<li><p>pose(3x4 matrix in terms of 12 numbers)</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – txt file path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>poses (dict)</em> – {idx: [4x4] array}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.plot_error">
+<code class="sig-name descname"><span class="pre">plot_error</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">avg_segment_errs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.plot_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.plot_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot per-length error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>avg_segment_errs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – {100:[avg_t_err, avg_r_err],…}</p></li>
+<li><p><strong>seq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – sequence index.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.plot_trajectory">
+<code class="sig-name descname"><span class="pre">plot_trajectory</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poses_gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poses_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.plot_trajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.plot_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot trajectory for both GT and prediction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poses_gt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – {idx: 4x4 array}; ground truth poses</p></li>
+<li><p><strong>poses_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – {idx: 4x4 array}; predicted poses</p></li>
+<li><p><strong>seq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – sequence index.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.rotation_error">
+<code class="sig-name descname"><span class="pre">rotation_error</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pose_error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.rotation_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.rotation_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute rotation error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pose_error</strong> (<em>array</em><em>, </em><em>[</em><em>4x4</em><em>]</em>) – relative pose error</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>rot_error (float)</em> – rotation error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.save_RPE_errors">
+<code class="sig-name descname"><span class="pre">save_RPE_errors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.save_RPE_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.save_RPE_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save sequence error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>err</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – error information</p></li>
+<li><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – txt file for writing errors</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.save_sequence_errors">
+<code class="sig-name descname"><span class="pre">save_sequence_errors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.save_sequence_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.save_sequence_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save sequence error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>err</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – a list of list containing error information</p></li>
+<li><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – txt file for writing errors</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.scale_optimization">
+<code class="sig-name descname"><span class="pre">scale_optimization</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.scale_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.scale_optimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize scaling factor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – ground-truth poses as [4x4] array</p></li>
+<li><p><strong>pred</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – predicted poses as [4x4] array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>new_pred (dict)</em> – predicted poses after optimization as [4x4] array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.trajectory_distances">
+<code class="sig-name descname"><span class="pre">trajectory_distances</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.trajectory_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.trajectory_distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute distance for each pose w.r.t frame-0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>poses</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – {idx: 4x4 array}</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>dist (list)</em> – distance of each pose w.r.t frame-0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.translation_error">
+<code class="sig-name descname"><span class="pre">translation_error</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pose_error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.translation_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.translation_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute translation error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pose_error</strong> (<em>array</em><em>, </em><em>[</em><em>4x4</em><em>]</em>) – relative pose error</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>trans_error (float)</em> – translation error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.write_result">
+<code class="sig-name descname"><span class="pre">write_result</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#KittiEvalOdom.write_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.KittiEvalOdom.write_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write result into a txt file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>IOWrapper</em>) – </p></li>
+<li><p><strong>seq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – sequence number</p></li>
+<li><p><strong>errs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – [ave_t_err, ave_r_err, ate, rpe_trans, rpe_rot]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="tools.evaluation.odometry.kitti_odometry.scale_lse_solver">
+<code class="sig-name descname"><span class="pre">scale_lse_solver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#scale_lse_solver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.scale_lse_solver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Least-sqaure-error solver
+Compute optimal scaling factor so that s(X)-Y is minimum</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array</em><em>, </em><em>[</em><em>KxN</em><em>]</em>) – current data</p></li>
+<li><p><strong>Y</strong> (<em>array</em><em>, </em><em>[</em><em>KxN</em><em>]</em>) – reference data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>scale (float)</em> – scaling factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tools.evaluation.odometry.kitti_odometry.umeyama_alignment">
+<code class="sig-name descname"><span class="pre">umeyama_alignment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tools/evaluation/odometry/kitti_odometry.html#umeyama_alignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tools.evaluation.odometry.kitti_odometry.umeyama_alignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the least squares solution parameters of an Sim(m) matrix
+that minimizes the distance between a set of registered points.
+Umeyama, Shinji: Least-squares estimation of transformation parameters</p>
+<blockquote>
+<div><p>between two point patterns. IEEE PAMI, 1991</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – mxn matrix of points, m = dimension, n = nr. of data points</p></li>
+<li><p><strong>y</strong> – mxn matrix of points, m = dimension, n = nr. of data points</p></li>
+<li><p><strong>with_scale</strong> – set to True to align also the scale (default: 1.0 scale)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>r, t, c - rotation matrix, translation vector and scale factor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tools.generate_flow_prediction.html" class="btn btn-neutral float-right" title="tools.generate_flow_prediction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tools.evaluation.odometry.eval_odom.html" class="btn btn-neutral float-left" title="tools.evaluation.odometry.eval_odom" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

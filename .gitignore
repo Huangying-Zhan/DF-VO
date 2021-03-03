@@ -11,4 +11,6 @@ model_zoo/
 
 # temporary files
 tmp/
-
+options/adelaide/
+tools/paper_tool/
+tools/evaluation/flow/

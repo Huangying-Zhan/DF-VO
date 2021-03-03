@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.tracker.gric &mdash; DF-VO 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.tracker.gric</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.tracker.gric</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2020-03-01</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-05-27</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: This file contains functions related to GRIC computation</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="compute_fundamental_residual"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.gric.html#libs.tracker.gric.compute_fundamental_residual">[docs]</a><span class="k">def</span> <span class="nf">compute_fundamental_residual</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Compute fundamental matrix residual</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        F (array, [3x3]): Fundamental matrix (from view-1 to view-2)</span>
+<span class="sd">        kp1 (array, [Nx2]): keypoint 1</span>
+<span class="sd">        kp2 (array, [Nx2]): keypoint 2</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        res (array, [N]): residual</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get homogeneous keypoints (3xN array)</span>
+    <span class="n">m0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">kp1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">m0</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">m1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">kp2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">m1</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">Fm0</span> <span class="o">=</span> <span class="n">F</span> <span class="o">@</span> <span class="n">m0</span> <span class="c1">#3xN</span>
+    <span class="n">Ftm1</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">m1</span> <span class="c1">#3xN</span>
+
+    <span class="n">m1Fm0</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Fm0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span> <span class="o">@</span> <span class="n">m1</span><span class="p">)</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">m1Fm0</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Fm0</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Ftm1</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="compute_homography_residual"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.gric.html#libs.tracker.gric.compute_homography_residual">[docs]</a><span class="k">def</span> <span class="nf">compute_homography_residual</span><span class="p">(</span><span class="n">H_in</span><span class="p">,</span> <span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Compute homography matrix residual</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        H (array, [3x3]): homography matrix (Transformation from view-1 to view-2)</span>
+<span class="sd">        kp1 (array, [Nx2]): keypoint 1</span>
+<span class="sd">        kp2 (array, [Nx2]): keypoint 2</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        res (array, [N]): residual</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">kp1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">H_in</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="c1"># get homogeneous keypoints (3xN array)</span>
+    <span class="n">m0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">kp1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">m0</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">m1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">kp2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">m1</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">kp2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+
+    <span class="n">G0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    <span class="n">G1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+
+    <span class="n">G0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">m1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+    <span class="n">G0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">m1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+    <span class="n">G0</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=-</span><span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">-</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">-</span> <span class="n">H</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+
+    <span class="n">G1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">m1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+    <span class="n">G1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">m1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+    <span class="n">G1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=-</span><span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">-</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">H</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">-</span> <span class="n">H</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+
+    <span class="n">magG0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">G0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">G0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">G0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">G0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">G0</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">G0</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">magG1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">G1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">G1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">G1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">G1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">G1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">G1</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">magG0G1</span><span class="o">=</span><span class="n">G0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">G1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">G0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">G1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">alpha</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">magG0G1</span> <span class="o">/</span><span class="p">(</span><span class="n">magG0</span><span class="o">*</span><span class="n">magG1</span><span class="p">))</span>
+
+    <span class="n">alg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    <span class="n">alg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span>   <span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">H</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> \
+       <span class="n">m1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">H</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+    
+    <span class="n">alg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span>   <span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">H</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> \
+       <span class="n">m1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">m0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">m0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">H</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">H</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+    
+    <span class="n">D1</span><span class="o">=</span><span class="n">alg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">magG0</span>
+    <span class="n">D2</span><span class="o">=</span><span class="n">alg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">magG1</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="p">(</span><span class="n">D1</span><span class="o">*</span><span class="n">D1</span> <span class="o">+</span> <span class="n">D2</span><span class="o">*</span><span class="n">D2</span> <span class="o">-</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">D1</span><span class="o">*</span><span class="n">D2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+   
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="calc_GRIC"><a class="viewcode-back" href="../../../DF-VO/libs.tracker.gric.html#libs.tracker.gric.calc_GRIC">[docs]</a><span class="k">def</span> <span class="nf">calc_GRIC</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate GRIC</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        res (array, [N]): residual</span>
+<span class="sd">        sigma (float): assumed variance of the error</span>
+<span class="sd">        n (int): number of residuals</span>
+<span class="sd">        model (str): model type</span>
+<span class="sd">            - FMat</span>
+<span class="sd">            - EMat</span>
+<span class="sd">            - HMat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">sigmasq1</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span> 
+
+    <span class="n">K</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;FMat&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;EMat&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;HMat&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="p">}[</span><span class="n">model</span><span class="p">]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;FMat&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;EMat&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;HMat&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">}[</span><span class="n">model</span><span class="p">]</span>
+    
+    <span class="n">lam3RD</span><span class="o">=</span><span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">R</span><span class="o">-</span><span class="n">D</span><span class="p">)</span>
+
+    <span class="n">sum_</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">tmp</span><span class="o">=</span><span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">sigmasq1</span>
+        <span class="k">if</span> <span class="n">tmp</span><span class="o">&lt;=</span><span class="n">lam3RD</span><span class="p">:</span>
+            <span class="n">sum_</span> <span class="o">+=</span> <span class="n">tmp</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sum_</span> <span class="o">+=</span> <span class="n">lam3RD</span>
+    
+    <span class="n">sum_</span> <span class="o">+=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">D</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">+</span> <span class="n">K</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sum_</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

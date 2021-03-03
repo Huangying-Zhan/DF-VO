@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.geometry.ops_3d &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.geometry.ops_3d</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.geometry.ops_3d</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2019-09-01</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-05-27</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: This file contains operations related 3D</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="convert_sparse3D_to_depth"><a class="viewcode-back" href="../../../DF-VO/libs.geometry.ops_3d.html#libs.geometry.ops_3d.convert_sparse3D_to_depth">[docs]</a><span class="k">def</span> <span class="nf">convert_sparse3D_to_depth</span><span class="p">(</span><span class="n">kp</span><span class="p">,</span> <span class="n">XYZ</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert sparse 3D keypoint to depth map</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        kp (array, [Nx2]): keypoints</span>
+<span class="sd">        XYZ (array, [3xN]): 3D coorindates for the keypoints</span>
+<span class="sd">        height (int): image height</span>
+<span class="sd">        width (int): image width</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        depth (array, [HxW]): depth map</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># initialize depth map</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+    <span class="n">kp_int</span> <span class="o">=</span> <span class="n">kp</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+    <span class="c1"># remove out of region keypoints</span>
+    <span class="n">y_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">kp_int</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">kp_int</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">width</span><span class="p">)</span>
+    <span class="n">kp_int</span> <span class="o">=</span> <span class="n">kp_int</span><span class="p">[</span><span class="n">y_idx</span><span class="p">]</span>
+    <span class="n">x_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">kp_int</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">kp_int</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">height</span><span class="p">)</span>
+    <span class="n">kp_int</span> <span class="o">=</span> <span class="n">kp_int</span><span class="p">[</span><span class="n">x_idx</span><span class="p">]</span>
+
+    <span class="n">XYZ</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">[:,</span> <span class="n">y_idx</span><span class="p">]</span>
+    <span class="n">XYZ</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">[:,</span> <span class="n">x_idx</span><span class="p">]</span>
+
+    <span class="n">depth</span><span class="p">[</span><span class="n">kp_int</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">kp_int</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">depth</span></div>
+
+
+<div class="viewcode-block" id="triangulation"><a class="viewcode-back" href="../../../DF-VO/libs.geometry.ops_3d.html#libs.geometry.ops_3d.triangulation">[docs]</a><span class="k">def</span> <span class="nf">triangulation</span><span class="p">(</span><span class="n">kp1</span><span class="p">,</span> <span class="n">kp2</span><span class="p">,</span> <span class="n">T_1w</span><span class="p">,</span> <span class="n">T_2w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Triangulation to get 3D points</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        kp1 (array, [Nx2]): keypoint in view 1 (normalized)</span>
+<span class="sd">        kp2 (array, [Nx2]): keypoints in view 2 (normalized)</span>
+<span class="sd">        T_1w (array, [4x4]): pose of view 1 w.r.t  i.e. T_1w (from w to 1)</span>
+<span class="sd">        T_2w (array, [4x4]): pose of view 2 w.r.t world, i.e. T_2w (from w to 2)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        a tuple containing</span>
+<span class="sd">            - **X** (array, [3xN]): 3D coordinates of the keypoints w.r.t world coordinate</span>
+<span class="sd">            - **X1** (array, [3xN]): 3D coordinates of the keypoints w.r.t view1 coordinate</span>
+<span class="sd">            - **X2** (array, [3xN]): 3D coordinates of the keypoints w.r.t view2 coordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kp1_3D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">kp1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">kp2_3D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">kp2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">kp1_3D</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">kp1_3D</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp1</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">kp1</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">kp2_3D</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">kp2_3D</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp2</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">kp2</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">triangulatePoints</span><span class="p">(</span><span class="n">T_1w</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">T_2w</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">kp1_3D</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">kp2_3D</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">X</span> <span class="o">/=</span> <span class="n">X</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">X1</span> <span class="o">=</span> <span class="n">T_1w</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">@</span> <span class="n">X</span>
+    <span class="n">X2</span> <span class="o">=</span> <span class="n">T_2w</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">@</span> <span class="n">X</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">X1</span><span class="p">,</span> <span class="n">X2</span></div>
+
+
+<div class="viewcode-block" id="unprojection_kp"><a class="viewcode-back" href="../../../DF-VO/libs.geometry.ops_3d.html#libs.geometry.ops_3d.unprojection_kp">[docs]</a><span class="k">def</span> <span class="nf">unprojection_kp</span><span class="p">(</span><span class="n">kp</span><span class="p">,</span> <span class="n">kp_depth</span><span class="p">,</span> <span class="n">cam_intrinsics</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert kp to XYZ</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        kp (array, [Nx2]): [x, y] keypoints</span>
+<span class="sd">        kp_depth (array, [Nx2]): keypoint depth</span>
+<span class="sd">        cam_intrinsics (Intrinsics): camera intrinsics</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        XYZ (array, [Nx3]): 3D coordinates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">kp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># initialize regular grid</span>
+    <span class="n">XYZ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">XYZ</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp</span>
+    
+    <span class="n">inv_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">inv_K</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">inv_mat</span>
+    <span class="n">inv_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">inv_K</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">XYZ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">inv_K</span><span class="p">,</span> <span class="n">XYZ</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">XYZ</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">kp_depth</span>
+    <span class="n">XYZ</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">kp_depth</span>
+    <span class="n">XYZ</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">kp_depth</span>
+    <span class="k">return</span> <span class="n">XYZ</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

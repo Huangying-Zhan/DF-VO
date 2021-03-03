@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration &mdash; DF-VO latest documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Run own dataset" href="run_own_dataset.html" />
+    <link rel="prev" title="Run DF-VO" href="run_dfvo.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="run_dfvo.html">Run DF-VO</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_own_dataset.html">Run own dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools_usage.html">Tools usage</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="examples.html">Examples</a> &raquo;</li>
+        
+      <li>Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/rsts/configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>We provide the explanation of the configurations in this file.
+A KITTI experiment is used as an example.
+We also provide possible choices in the current framework.
+We have some unused configurations (will be commented)
+for our Experiment Version but not used in this Release Version.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li><p><strong>None</strong>: when the choice is None, it means leave the option blank. DON’T put ‘None’, which yaml would recognize as string ‘None’</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ------------------------------------</span>
+<span class="c1"># Basic setup</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">dataset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">kitti_odom</span>                     <span class="c1"># dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]</span>
+<span class="nt">seed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4869</span>                              <span class="c1"># random seed</span>
+<span class="nt">image</span><span class="p">:</span>
+    <span class="nt">height</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">192</span>                         <span class="c1"># image height</span>
+    <span class="nt">width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">640</span>                          <span class="c1"># image width</span>
+    <span class="nt">ext</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">jpg</span>                            <span class="c1"># image file extension for data loading</span>
+<span class="nt">seq</span><span class="p">:</span> <span class="s">&quot;10&quot;</span>                               <span class="c1"># sequence to run</span>
+<span class="nt">frame_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>                           <span class="c1"># frame step</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Directories</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">directory</span><span class="p">:</span>
+    <span class="nt">result_dir</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">RESULT_DIR</span><span class="p p-Indicator">}</span>            <span class="c1"># directory to save result</span>
+    <span class="nt">img_seq_dir</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">IMAGE_DATA_DIR</span><span class="p p-Indicator">}</span>       <span class="c1"># image data directory</span>
+    <span class="nt">gt_pose_dir</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">GT_POSE_DIR</span><span class="p p-Indicator">}</span>          <span class="c1"># (optional) ground-truth pose data directory</span>
+    <span class="nt">depth_dir</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">DEPTH_DATA_DIR</span><span class="p p-Indicator">}</span>         <span class="c1"># (optional) external depth data, e.g. ground-truth depths</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Depth</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">depth</span><span class="p">:</span>                                  <span class="c1"># Depth configuration</span>
+    <span class="nt">depth_src</span><span class="p">:</span>                          <span class="c1"># depth source [None, gt]</span>
+                                            <span class="c1"># None - depth model predition</span>
+                                            <span class="c1"># gt - use ground truth depth</span>
+    <span class="nt">deep_depth</span><span class="p">:</span>
+        <span class="nt">network</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">monodepth2</span>             <span class="c1"># depth network</span>
+        <span class="nt">pretrained_model</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">MODEL_DIR</span><span class="p p-Indicator">}</span>   <span class="c1"># directory stores depth.pth and encoder.pth</span>
+    <span class="nt">max_depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>                       <span class="c1"># maximum depth</span>
+    <span class="nt">min_depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>                        <span class="c1"># minimum depth</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Deep flow</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">deep_flow</span><span class="p">:</span>                              <span class="c1"># Deep optical flow configuration</span>
+    <span class="nt">network</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">liteflow</span>                   <span class="c1"># optical flow network, [liteflow]</span>
+    <span class="nt">flow_net_weight</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">FLOW_MODEL</span><span class="p p-Indicator">}</span>       <span class="c1"># optical flow model path</span>
+    <span class="nt">forward_backward</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>              <span class="c1"># predict both forward/backward flows and compute forward-backward flow consistency</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Deep Pose (Experiment Ver. only)</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">deep_pose</span><span class="p">:</span>                              <span class="c1"># Deep pose network configuration</span>
+    <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                       <span class="c1"># enable/disable pose network</span>
+    <span class="nt">pretrained_model</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nv">MODEL_DIR</span><span class="p p-Indicator">}</span>       <span class="c1"># model directory contains pose_encoder.pth and pose.pth</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Online Finetuning</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">online_finetune</span><span class="p">:</span>                        <span class="c1"># online fine-tuning configuration</span>
+    <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                       <span class="c1"># enable/disable flow finetuning</span>
+    <span class="nt">lr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.00001</span>                         <span class="c1"># learning rate</span>
+    <span class="nt">num_frames</span><span class="p">:</span>                         <span class="c1"># number of frames to be fine-tuned, [None, int]</span>
+    <span class="nt">flow</span><span class="p">:</span>                               <span class="c1"># flow fine-tuning configuration</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                   <span class="c1"># enable/disable flow finetuning</span>
+        <span class="nt">scales</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span> <span class="nv">2</span><span class="p p-Indicator">,</span> <span class="nv">3</span><span class="p p-Indicator">,</span> <span class="nv">4</span><span class="p p-Indicator">,</span> <span class="nv">5</span><span class="p p-Indicator">]</span>         <span class="c1"># scales to be used for training</span>
+        <span class="nt">loss</span><span class="p">:</span>                           <span class="c1"># flow loss configuration</span>
+            <span class="nt">flow_consistency</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.005</span>     <span class="c1"># forward-backward flow consistency loss weight</span>
+            <span class="nt">flow_smoothness</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>        <span class="c1"># flow smoothness loss weight</span>
+    <span class="nt">depth</span><span class="p">:</span>                              <span class="c1"># depth fine-tuning configuration</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                   <span class="c1"># enable/disable depth finetuning</span>
+        <span class="nt">scales</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span> <span class="nv">1</span><span class="p p-Indicator">,</span> <span class="nv">2</span><span class="p p-Indicator">,</span> <span class="nv">3</span><span class="p p-Indicator">]</span>            <span class="c1"># scales to be used for training</span>
+        <span class="nt">pose_src</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DF-VO</span>                 <span class="c1"># pose source for depth-pose finetuning [DF-Vo, deep_pose]</span>
+        <span class="nt">loss</span><span class="p">:</span>                           <span class="c1"># depth loss configuration</span>
+            <span class="nt">apperance_loss</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>           <span class="c1"># apperance loss weight</span>
+            <span class="nt">disparity_smoothness</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.001</span> <span class="c1"># disparity smoothness loss weight</span>
+            <span class="nt">depth_consistency</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.001</span>    <span class="c1"># depth consistency loss weight</span>
+    <span class="nt">pose</span><span class="p">:</span>                               <span class="c1"># pose finetuning configuration (with depth)</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                   <span class="c1"># enable/disable pose finetuning</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Preprocessing</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">crop</span><span class="p">:</span>                                   <span class="c1"># cropping configuration</span>
+    <span class="nt">depth_crop</span><span class="p">:</span> <span class="p p-Indicator">[[</span><span class="nv">0.3</span><span class="p p-Indicator">,</span> <span class="nv">1</span><span class="p p-Indicator">],</span> <span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span> <span class="nv">1</span><span class="p p-Indicator">]]</span>      <span class="c1"># depth map cropping, format: [[y0, y1],[x0, x1]]</span>
+    <span class="nt">flow_crop</span><span class="p">:</span> <span class="p p-Indicator">[[</span><span class="nv">0</span><span class="p p-Indicator">,</span> <span class="nv">1</span><span class="p p-Indicator">],</span> <span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span> <span class="nv">1</span><span class="p p-Indicator">]]</span>         <span class="c1"># optical flow map cropping, format: [[y0, y1],[x0, x1]]</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Correspondence (keypoint) selection</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">kp_selection</span><span class="p">:</span>                           <span class="c1"># correspondence selection configuration</span>
+    <span class="nt">local_bestN</span><span class="p">:</span>                        <span class="c1"># local best-N configuration</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>                    <span class="c1"># enable/disable local best-N selection</span>
+        <span class="nt">num_bestN</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2000</span>                 <span class="c1"># number of keypoints</span>
+        <span class="nt">num_row</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>                     <span class="c1"># number of divided rows</span>
+        <span class="nt">num_col</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>                     <span class="c1"># number of divided columns</span>
+        <span class="nt">score_method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">flow</span>              <span class="c1"># selection score, [flow, flow_ratio]</span>
+                                            <span class="c1"># flow: L2 distance of forward-backward flow</span>
+                                            <span class="c1"># flow_ratio: relative flow difference ratio</span>
+        <span class="nt">thre</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>                       <span class="c1"># flow consistency masking threshold</span>
+    <span class="nt">bestN</span><span class="p">:</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                   <span class="c1"># enable/disable best-N selection</span>
+        <span class="nt">num_bestN</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2000</span>                 <span class="c1"># number of keypoints</span>
+    <span class="nt">sampled_kp</span><span class="p">:</span>                         <span class="c1"># random/uniform keypoint sampling</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                   <span class="c1"># enable/disable random/uniform keypoint sampling</span>
+        <span class="nt">num_kp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2000</span>                    <span class="c1"># number of keypoints</span>
+    <span class="nt">rigid_flow_kp</span><span class="p">:</span>                      <span class="c1"># keypoint selection from optical-rigid flow consistency (for scale recovery)</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                   <span class="c1"># enable/disable rigid-flow based keypoint selection</span>
+        <span class="nt">num_bestN</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2000</span>                 <span class="c1"># number of keypoints</span>
+        <span class="nt">num_row</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>                     <span class="c1"># number of divided rows</span>
+        <span class="nt">num_col</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>                     <span class="c1"># number of divided columns</span>
+        <span class="nt">score_method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">flow</span>              <span class="c1"># selection score, [flow]</span>
+        <span class="nt">rigid_flow_thre</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>              <span class="c1"># masking threshold for rigid-optical flow consistency</span>
+        <span class="nt">optical_flow_thre</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>          <span class="c1"># masking threshold for forward-backward flow consistency</span>
+    <span class="nt">depth_consistency</span><span class="p">:</span>                  <span class="c1"># (Experiement Ver. only) depth consistency configuration</span>
+        <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>                   <span class="c1"># enable/disable depth consistency</span>
+        <span class="nt">thre</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.05</span>                      <span class="c1"># masking threshold</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Tracking</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">tracking_method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hybrid</span>                 <span class="c1"># tracking method [hybrid, PnP, deep_pose]</span>
+                                            <span class="c1"># hybrid - E-tracker + PnP-tracker;</span>
+                                            <span class="c1"># PnP - PnP-tracker</span>
+                                            <span class="c1"># deep_pose - pose_cnn-tracker</span>
+
+<span class="nt">e_tracker</span><span class="p">:</span>                              <span class="c1"># E-tracker configuration</span>
+    <span class="nt">ransac</span><span class="p">:</span>                             <span class="c1"># Ransac configuration</span>
+        <span class="nt">reproj_thre</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>                <span class="c1"># inlier threshold value</span>
+        <span class="nt">repeat</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>                       <span class="c1"># number of repeated Ransac</span>
+    <span class="nt">validity</span><span class="p">:</span>                           <span class="c1"># model selection condition</span>
+        <span class="nt">method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">GRIC</span>                    <span class="c1"># method of validating E-tracker, [flow, GRIC]</span>
+        <span class="nt">thre</span><span class="p">:</span>                           <span class="c1"># threshold value for model selection, only used in [flow]</span>
+    <span class="nt">kp_src</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">kp_best</span>                     <span class="c1"># type of correspondences to be used [kp_list, kp_best]</span>
+                                            <span class="c1"># kp_list - uniformaly sampled keypoints</span>
+                                            <span class="c1"># kp_best - keypoints sampled from best-N / local best method</span>
+
+<span class="nt">scale_recovery</span><span class="p">:</span>                         <span class="c1"># scale recovery configuration</span>
+    <span class="nt">method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">simple</span>                      <span class="c1"># scale recovery method [simple, iterative]</span>
+    <span class="nt">ransac</span><span class="p">:</span>                             <span class="c1"># Ransac configuration</span>
+        <span class="nt">method</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">depth_ratio</span>             <span class="c1"># fitting target [depth_ratio, abs_diff]</span>
+                                            <span class="c1"># depth_ratio: find a scale s.t. most triangulated_depth/cnn_depth close to 1</span>
+                                            <span class="c1"># abs_diff: find a scale s.t. abs(triangulated_depth - cnn_depth) close to 0</span>
+        <span class="nt">min_samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>                  <span class="c1"># minimum number of min_samples</span>
+        <span class="nt">max_trials</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>                 <span class="c1"># maximum number of trials</span>
+        <span class="nt">stop_prob</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.99</span>                 <span class="c1"># The probability that the algorithm produces a useful result</span>
+        <span class="nt">thre</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>                       <span class="c1"># inlier threshold value</span>
+    <span class="nt">kp_src</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">kp_best</span>                     <span class="c1"># type of correspondences to be used [kp_list, kp_best, kp_depth]</span>
+                                            <span class="c1"># kp_list - uniformaly sampled keypoints</span>
+                                            <span class="c1"># kp_best - keypoints sampled from best-N / local best method</span>
+                                            <span class="c1"># kp_depth - keypoints sampled after optical-rigid flow consistency masking</span>
+
+<span class="nt">pnp_tracker</span><span class="p">:</span>                            <span class="c1"># PnP-tracker configuration</span>
+    <span class="nt">ransac</span><span class="p">:</span>                             <span class="c1"># Ransac configuration</span>
+        <span class="nt">iter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>                       <span class="c1"># number of iteration</span>
+        <span class="nt">reproj_thre</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>                  <span class="c1"># inlier threshold value</span>
+        <span class="nt">repeat</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>                       <span class="c1"># number of repeated Ransac</span>
+    <span class="nt">kp_src</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">kp_best</span>                     <span class="c1"># type of correspondences to be used [kp_list, kp_best, kp_depth]</span>
+                                            <span class="c1"># kp_list - uniformaly sampled keypoints</span>
+                                            <span class="c1"># kp_best - keypoints sampled from best-N / local best method</span>
+                                            <span class="c1"># kp_depth - keypoints sampled after optical-rigid flow consistency masking</span>
+
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># Visualization</span>
+<span class="c1"># ------------------------------------</span>
+<span class="nt">visualization</span><span class="p">:</span>                          <span class="c1"># visualization configuration</span>
+    <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>                        <span class="c1"># enable/disable frame drawer</span>
+    <span class="nt">save_img</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>                      <span class="c1"># enable/disable save frames</span>
+    <span class="nt">window_h</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">900</span>                       <span class="c1"># frame window height</span>
+    <span class="nt">window_w</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1500</span>                      <span class="c1"># frame window width</span>
+    <span class="nt">kp_src</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">kp_best</span>                     <span class="c1"># type of correspondences to be drawn</span>
+    <span class="nt">flow</span><span class="p">:</span>                               <span class="c1"># optical flow visualization configuration</span>
+        <span class="nt">vis_forward_flow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>          <span class="c1"># enable/disable forward flow visualization</span>
+        <span class="nt">vis_backward_flow</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>         <span class="c1"># enable/disable backward flow visualization</span>
+        <span class="nt">vis_flow_diff</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>             <span class="c1"># enable/disable forward-backward flow consistency visualization</span>
+        <span class="nt">vis_rigid_diff</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>           <span class="c1"># enable/disable optical-rigid flow consistency visualization</span>
+    <span class="nt">kp_match</span><span class="p">:</span>                           <span class="c1"># keypoint matching visualization</span>
+        <span class="nt">kp_num</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span>                     <span class="c1"># number of selected keypoints to be visualized</span>
+        <span class="nt">vis_temp</span><span class="p">:</span>                       <span class="c1"># keypoint matching in temporal</span>
+            <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>                <span class="c1"># enable/disable visualization</span>
+        <span class="nt">vis_side</span><span class="p">:</span>                       <span class="c1"># keypoint matching side-by-side</span>
+            <span class="nt">enable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>                <span class="c1"># enable/disable visualization</span>
+            <span class="nt">inlier_plot</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>          <span class="c1"># enable/disable inlier plot</span>
+    <span class="nt">trajectory</span><span class="p">:</span>                         <span class="c1"># trajectory visualization configuration</span>
+        <span class="nt">vis_traj</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>                  <span class="c1"># enable/disable predicted trajectory visualization</span>
+        <span class="nt">vis_gt_traj</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>              <span class="c1"># enable/disable ground truth trajectory visualization</span>
+        <span class="nt">mono_scale</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>                   <span class="c1"># scaling factor to align with gt (if gt is available)</span>
+    <span class="nt">depth</span><span class="p">:</span>                              <span class="c1"># depth visualization configuration</span>
+        <span class="nt">use_tracking_depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>       <span class="c1"># enable/disable visualizing depth map used for tracking (preprocessed, e.g. range capping)</span>
+        <span class="nt">depth_disp</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">disp</span>                <span class="c1"># visualize depth or disparity map [depth, disp]</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="run_own_dataset.html" class="btn btn-neutral float-right" title="Run own dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="run_dfvo.html" class="btn btn-neutral float-left" title="Run DF-VO" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

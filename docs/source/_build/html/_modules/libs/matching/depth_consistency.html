@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.matching.depth_consistency &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.matching.depth_consistency</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.matching.depth_consistency</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2020-05-19</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-05-27</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: DepthConsistency computes depth consistency between depth maps</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">nnFunc</span>
+
+<span class="kn">from</span> <span class="nn">libs.geometry.backprojection</span> <span class="k">import</span> <span class="n">Backprojection</span>
+<span class="kn">from</span> <span class="nn">libs.geometry.reprojection</span> <span class="k">import</span> <span class="n">Reprojection</span>
+
+<div class="viewcode-block" id="DepthConsistency"><a class="viewcode-back" href="../../../DF-VO/libs.matching.depth_consistency.html#libs.matching.depth_consistency.DepthConsistency">[docs]</a><span class="k">class</span> <span class="nc">DepthConsistency</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;DepthConsistency computes depth consistency between depth maps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">cam_intrinsics</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span> <span class="o">=</span> <span class="n">cam_intrinsics</span>
+
+        <span class="c1"># Deep layers</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backproj</span> <span class="o">=</span> <span class="n">Backprojection</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reproj</span> <span class="o">=</span> <span class="n">Reprojection</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DepthConsistency.prepare_depth_consistency_data"><a class="viewcode-back" href="../../../DF-VO/libs.matching.depth_consistency.html#libs.matching.depth_consistency.DepthConsistency.prepare_depth_consistency_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_depth_consistency_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare data for computing depth consistency</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **inv_K** (tensor, [1x4x4]): inverse camera intrinsics</span>
+<span class="sd">                - **K** (tensor, [1x4x4]): camera intrinsics</span>
+<span class="sd">                - **depth** (tensor, 1x1xHxW): depth map</span>
+<span class="sd">                - **pose_T** (tensor, [1x4x4]): relative pose</span>
+<span class="sd">                - **cur_id** (int): index of current frame</span>
+<span class="sd">                - **ref_id** (int): index of reference frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># camera intrinsics</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;inv_K&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;inv_K&#39;</span><span class="p">)][:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">inv_mat</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;inv_K&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="p">[(</span><span class="s1">&#39;inv_K&#39;</span><span class="p">)])</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;K&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;K&#39;</span><span class="p">)][:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">mat</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;K&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="p">[(</span><span class="s1">&#39;K&#39;</span><span class="p">)])</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="c1"># current depth</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;depth&#39;</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="c1"># id</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+
+        <span class="c1"># reference depth</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;depth&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="c1"># pose</span>
+        <span class="n">data</span><span class="p">[(</span><span class="s1">&#39;pose_T&#39;</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;deep_pose&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="DepthConsistency.warp_and_reproj_depth"><a class="viewcode-back" href="../../../DF-VO/libs.matching.depth_consistency.html#libs.matching.depth_consistency.DepthConsistency.warp_and_reproj_depth">[docs]</a>    <span class="k">def</span> <span class="nf">warp_and_reproj_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get reprojected depths and warp depths;</span>
+<span class="sd">        - reproj_depth: the reference depths in source view;</span>
+<span class="sd">        - warp_depth: the warped reference depths in source view</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (dict): a dictionary containing</span>
+
+<span class="sd">                - **inv_K** (tensor, [1x4x4]): inverse camera intrinsics</span>
+<span class="sd">                - **K** (tensor, [1x4x4]): camera intrinsics</span>
+<span class="sd">                - **depth** (tensor, 1x1xHxW): depth map</span>
+<span class="sd">                - **pose_T** (tensor, [1x4x4]): relative pose</span>
+<span class="sd">                - **cur_id** (int): index of current frame</span>
+<span class="sd">                - **ref_id** (int): index of reference frame</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **(&#39;warp_depth&#39;, cur_id, ref_id)** (tensor, [1x1xHxW]): synthesized current depth map</span>
+<span class="sd">                - **(&#39;reproj_depth&#39;, cur_id, ref_id)** (tensor, [1x1xHxW]): transformed current depth map</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">]</span>
+        <span class="n">inv_K</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;inv_K&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Get depth and 3D points of frame_0</span>
+        <span class="n">cur_depth</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s1">&#39;depth&#39;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">])]</span>
+        <span class="n">cam_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backproj</span><span class="p">(</span><span class="n">cur_depth</span><span class="p">,</span> <span class="n">inv_K</span><span class="p">)</span>
+
+
+        <span class="n">n</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">cur_depth</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">T</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;pose_T&quot;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">],</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span>
+
+        <span class="c1"># reprojection</span>
+        <span class="n">reproj_xy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reproj</span><span class="p">(</span><span class="n">cur_depth</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">inv_K</span><span class="p">)</span>
+
+        <span class="c1"># Warp src depth to tgt ref view</span>
+        <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;warp_depth&#39;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">],</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">nnFunc</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+            <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span>  <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])],</span>
+            <span class="n">reproj_xy</span><span class="p">,</span>
+            <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;border&quot;</span><span class="p">)</span>
+            
+        <span class="c1"># Reproject cur_depth</span>
+        <span class="n">transformed_cam_points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cam_points</span><span class="p">)</span>
+        <span class="n">transformed_cam_points</span> <span class="o">=</span> <span class="n">transformed_cam_points</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="n">proj_depth</span> <span class="o">=</span> <span class="n">transformed_cam_points</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;reproj_depth&#39;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">],</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">proj_depth</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="DepthConsistency.compute_depth_diff"><a class="viewcode-back" href="../../../DF-VO/libs.matching.depth_consistency.html#libs.matching.depth_consistency.DepthConsistency.compute_depth_diff">[docs]</a>    <span class="k">def</span> <span class="nf">compute_depth_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth_data</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute depth difference</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            depth_data: a dictionary containing</span>
+
+<span class="sd">                - **(&#39;warp_depth&#39;, 0, frame_id)** (tensor, [1x1xHxW]): warped depth map</span>
+<span class="sd">                - **(&#39;reproj_depth&#39;, 0, frame_id)** (tensor, [1x1xHxW]): reprojected depth map</span>
+<span class="sd">            </span>
+<span class="sd">            inputs: a dictionary containing</span>
+<span class="sd">            </span>
+<span class="sd">                - **cur_id** (int): index of current frame</span>
+<span class="sd">                - **ref_id** (int): index of reference frame</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            outputs (dict), a dictionary containing</span>
+<span class="sd">                - **(depth_diff, cur_id, ref_id)** (array, [HxW]): depth difference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">warp_depth</span> <span class="o">=</span> <span class="n">depth_data</span><span class="p">[(</span><span class="s1">&#39;warp_depth&#39;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">],</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span>
+        <span class="n">reproj_depth</span> <span class="o">=</span> <span class="n">depth_data</span><span class="p">[(</span><span class="s1">&#39;reproj_depth&#39;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">],</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span>
+        <span class="n">depth_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">warp_depth</span> <span class="o">-</span> <span class="n">reproj_depth</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;depth_ratio&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;sc&quot;</span><span class="p">:</span>
+            <span class="n">depth_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">warp_depth</span> <span class="o">+</span> <span class="n">reproj_depth</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+            <span class="n">depth_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">depth_diff</span> <span class="o">/</span> <span class="n">depth_sum</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;depth_ratio&quot;</span><span class="p">:</span>
+            <span class="n">depth_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">depth_diff</span> <span class="o">/</span> <span class="n">reproj_depth</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">depth_diff</span> <span class="o">=</span> <span class="n">depth_diff</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;depth_diff&#39;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;cur_id&#39;</span><span class="p">],</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;ref_id&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">depth_diff</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="DepthConsistency.compute"><a class="viewcode-back" href="../../../DF-VO/libs.matching.depth_consistency.html#libs.matching.depth_consistency.DepthConsistency.compute">[docs]</a>    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute depth consistency using CNN pose and CNN depths</span>
+<span class="sd">        New data added to ref_data</span>
+<span class="sd">            - **depth_diff** (array, [HxW]): depth consistency data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># compute depth consistency</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_depth_consistency_data</span><span class="p">(</span><span class="n">cur_data</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">)</span>
+        <span class="n">depth_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">warp_and_reproj_depth</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">depth_consistency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_depth_diff</span><span class="p">(</span><span class="n">depth_outputs</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+
+        <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;depth_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth_consistency</span><span class="p">[(</span><span class="s1">&#39;depth_diff&#39;</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])]</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

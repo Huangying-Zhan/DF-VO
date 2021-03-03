@@ -1,0 +1,575 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.deep_models.depth.monodepth2.layers &mdash; DF-VO 0.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+        <script src="../../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.deep_models.depth.monodepth2.layers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.deep_models.depth.monodepth2.layers</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright Niantic 2019. Patent Pending. All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># This software is licensed under the terms of the Monodepth2 licence</span>
+<span class="c1"># which allows for non-commercial use only, the full terms of which are made</span>
+<span class="c1"># available in the LICENSE file.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+
+<div class="viewcode-block" id="disp_to_depth"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.disp_to_depth">[docs]</a><span class="k">def</span> <span class="nf">disp_to_depth</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">min_depth</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert network&#39;s sigmoid output into depth prediction</span>
+<span class="sd">    The formula for this conversion is given in the &#39;additional considerations&#39;</span>
+<span class="sd">    section of the paper.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">min_disp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">max_depth</span>
+    <span class="n">max_disp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">min_depth</span>
+    <span class="n">scaled_disp</span> <span class="o">=</span> <span class="n">min_disp</span> <span class="o">+</span> <span class="p">(</span><span class="n">max_disp</span> <span class="o">-</span> <span class="n">min_disp</span><span class="p">)</span> <span class="o">*</span> <span class="n">disp</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">scaled_disp</span>
+    <span class="k">return</span> <span class="n">scaled_disp</span><span class="p">,</span> <span class="n">depth</span></div>
+
+
+<div class="viewcode-block" id="transformation_from_parameters"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.transformation_from_parameters">[docs]</a><span class="k">def</span> <span class="nf">transformation_from_parameters</span><span class="p">(</span><span class="n">axisangle</span><span class="p">,</span> <span class="n">translation</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the network&#39;s (axisangle, translation) output into a 4x4 matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">rot_from_axisangle</span><span class="p">(</span><span class="n">axisangle</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">translation</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">T</span> <span class="o">=</span> <span class="n">get_translation_matrix</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">M</span></div>
+
+
+<div class="viewcode-block" id="get_translation_matrix"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.get_translation_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_translation_matrix</span><span class="p">(</span><span class="n">translation_vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a translation vector into a 4x4 transformation matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">translation_vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">translation_vector</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">translation_vector</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">T</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">T</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">T</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">T</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">T</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+
+    <span class="k">return</span> <span class="n">T</span></div>
+
+
+<div class="viewcode-block" id="rot_from_axisangle"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.rot_from_axisangle">[docs]</a><span class="k">def</span> <span class="nf">rot_from_axisangle</span><span class="p">(</span><span class="n">vec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert an axisangle rotation into a 4x4 transformation matrix</span>
+<span class="sd">    (adapted from https://github.com/Wallacoloo/printipi)</span>
+<span class="sd">    Input &#39;vec&#39; has to be Bx1x3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="n">vec</span> <span class="o">/</span> <span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+
+    <span class="n">ca</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="n">sa</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">ca</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">axis</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">axis</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">axis</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">sa</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">sa</span>
+    <span class="n">zs</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">sa</span>
+    <span class="n">xC</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">C</span>
+    <span class="n">yC</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">C</span>
+    <span class="n">zC</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">C</span>
+    <span class="n">xyC</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">yC</span>
+    <span class="n">yzC</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">zC</span>
+    <span class="n">zxC</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">xC</span>
+
+    <span class="n">rot</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">vec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">vec</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">xC</span> <span class="o">+</span> <span class="n">ca</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">xyC</span> <span class="o">-</span> <span class="n">zs</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">zxC</span> <span class="o">+</span> <span class="n">ys</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">xyC</span> <span class="o">+</span> <span class="n">zs</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">yC</span> <span class="o">+</span> <span class="n">ca</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">yzC</span> <span class="o">-</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">zxC</span> <span class="o">-</span> <span class="n">ys</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">yzC</span> <span class="o">+</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">z</span> <span class="o">*</span> <span class="n">zC</span> <span class="o">+</span> <span class="n">ca</span><span class="p">)</span>
+    <span class="n">rot</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">rot</span></div>
+
+
+<div class="viewcode-block" id="ConvBlock"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.ConvBlock">[docs]</a><span class="k">class</span> <span class="nc">ConvBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer to perform a convolution followed by ELU</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConvBlock</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv</span> <span class="o">=</span> <span class="n">Conv3x3</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nonlin</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ELU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConvBlock.forward"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.ConvBlock.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nonlin</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div></div>
+
+
+<div class="viewcode-block" id="Conv3x3"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.Conv3x3">[docs]</a><span class="k">class</span> <span class="nc">Conv3x3</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer to pad and convolve input</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">use_refl</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Conv3x3</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">use_refl</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pad</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReflectionPad2d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pad</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ZeroPad2d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">in_channels</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">out_channels</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Conv3x3.forward"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.Conv3x3.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div></div>
+
+
+<div class="viewcode-block" id="BackprojectDepth"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.BackprojectDepth">[docs]</a><span class="k">class</span> <span class="nc">BackprojectDepth</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer to transform a depth image into a point cloud</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BackprojectDepth</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+
+        <span class="n">meshgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">meshgrid</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ones</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)],</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ones</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BackprojectDepth.forward"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.BackprojectDepth.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">inv_K</span><span class="p">):</span>
+        <span class="n">cam_points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">inv_K</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span><span class="p">)</span>
+        <span class="n">cam_points</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">cam_points</span>
+        <span class="n">cam_points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">cam_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ones</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cam_points</span></div></div>
+
+
+<div class="viewcode-block" id="Project3D"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.Project3D">[docs]</a><span class="k">class</span> <span class="nc">Project3D</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer which projects 3D points into a camera with intrinsics K and at position T</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Project3D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+
+<div class="viewcode-block" id="Project3D.forward"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.Project3D.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">T</span><span class="p">)[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">cam_points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+
+        <span class="n">pix_coords</span> <span class="o">=</span> <span class="n">cam_points</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="p">(</span><span class="n">cam_points</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
+        <span class="n">pix_coords</span> <span class="o">=</span> <span class="n">pix_coords</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">pix_coords</span> <span class="o">=</span> <span class="n">pix_coords</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">pix_coords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">pix_coords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">pix_coords</span> <span class="o">=</span> <span class="p">(</span><span class="n">pix_coords</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">pix_coords</span></div></div>
+
+
+<div class="viewcode-block" id="FlowToPix"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.FlowToPix">[docs]</a><span class="k">class</span> <span class="nc">FlowToPix</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer to transform flow into camera pixel coordiantes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FlowToPix.__init__"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.FlowToPix.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare regular grid (Nx2xHxW)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FlowToPix</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+
+        <span class="n">meshgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">meshgrid</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlowToPix.forward"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.FlowToPix.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Forward </span>
+<span class="sd">        Args:</span>
+<span class="sd">            flow (tensor, [Nx2xHxW]): [x, y]</span>
+<span class="sd">            normalized (bool): normalized to [-1, 1] if True; otherwise [0, H-1 or W-1]</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pix_coords (tensor, [NxHxWx2]): pixel coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pix_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">+</span> <span class="n">flow</span>
+        <span class="n">pix_coords</span> <span class="o">=</span> <span class="n">pix_coords</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="n">pix_coords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">pix_coords</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">pix_coords</span> <span class="o">=</span> <span class="p">(</span><span class="n">pix_coords</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">pix_coords</span></div></div>
+
+
+<div class="viewcode-block" id="PixToFlow"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.PixToFlow">[docs]</a><span class="k">class</span> <span class="nc">PixToFlow</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer to transform flow into camera pixel coordiantes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PixToFlow.__init__"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.PixToFlow.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare regular grid (Nx2xHxW)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PixToFlow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+
+        <span class="n">meshgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">meshgrid</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id_coords</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PixToFlow.forward"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.PixToFlow.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pix_coords</span><span class="p">,</span> <span class="n">normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Forward pass</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pix_coords (tensor, [NxHxWx2]): pixel coordinates (normalized)</span>
+<span class="sd">            normalized (bool):  flow vector normalized by image size</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            flow (tensor, [Nx2xHxW]): [x, y] flow vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="n">pix_coords</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">pix_coords</span>
+        <span class="k">if</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="n">flow</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">flow</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">flow</span></div></div>
+
+<div class="viewcode-block" id="get_warp_flow"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.get_warp_flow">[docs]</a><span class="k">def</span> <span class="nf">get_warp_flow</span><span class="p">(</span>
+            <span class="n">source_forward_flow</span><span class="p">,</span> <span class="n">source_backward_flow</span><span class="p">,</span> 
+            <span class="n">pix_forward</span><span class="p">,</span> <span class="n">pix_backward</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute warped flows</span>
+<span class="sd">    Args:</span>
+<span class="sd">        source_forward_flow (Nx2xHxW): source &quot;image&quot;</span>
+<span class="sd">        source_backward_flow (Nx2xHxW): source &quot;image&quot;</span>
+<span class="sd">        pix_forward (Nx2xHxW): forward pixel coordinates</span>
+<span class="sd">        pix_backward (Nx2xHxW): backward pixel coordinates</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        flow_data (dict): </span>
+<span class="sd">            - forward: warped forward flow</span>
+<span class="sd">            - backward: warped backward flow</span>
+<span class="sd">            - forward_diff: flow diff between forward and warp_forward</span>
+<span class="sd">            - backward_diff: flow diff between backward and warp_backward</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flow_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Forward</span>
+    <span class="n">warp_forward_flow</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+                    <span class="o">-</span><span class="n">source_backward_flow</span><span class="p">,</span>
+                    <span class="n">pix_forward</span><span class="p">,</span>
+                    <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;border&quot;</span><span class="p">)</span>
+    <span class="n">flow_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">source_forward_flow</span> <span class="o">-</span> <span class="n">warp_forward_flow</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+    <span class="n">flow_data</span><span class="p">[</span><span class="s2">&quot;forward&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">warp_forward_flow</span>
+    <span class="n">flow_data</span><span class="p">[</span><span class="s2">&quot;forward_diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_diff</span>
+
+    <span class="c1"># Backward</span>
+    <span class="n">warp_backward_flow</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+                    <span class="o">-</span><span class="n">source_forward_flow</span><span class="p">,</span>
+                    <span class="n">pix_backward</span><span class="p">,</span>
+                    <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;border&quot;</span><span class="p">)</span>
+    <span class="n">flow_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">source_backward_flow</span> <span class="o">-</span> <span class="n">warp_backward_flow</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+    <span class="n">flow_data</span><span class="p">[</span><span class="s2">&quot;backward&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">warp_backward_flow</span>
+    <span class="n">flow_data</span><span class="p">[</span><span class="s2">&quot;backward_diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_diff</span>
+    <span class="k">return</span> <span class="n">flow_data</span><span class="c1">#, loss</span></div>
+
+
+<div class="viewcode-block" id="upsample"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.upsample">[docs]</a><span class="k">def</span> <span class="nf">upsample</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Upsample input tensor by a factor of 2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_smooth_loss"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.get_smooth_loss">[docs]</a><span class="k">def</span> <span class="nf">get_smooth_loss</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the smoothness loss for a disparity image</span>
+<span class="sd">    The color image is used for edge-aware smoothness</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grad_disp_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">disp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">disp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:])</span>
+    <span class="n">grad_disp_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">disp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">disp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:])</span>
+
+    <span class="n">grad_img_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:]),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">grad_img_y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:]),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">grad_disp_x</span> <span class="o">*=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">grad_img_x</span><span class="p">)</span>
+    <span class="n">grad_disp_y</span> <span class="o">*=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">grad_img_y</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">grad_disp_x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">grad_disp_y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SSIM"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.SSIM">[docs]</a><span class="k">class</span> <span class="nc">SSIM</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Layer to compute the SSIM loss between a pair of images</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SSIM</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mu_x_pool</span>   <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mu_y_pool</span>   <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sig_x_pool</span>  <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sig_y_pool</span>  <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sig_xy_pool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">refl</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReflectionPad2d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">C1</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C2</span> <span class="o">=</span> <span class="mf">0.03</span> <span class="o">**</span> <span class="mi">2</span>
+
+<div class="viewcode-block" id="SSIM.forward"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.SSIM.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refl</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refl</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">mu_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_x_pool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">mu_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_y_pool</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">sigma_x</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_x_pool</span><span class="p">(</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">mu_x</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">sigma_y</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_y_pool</span><span class="p">(</span><span class="n">y</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">mu_y</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">sigma_xy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_xy_pool</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">mu_x</span> <span class="o">*</span> <span class="n">mu_y</span>
+
+        <span class="n">SSIM_n</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">mu_x</span> <span class="o">*</span> <span class="n">mu_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">C1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma_xy</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">C2</span><span class="p">)</span>
+        <span class="n">SSIM_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu_x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">mu_y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">C1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_x</span> <span class="o">+</span> <span class="n">sigma_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">C2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">SSIM_n</span> <span class="o">/</span> <span class="n">SSIM_d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="compute_depth_errors"><a class="viewcode-back" href="../../../../../DF-VO/libs.deep_models.depth.monodepth2.layers.html#libs.deep_models.depth.monodepth2.layers.compute_depth_errors">[docs]</a><span class="k">def</span> <span class="nf">compute_depth_errors</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computation of error metrics between predicted and ground truth depths</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">thresh</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="n">gt</span> <span class="o">/</span> <span class="n">pred</span><span class="p">),</span> <span class="p">(</span><span class="n">pred</span> <span class="o">/</span> <span class="n">gt</span><span class="p">))</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="p">(</span><span class="n">thresh</span> <span class="o">&lt;</span> <span class="mf">1.25</span>     <span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">a2</span> <span class="o">=</span> <span class="p">(</span><span class="n">thresh</span> <span class="o">&lt;</span> <span class="mf">1.25</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">a3</span> <span class="o">=</span> <span class="p">(</span><span class="n">thresh</span> <span class="o">&lt;</span> <span class="mf">1.25</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="n">rmse</span> <span class="o">=</span> <span class="p">(</span><span class="n">gt</span> <span class="o">-</span> <span class="n">pred</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">rmse</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rmse</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+    <span class="n">rmse_log</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">gt</span><span class="p">)</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pred</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">rmse_log</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rmse_log</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+    <span class="n">abs_rel</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">gt</span> <span class="o">-</span> <span class="n">pred</span><span class="p">)</span> <span class="o">/</span> <span class="n">gt</span><span class="p">)</span>
+
+    <span class="n">sq_rel</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">gt</span> <span class="o">-</span> <span class="n">pred</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">gt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">abs_rel</span><span class="p">,</span> <span class="n">sq_rel</span><span class="p">,</span> <span class="n">rmse</span><span class="p">,</span> <span class="n">rmse_log</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

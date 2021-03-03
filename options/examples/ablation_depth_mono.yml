@@ -1,0 +1,40 @@
+# This configuration corresponds to Ablation study
+# NOTE: the predicted trajectory is not in the real-world scale.
+
+#-------------------------------------
+#- Depth
+#-------------------------------------
+depth:                                                    # Depth configuration
+    depth_src:                                            # depth source [None, gt]
+    deep_depth:
+        network: monodepth2
+        pretrained_model: model_zoo/depth/kitti_odom/mono/  # directory stores depth.pth and encoder.pth 
+    max_depth: 10                                         # maximum depth 
+    min_depth: 0                                          # minimum depth 
+
+#-------------------------------------
+#- Visualization
+#-------------------------------------
+visualization:                                            # visualization configuration
+    enable: True                                          # enable/disable frame drawer
+    save_img: True                                        # enable/disable save frames
+    window_h: 600                                         # frame window height
+    window_w: 1000                                        # frame window width
+    kp_src: kp_best                                       # type of correspondences to be drawn
+    flow:                                                 # optical flow visualization configuration
+        vis_forward_flow: True                            # enable/disable forward flow visualization
+        vis_backward_flow: True                           # enable/disable backward flow visualization
+        vis_flow_diff: True                               # enable/disable forward-backward flow consistency visualization
+        vis_rigid_diff: True                              # enable/disable optical-rigid flow consistency visualization
+    kp_match:                                             # keypoint matching visualization
+        kp_num: 100                                       # number of selected keypoints to be visualized
+        vis_temp:                                         # keypoint matching in temporal 
+            enable: True                                  # enable/disable visualization
+        vis_side:                                         # keypoint matching side-by-side
+            enable: True                                  # enable/disable visualization
+            inlier_plot: False                            # enable/disable inlier plot
+    trajectory:                                           # trajectory visualization configuration
+        vis_traj: True                                    # enable/disable predicted trajectory visualization
+        vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
+        mono_scale: 5                                     # monocular prediction scaling factor
+        vis_scale: 1

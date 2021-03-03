@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.datasets.kitti &mdash; DF-VO 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.datasets.kitti</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.datasets.kitti</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2019-09-01</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-07-09</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: Dataset loaders for KITTI Driving Sequence</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="KITTI"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KITTI">[docs]</a><span class="k">class</span> <span class="nc">KITTI</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class of dataset loaders for KITTI Driving Sequence</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KITTI</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stereo_baseline</span> <span class="o">=</span> <span class="mf">0.54</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="KITTI.synchronize_timestamps"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KITTI.synchronize_timestamps">[docs]</a>    <span class="k">def</span> <span class="nf">synchronize_timestamps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Synchronize RGB, Depth, and Pose timestamps to form pairs</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **rgb_timestamp** : {&#39;depth&#39;: depth_timestamp, &#39;pose&#39;: pose_timestamp}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">len_seq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> <span class="s2">&quot;*.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ext</span><span class="p">))))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_seq</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span></div>
+    
+<div class="viewcode-block" id="KITTI.get_timestamp"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KITTI.get_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">get_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get timestamp for the query img_id</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img_id (int): query image id</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            timestamp (int): timestamp for query image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">img_id</span></div>
+    
+<div class="viewcode-block" id="KITTI.save_result_traj"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KITTI.save_result_traj">[docs]</a>    <span class="k">def</span> <span class="nf">save_result_traj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traj_txt</span><span class="p">,</span> <span class="n">poses</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save trajectory (absolute poses) as KITTI odometry file format</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            txt (str): pose text file path</span>
+<span class="sd">            poses (dict): poses, each pose is a [4x4] array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">global_poses_arr</span> <span class="o">=</span> <span class="n">convert_SE3_to_arr</span><span class="p">(</span><span class="n">poses</span><span class="p">)</span>
+        <span class="n">save_traj</span><span class="p">(</span><span class="n">traj_txt</span><span class="p">,</span> <span class="n">global_poses_arr</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;kitti&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="KittiOdom"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiOdom">[docs]</a><span class="k">class</span> <span class="nc">KittiOdom</span><span class="p">(</span><span class="n">KITTI</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dataset loader for KITTI Oodmetry Split</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KittiOdom</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KittiOdom.get_intrinsics_param"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiOdom.get_intrinsics_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_intrinsics_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read intrinsics parameters for each dataset</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            intrinsics_param (list): [cx, cy, fx, fy]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_seq_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">img_seq_dir</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span>
+                            <span class="p">)</span>
+        <span class="n">intrinsics_param</span> <span class="o">=</span> <span class="n">load_kitti_odom_intrinsics</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_seq_dir</span><span class="p">,</span> <span class="s2">&quot;calib.txt&quot;</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span>
+                        <span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">intrinsics_param</span></div>
+    
+<div class="viewcode-block" id="KittiOdom.get_data_dir"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiOdom.get_data_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get data directory</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **img** (str) : image data directory</span>
+<span class="sd">                - (optional) **depth** (str) : depth data direcotry or None</span>
+<span class="sd">                - (optional) **depth_src** (str) : depth data type [gt/None]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># get image data directory</span>
+        <span class="n">img_seq_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">img_seq_dir</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span>
+                            <span class="p">)</span>
+        <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_seq_dir</span><span class="p">,</span> <span class="s2">&quot;image_2&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get depth data directory</span>
+        <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">depth_src</span>
+
+        <span class="k">if</span> <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;gt&quot;</span><span class="p">:</span>
+            <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/gt/</span><span class="si">{}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">depth_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span>
+                            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Wrong depth src [</span><span class="si">{}</span><span class="s2">] is given.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">])</span>
+ 
+        <span class="k">return</span> <span class="n">data_dir</span></div>
+    
+<div class="viewcode-block" id="KittiOdom.get_gt_poses"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiOdom.get_gt_poses">[docs]</a>    <span class="k">def</span> <span class="nf">get_gt_poses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get ground-truth poses</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            gt_poses (dict): each pose is a [4x4] array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">annotations</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">gt_pose_dir</span><span class="p">,</span>
+                            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+                            <span class="p">)</span>
+        <span class="n">gt_poses</span> <span class="o">=</span> <span class="n">load_poses_from_txt</span><span class="p">(</span><span class="n">annotations</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gt_poses</span></div>
+    
+<div class="viewcode-block" id="KittiOdom.get_image"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiOdom.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get image data given the image timestamp</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timestamp (int): timestamp for the image</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            img (array, [CxHxW]): image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> 
+                            <span class="s2">&quot;</span><span class="si">{:06d}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ext</span><span class="p">)</span>
+                            <span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">read_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span></div>
+     
+<div class="viewcode-block" id="KittiOdom.get_depth"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiOdom.get_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get GT/precomputed depth data given the timestamp</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timestamp (int): timestamp for the depth</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            depth (array, [HxW]): depth data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">timestamp</span><span class="p">][</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;gt&quot;</span><span class="p">:</span>
+            <span class="n">img_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:010d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">img_id</span><span class="p">)</span>
+            <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pred&quot;</span><span class="p">:</span>
+            <span class="n">img_name</span> <span class="o">=</span> <span class="s2">&quot;depth/</span><span class="si">{:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">img_id</span><span class="p">)</span>
+            <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">1000</span>
+        
+        <span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">depth_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">],</span> <span class="n">img_name</span><span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">read_depth</span><span class="p">(</span><span class="n">depth_path</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="p">[</span><span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">depth</span></div></div>
+
+<div class="viewcode-block" id="KittiRaw"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiRaw">[docs]</a><span class="k">class</span> <span class="nc">KittiRaw</span><span class="p">(</span><span class="n">KITTI</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dataset loader for KITTI Raw dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KittiRaw</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KittiRaw.get_intrinsics_param"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiRaw.get_intrinsics_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_intrinsics_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read intrinsics parameters for each dataset</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            intrinsics_param (list): [cx, cy, fx, fy]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_seq_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">img_seq_dir</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span>
+                            <span class="p">)</span>
+        <span class="n">intrinsics_param</span> <span class="o">=</span> <span class="n">load_kitti_raw_intrinsics</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_seq_dir</span><span class="p">,</span> <span class="s2">&quot;calib_cam_to_cam.txt&quot;</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span>
+                        <span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">intrinsics_param</span></div>
+    
+<div class="viewcode-block" id="KittiRaw.get_data_dir"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiRaw.get_data_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_data_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get data directory</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing</span>
+<span class="sd">                - **img** (str) : image data directory</span>
+<span class="sd">                - (optional) **depth** (str) : depth data direcotry or None</span>
+<span class="sd">                - (optional) **depth_src** (str) : depth data type [gt/None]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># get image data directory</span>
+        <span class="n">img_seq_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">img_seq_dir</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span>
+                            <span class="p">)</span>
+
+        <span class="n">img_seq_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">img_seq_dir</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span>
+                        <span class="p">)</span>
+        <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">img_seq_dir</span><span class="p">,</span> <span class="s2">&quot;image_02/data&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># get depth data directory</span>
+        <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">depth_src</span>
+
+        <span class="k">if</span> <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;gt&quot;</span><span class="p">:</span>
+            <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">depth_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Wrong depth src [</span><span class="si">{}</span><span class="s2">] is given.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">])</span>
+       
+        <span class="k">return</span> <span class="n">data_dir</span></div>
+
+<div class="viewcode-block" id="KittiRaw.get_gt_poses"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiRaw.get_gt_poses">[docs]</a>    <span class="k">def</span> <span class="nf">get_gt_poses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get ground-truth poses from oxts data</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            gt_poses (dict): each pose is a [4x4] array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seq_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+        <span class="n">gps_info_dir</span> <span class="o">=</span>  <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">gt_pose_dir</span><span class="p">,</span>
+                            <span class="n">seq_date</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">,</span>
+                            <span class="s2">&quot;oxts/data&quot;</span>
+                            <span class="p">)</span>
+        <span class="n">gt_poses</span> <span class="o">=</span> <span class="n">load_poses_from_oxts</span><span class="p">(</span><span class="n">gps_info_dir</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gt_poses</span></div>
+
+<div class="viewcode-block" id="KittiRaw.get_image"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiRaw.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get image data given the image timestamp</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timestamp (int): timestamp for the image</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            img (array, [CxHxW]): image data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> 
+                            <span class="s2">&quot;</span><span class="si">{:010d}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ext</span><span class="p">)</span>
+                            <span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">read_image</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span></div>
+    
+<div class="viewcode-block" id="KittiRaw.get_depth"><a class="viewcode-back" href="../../../DF-VO/libs.datasets.kitti.html#libs.datasets.kitti.KittiRaw.get_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get GT/precomputed depth data given the timestamp</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timestamp (int): timestamp for the depth</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            depth (array, [HxW]): depth data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb_d_pose_pair</span><span class="p">[</span><span class="n">timestamp</span><span class="p">][</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;gt&quot;</span><span class="p">:</span>
+            <span class="n">img_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:010d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">img_id</span><span class="p">)</span>
+            <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">500</span>
+        
+        <span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">depth_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">],</span> <span class="n">img_name</span><span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">read_depth</span><span class="p">(</span><span class="n">depth_path</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="p">[</span><span class="n">img_h</span><span class="p">,</span> <span class="n">img_w</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">depth</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

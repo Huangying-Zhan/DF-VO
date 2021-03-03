@@ -1,0 +1,619 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.dfvo &mdash; DF-VO 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.dfvo</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.dfvo</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2019-01-01</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-07-09</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: DF-VO core program</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">libs.geometry.camera_modules</span> <span class="k">import</span> <span class="n">SE3</span>
+<span class="kn">import</span> <span class="nn">libs.datasets</span> <span class="k">as</span> <span class="nn">Dataset</span>
+<span class="kn">from</span> <span class="nn">libs.deep_models.deep_models</span> <span class="k">import</span> <span class="n">DeepModel</span>
+<span class="kn">from</span> <span class="nn">libs.general.frame_drawer</span> <span class="k">import</span> <span class="n">FrameDrawer</span>
+<span class="kn">from</span> <span class="nn">libs.general.timer</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">libs.matching.keypoint_sampler</span> <span class="k">import</span> <span class="n">KeypointSampler</span>
+<span class="kn">from</span> <span class="nn">libs.matching.depth_consistency</span> <span class="k">import</span> <span class="n">DepthConsistency</span>
+<span class="kn">from</span> <span class="nn">libs.tracker</span> <span class="k">import</span> <span class="n">EssTracker</span><span class="p">,</span> <span class="n">PnpTracker</span>
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="o">*</span>
+
+
+
+<div class="viewcode-block" id="DFVO"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO">[docs]</a><span class="k">class</span> <span class="nc">DFVO</span><span class="p">():</span>
+<div class="viewcode-block" id="DFVO.__init__"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            cfg (edict): configuration reading from yaml file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+
+        <span class="c1"># tracking stage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># predicted global poses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_poses</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">SE3</span><span class="p">()}</span>
+
+        <span class="c1"># reference data and current data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_data</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DFVO.setup"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reading configuration and setup, including</span>
+
+<span class="sd">            - Timer</span>
+<span class="sd">            - Dataset</span>
+<span class="sd">            - Tracking method</span>
+<span class="sd">            - Keypoint Sampler</span>
+<span class="sd">            - Deep networks</span>
+<span class="sd">            - Deep layers</span>
+<span class="sd">            - Visualizer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># timer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timers</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>
+
+        <span class="c1"># intialize dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
+        
+        <span class="c1"># get tracking method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">tracking_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_tracker</span><span class="p">()</span>
+
+        <span class="c1"># initialize keypoint sampler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kp_sampler</span> <span class="o">=</span> <span class="n">KeypointSampler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
+        
+        <span class="c1"># Deep networks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span> <span class="o">=</span> <span class="n">DeepModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span><span class="o">.</span><span class="n">initialize_models</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span><span class="o">.</span><span class="n">setup_train</span><span class="p">()</span>
+        
+        <span class="c1"># Depth consistency</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span><span class="o">.</span><span class="n">depth_consistency</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">depth_consistency_computer</span> <span class="o">=</span> <span class="n">DepthConsistency</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="p">)</span>
+
+        <span class="c1"># visualization interface</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span> <span class="o">=</span> <span class="n">FrameDrawer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">visualization</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="DFVO.initialize_data"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.initialize_data">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize data of current view and reference view</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="DFVO.initialize_tracker"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.initialize_tracker">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize tracker</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="o">==</span> <span class="s1">&#39;hybrid&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">e_tracker</span> <span class="o">=</span> <span class="n">EssTracker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pnp_tracker</span> <span class="o">=</span> <span class="n">PnpTracker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="o">==</span> <span class="s1">&#39;PnP&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pnp_tracker</span> <span class="o">=</span> <span class="n">PnpTracker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="o">==</span> <span class="s1">&#39;deep_pose&#39;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Wrong tracker is selected, choose from [hybrid, PnP, deep_pose]&quot;</span></div>
+
+<div class="viewcode-block" id="DFVO.update_global_pose"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.update_global_pose">[docs]</a>    <span class="k">def</span> <span class="nf">update_global_pose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_pose</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;update estimated poses w.r.t global coordinate system</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            new_pose (SE3): new pose</span>
+<span class="sd">            scale (float): scaling factor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">R</span> <span class="o">@</span> <span class="n">new_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">*</span> <span class="n">scale</span> \
+                            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">R</span> <span class="o">@</span> <span class="n">new_pose</span><span class="o">.</span><span class="n">R</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_poses</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="DFVO.tracking"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.tracking">[docs]</a>    <span class="k">def</span> <span class="nf">tracking</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tracking using both Essential matrix and PnP</span>
+<span class="sd">        Essential matrix for rotation and translation direction;</span>
+<span class="sd">            *** triangluate depth v.s. CNN-depth for translation scale ***</span>
+<span class="sd">        PnP if Essential matrix fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First frame</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># initial pose</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">gt_pose_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">gt_poses</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Second to last frames</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="sd">&#39;&#39;&#39; keypoint selection &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hybrid&#39;</span><span class="p">,</span> <span class="s1">&#39;PnP&#39;</span><span class="p">]:</span>
+                <span class="c1"># Depth consistency (CNN depths + CNN pose)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">kp_selection</span><span class="o">.</span><span class="n">depth_consistency</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">depth_consistency_computer</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">)</span>
+
+                <span class="c1"># kp_selection</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;kp_sel&#39;</span><span class="p">,</span> <span class="s1">&#39;tracking&#39;</span><span class="p">)</span>
+                <span class="n">kp_sel_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kp_sampler</span><span class="o">.</span><span class="n">kp_selection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">kp_sel_outputs</span><span class="p">[</span><span class="s1">&#39;good_kp_found&#39;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kp_sampler</span><span class="o">.</span><span class="n">update_kp_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span> <span class="n">kp_sel_outputs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;kp_sel&#39;</span><span class="p">)</span>
+
+            <span class="sd">&#39;&#39;&#39; Pose estimation &#39;&#39;&#39;</span>
+            <span class="c1"># Initialize hybrid pose</span>
+            <span class="n">hybrid_pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">()</span>
+            <span class="n">E_pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">kp_sel_outputs</span><span class="p">[</span><span class="s1">&#39;good_kp_found&#39;</span><span class="p">]):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No enough good keypoints, constant motion will be used!&quot;</span><span class="p">)</span>
+                <span class="n">pose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;motion&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_global_pose</span><span class="p">(</span><span class="n">pose</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> 
+
+
+            <span class="sd">&#39;&#39;&#39; E-tracker &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hybrid&#39;</span><span class="p">]:</span>
+                <span class="c1"># Essential matrix pose</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;E-tracker&#39;</span><span class="p">,</span> <span class="s1">&#39;tracking&#39;</span><span class="p">)</span>
+                <span class="n">e_tracker_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">compute_pose_2d2d</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">enable</span><span class="p">))</span> <span class="c1"># pose: from cur-&gt;ref</span>
+                <span class="n">E_pose</span> <span class="o">=</span> <span class="n">e_tracker_outputs</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;E-tracker&#39;</span><span class="p">)</span>
+
+                <span class="c1"># Rotation</span>
+                <span class="n">hybrid_pose</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="n">E_pose</span><span class="o">.</span><span class="n">R</span>
+
+                <span class="c1"># save inliers</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;inliers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_tracker_outputs</span><span class="p">[</span><span class="s1">&#39;inliers&#39;</span><span class="p">]</span>
+
+                <span class="c1"># scale recovery</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">E_pose</span><span class="o">.</span><span class="n">t</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;scale_recovery&#39;</span><span class="p">,</span> <span class="s1">&#39;tracking&#39;</span><span class="p">)</span>
+                    <span class="n">scale_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">scale_recovery</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span> <span class="n">E_pose</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="n">scale</span> <span class="o">=</span> <span class="n">scale_out</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">kp_src</span> <span class="o">==</span> <span class="s1">&#39;kp_depth&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;kp_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_out</span><span class="p">[</span><span class="s1">&#39;cur_kp_depth&#39;</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;kp_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_out</span><span class="p">[</span><span class="s1">&#39;ref_kp_depth&#39;</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale_out</span><span class="p">[</span><span class="s1">&#39;rigid_flow_mask&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">scale</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">hybrid_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">E_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">*</span> <span class="n">scale</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;scale_recovery&#39;</span><span class="p">)</span>
+
+                <span class="c1"># Iterative keypoint refinement</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">E_pose</span><span class="o">.</span><span class="n">t</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;E-tracker iter.&#39;</span><span class="p">,</span> <span class="s1">&#39;tracking&#39;</span><span class="p">)</span>
+                    <span class="c1"># Compute refined keypoint</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">compute_rigid_flow_kp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span>
+                                                         <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span>
+                                                         <span class="n">hybrid_pose</span><span class="p">)</span>
+
+                    <span class="n">e_tracker_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">compute_pose_2d2d</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                <span class="kc">True</span><span class="p">)</span> <span class="c1"># pose: from cur-&gt;ref</span>
+                    <span class="n">E_pose</span> <span class="o">=</span> <span class="n">e_tracker_outputs</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span>
+
+                    <span class="c1"># Rotation</span>
+                    <span class="n">hybrid_pose</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="n">E_pose</span><span class="o">.</span><span class="n">R</span>
+
+                    <span class="c1"># save inliers</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;inliers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_tracker_outputs</span><span class="p">[</span><span class="s1">&#39;inliers&#39;</span><span class="p">]</span>
+
+                    <span class="c1"># scale recovery</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">E_pose</span><span class="o">.</span><span class="n">t</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">scale_recovery</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                        <span class="n">scale_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_tracker</span><span class="o">.</span><span class="n">scale_recovery</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span> <span class="n">E_pose</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                        <span class="n">scale</span> <span class="o">=</span> <span class="n">scale_out</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">scale</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="n">hybrid_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">E_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">*</span> <span class="n">scale</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">hybrid_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">E_pose</span><span class="o">.</span><span class="n">t</span> <span class="o">*</span> <span class="n">scale</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;E-tracker iter.&#39;</span><span class="p">)</span>
+
+            <span class="sd">&#39;&#39;&#39; PnP-tracker &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;PnP&#39;</span><span class="p">,</span> <span class="s1">&#39;hybrid&#39;</span><span class="p">]:</span>
+                <span class="c1"># PnP if Essential matrix fail</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">E_pose</span><span class="o">.</span><span class="n">t</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">scale</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;pnp&#39;</span><span class="p">,</span> <span class="s1">&#39;tracking&#39;</span><span class="p">)</span>
+                    <span class="n">pnp_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">compute_pose_3d2d</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">],</span>
+                                    <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">enable</span><span class="p">)</span>
+                                    <span class="p">)</span> <span class="c1"># pose: from cur-&gt;ref</span>
+                    
+                    <span class="c1"># Iterative keypoint refinement</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">compute_rigid_flow_kp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span> <span class="n">pnp_outputs</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">])</span>
+                        <span class="n">pnp_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">compute_pose_3d2d</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">pnp_tracker</span><span class="o">.</span><span class="n">iterative_kp</span><span class="o">.</span><span class="n">kp_src</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">],</span>
+                                    <span class="kc">True</span>
+                                    <span class="p">)</span> <span class="c1"># pose: from cur-&gt;ref</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;pnp&#39;</span><span class="p">)</span>
+
+                    <span class="c1"># use PnP pose instead of E-pose</span>
+                    <span class="n">hybrid_pose</span> <span class="o">=</span> <span class="n">pnp_outputs</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tracking_mode</span> <span class="o">=</span> <span class="s2">&quot;PnP&quot;</span>
+
+            <span class="sd">&#39;&#39;&#39; Deep-tracker &#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;deep_pose&#39;</span><span class="p">]:</span>
+                <span class="n">hybrid_pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;deep_pose&#39;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tracking_mode</span> <span class="o">=</span> <span class="s2">&quot;DeepPose&quot;</span>
+
+            <span class="sd">&#39;&#39;&#39; Summarize data &#39;&#39;&#39;</span>
+            <span class="c1"># update global poses</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">hybrid_pose</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;motion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">hybrid_pose</span><span class="p">)</span>
+            <span class="n">pose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_global_pose</span><span class="p">(</span><span class="n">pose</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DFVO.update_data"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.update_data">[docs]</a>    <span class="k">def</span> <span class="nf">update_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">cur_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update data</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            ref_data (dict): reference data</span>
+<span class="sd">            cur_data (dict): current data</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            ref_data (dict): updated reference data</span>
+<span class="sd">            cur_data (dict): updated current data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cur_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span>
+                <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ref_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">ref_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">ref_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        
+        <span class="c1"># Delete unused flow to avoid data leakage</span>
+        <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">ref_data</span><span class="p">,</span> <span class="n">cur_data</span></div>
+
+<div class="viewcode-block" id="DFVO.load_raw_data"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.load_raw_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_raw_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;load image data and (optional) GT/precomputed depth data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Reading image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Reading/Predicting depth</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">])</span></div>
+    
+<div class="viewcode-block" id="DFVO.deep_model_inference"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.deep_model_inference">[docs]</a>    <span class="k">def</span> <span class="nf">deep_model_inference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;deep model prediction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;hybrid&#39;</span><span class="p">,</span> <span class="s1">&#39;PnP&#39;</span><span class="p">]:</span>
+            <span class="c1"># Single-view Depth prediction</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">data_dir</span><span class="p">[</span><span class="s1">&#39;depth_src&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;depth_cnn&#39;</span><span class="p">,</span> <span class="s1">&#39;deep inference&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">enable</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                        <span class="n">img_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">img_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">]]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span><span class="o">.</span><span class="n">forward_depth</span><span class="p">(</span><span class="n">imgs</span><span class="o">=</span><span class="n">img_list</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">],</span>
+                                                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">),</span>
+                                                    <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_NEAREST</span>
+                                                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;depth_cnn&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">preprocess_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;raw_depth&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">crop</span><span class="o">.</span><span class="n">depth_crop</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">min_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">max_depth</span><span class="p">])</span>
+
+            <span class="c1"># Two-view flow</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;flow_cnn&#39;</span><span class="p">,</span> <span class="s1">&#39;deep inference&#39;</span><span class="p">)</span>
+                <span class="n">flows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span><span class="o">.</span><span class="n">forward_flow</span><span class="p">(</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span>
+                                        <span class="n">forward_backward</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">forward_backward</span><span class="p">)</span>
+                
+                <span class="c1"># Store flow</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flows</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">forward_backward</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;flow&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flows</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flows</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="s2">&quot;diff&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;flow_cnn&#39;</span><span class="p">)</span>
+            
+        <span class="c1"># Relative camera pose</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_pose</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;pose_cnn&#39;</span><span class="p">,</span> <span class="s1">&#39;deep inference&#39;</span><span class="p">)</span>
+            <span class="c1"># Deep pose prediction</span>
+            <span class="n">pose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span><span class="o">.</span><span class="n">forward_pose</span><span class="p">(</span>
+                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">]]</span> 
+                        <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;deep_pose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pose</span> <span class="c1"># from cur-&gt;ref</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;pose_cnn&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DFVO.main"><a class="viewcode-back" href="../../DF-VO/libs.dfvo.html#libs.dfvo.DFVO.main">[docs]</a>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Main program</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==&gt; Start DF-VO&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==&gt; Running sequence: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">no_confirm</span><span class="p">:</span>
+            <span class="n">start_frame</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start_frame</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Start with frame: &quot;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">img_id</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_frame</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">frame_step</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;DF-VO&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracking_mode</span> <span class="o">=</span> <span class="s2">&quot;Ess. Mat.&quot;</span>
+
+            <span class="sd">&quot;&quot;&quot; Data reading &quot;&quot;&quot;</span>
+            <span class="c1"># Initialize ids and timestamps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">get_timestamp</span><span class="p">(</span><span class="n">img_id</span><span class="p">)</span>
+
+            <span class="c1"># Read image data and (optional) precomputed depth data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;data_loading&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_raw_data</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;data_loading&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Deep model inferences</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;deep_inference&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deep_model_inference</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;deep_inference&#39;</span><span class="p">)</span>
+
+            <span class="sd">&quot;&quot;&quot; Visual odometry &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;tracking&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;tracking&#39;</span><span class="p">)</span>
+
+            <span class="sd">&quot;&quot;&quot; Online Finetuning &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span><span class="o">.</span><span class="n">finetune</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">],</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pose</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">mat</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">cam_intrinsics</span><span class="o">.</span><span class="n">inv_mat</span><span class="p">)</span>
+
+            <span class="sd">&quot;&quot;&quot; Visualization &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;visualization&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;visualization&#39;</span><span class="p">)</span>
+
+            <span class="sd">&quot;&quot;&quot; Update reference and current data &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">ref_data</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">cur_data</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracking_stage</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="s1">&#39;DF-VO&#39;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&gt; Finish!&quot;</span><span class="p">)</span>
+
+
+
+        <span class="sd">&quot;&quot;&quot; Display &amp; Save result &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The result is saved in [</span><span class="si">{}</span><span class="s2">].&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">result_dir</span><span class="p">))</span>
+        <span class="c1"># Save trajectory map</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Save VO map.&quot;</span><span class="p">)</span>
+        <span class="n">map_png</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/map.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">result_dir</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">map_png</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawer</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;traj&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Save trajectory txt</span>
+        <span class="n">traj_txt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">result_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">save_result_traj</span><span class="p">(</span><span class="n">traj_txt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_poses</span><span class="p">)</span>
+
+        <span class="c1"># save finetuned model</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">enable</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">online_finetune</span><span class="o">.</span><span class="n">save_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deep_models</span><span class="o">.</span><span class="n">save_model</span><span class="p">()</span>
+
+        <span class="c1"># Output experiement information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timers</span><span class="o">.</span><span class="n">time_analysis</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

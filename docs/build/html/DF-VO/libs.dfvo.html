@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.dfvo &mdash; DF-VO latest documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tools" href="tools.html" />
+    <link rel="prev" title="libs.tracker.pnp_tracker" href="libs.tracker.pnp_tracker.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+      <li>libs.dfvo</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.dfvo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.dfvo">
+<span id="libs-dfvo"></span><h1>libs.dfvo<a class="headerlink" href="#module-libs.dfvo" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.dfvo.DFVO">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">DFVO</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<em>edict</em>) – configuration reading from yaml file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.deep_model_inference">
+<code class="sig-name descname"><span class="pre">deep_model_inference</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.deep_model_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.deep_model_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>deep model prediction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.initialize_data">
+<code class="sig-name descname"><span class="pre">initialize_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.initialize_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.initialize_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>initialize data of current view and reference view</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.initialize_tracker">
+<code class="sig-name descname"><span class="pre">initialize_tracker</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.initialize_tracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.initialize_tracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize tracker</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.load_raw_data">
+<code class="sig-name descname"><span class="pre">load_raw_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.load_raw_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.load_raw_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>load image data and (optional) GT/precomputed depth data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.main">
+<code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main program</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reading configuration and setup, including</p>
+<ul class="simple">
+<li><p>Timer</p></li>
+<li><p>Dataset</p></li>
+<li><p>Tracking method</p></li>
+<li><p>Keypoint Sampler</p></li>
+<li><p>Deep networks</p></li>
+<li><p>Deep layers</p></li>
+<li><p>Visualizer</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.tracking">
+<code class="sig-name descname"><span class="pre">tracking</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.tracking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.tracking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tracking using both Essential matrix and PnP
+Essential matrix for rotation and translation direction;</p>
+<blockquote>
+<div><p><strong>* triangluate depth v.s. CNN-depth for translation scale *</strong></p>
+</div></blockquote>
+<p>PnP if Essential matrix fails</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.update_data">
+<code class="sig-name descname"><span class="pre">update_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cur_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.update_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.update_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ref_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – reference data</p></li>
+<li><p><strong>cur_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – current data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>ref_data (dict)</em> – updated reference data
+cur_data (dict): updated current data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.dfvo.DFVO.update_global_pose">
+<code class="sig-name descname"><span class="pre">update_global_pose</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_pose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/dfvo.html#DFVO.update_global_pose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.dfvo.DFVO.update_global_pose" title="Permalink to this definition">¶</a></dt>
+<dd><p>update estimated poses w.r.t global coordinate system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_pose</strong> (<a class="reference internal" href="libs.geometry.camera_modules.html#libs.geometry.camera_modules.SE3" title="libs.geometry.camera_modules.SE3"><em>SE3</em></a>) – new pose</p></li>
+<li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – scaling factor</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tools.html" class="btn btn-neutral float-right" title="tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.tracker.pnp_tracker.html" class="btn btn-neutral float-left" title="libs.tracker.pnp_tracker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

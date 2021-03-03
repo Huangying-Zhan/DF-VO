@@ -1,0 +1,492 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.deep_models.depth.deep_depth &mdash; DF-VO 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.deep_models.depth.deep_depth</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.deep_models.depth.deep_depth</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2020-05-19</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-06-23</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: This is the Base class for deep depth network interface</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">nnFunc</span>
+
+<span class="kn">from</span> <span class="nn">libs.deep_models.depth.monodepth2.layers</span> <span class="k">import</span> <span class="n">SSIM</span><span class="p">,</span> <span class="n">get_smooth_loss</span><span class="p">,</span> <span class="n">BackprojectDepth</span><span class="p">,</span> <span class="n">disp_to_depth</span>
+<span class="kn">from</span> <span class="nn">libs.geometry.reprojection</span> <span class="k">import</span> <span class="n">Reprojection</span>
+
+<div class="viewcode-block" id="DeepDepth"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth">[docs]</a><span class="k">class</span> <span class="nc">DeepDepth</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This is the Base class for deep depth network interface</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="DeepDepth.__init__"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            height (int): image height</span>
+<span class="sd">            width (int): image width</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Basic configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_finetune</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_scales</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+    
+<span class="c1"># ========================== Methods need to be implemented =======================</span>
+
+<div class="viewcode-block" id="DeepDepth.initialize_network_model"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.initialize_network_model">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_network_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_path</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">finetune</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize network and load pretrained model</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            weight_path (str): a directory stores the pretrained models.</span>
+<span class="sd">                - **encoder.pth**: encoder model</span>
+<span class="sd">                - **depth.pth**: depth decoder model</span>
+<span class="sd">            dataset (str): dataset setup for min/max depth [kitti, tum]</span>
+<span class="sd">            finetune (bool): finetune model on the run if True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+    
+<div class="viewcode-block" id="DeepDepth.inference"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.inference">[docs]</a>    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Depth prediction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (tensor, [Nx3HxW]): image </span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing depths and disparities at different scales, resized back to input scale</span>
+
+<span class="sd">                - **depth** (dict): depth predictions, each element is **scale-N** (tensor, [Nx1xHxW]): depth predictions at scale-N</span>
+<span class="sd">                - **disp** (dict): disparity predictions, each element is **scale-N** (tensor, [Nx1xHxW]): disparity predictions at scale-N</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="DeepDepth.inference_depth"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.inference_depth">[docs]</a>    <span class="k">def</span> <span class="nf">inference_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Depth prediction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (tensor, [Nx3HxW]): image </span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            depth (tensor, [Nx1xHxW]): depth prediction at highest resolution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<span class="c1"># =================================================================================</span>
+
+<div class="viewcode-block" id="DeepDepth.inference_no_grad"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.inference_no_grad">[docs]</a>    <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">inference_no_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Depth prediction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (tensor, [Nx3HxW]): image </span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary containing depths at different scales, resized back to input scale</span>
+<span class="sd">                - **scale-N** (tensor, [Nx1xHxW]): depth predictions at scale-N</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">img</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeepDepth.setup_train"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.setup_train">[docs]</a>    <span class="k">def</span> <span class="nf">setup_train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep_model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup training configurations for online finetuning depth network</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            deep_model (DeepModel): DeepModel interface object</span>
+<span class="sd">            cfg (edict): configuration dictionary for depth finetuning</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_finetune</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">enable</span>
+        
+        <span class="c1"># basic configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1"># scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_scales</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">scales</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_depth_scale</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth_scales</span><span class="p">)</span>
+
+        <span class="c1"># train parameter </span>
+        <span class="n">deep_model</span><span class="o">.</span><span class="n">parameters_to_train</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+
+        <span class="c1"># Layer setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssim</span> <span class="o">=</span> <span class="n">SSIM</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssim</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reproj</span> <span class="o">=</span> <span class="n">Reprojection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backproject_depth</span> <span class="o">=</span> <span class="n">BackprojectDepth</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backproject_depth</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apperance_loss</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">apperance_loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disparity_smoothness</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">disparity_smoothness</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_consistency</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">depth_consistency</span></div>
+
+<div class="viewcode-block" id="DeepDepth.train"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Forward operations and compute losses including</span>
+<span class="sd">            - photometric loss</span>
+<span class="sd">            - disparity smoothness loss</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (dict): a dictionary containing </span>
+
+<span class="sd">                - **(&#39;color&#39;, 0, 0)** (tensor, [1x3xHxW]): image 0 at scale-0</span>
+<span class="sd">                - **(&#39;color&#39;, 1, 0)** (tensor, [1x3xHxW]): image 1 at scale-0</span>
+<span class="sd">                - **(K, 0)** (tensor, [1x4x4]): camera intrinsics at scale-0</span>
+<span class="sd">                - **(inv_K, 0)** (tensor, [1x4x4]): inverse camera intrinsics at scale-0</span>
+<span class="sd">            </span>
+<span class="sd">            outputs (dict): a dictionary containing intermediate data including</span>
+
+<span class="sd">                - **(&#39;depth&#39;, 1, s)** (tensor, [Nx1xHxW]) : predicted depth of frame-1 at scale-s</span>
+<span class="sd">                - **(&#39;pose_T&#39;, 1, 0)** (tensor, [1x4x4]): relative pose from view-1 to view-0</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            losses (dict): a dictionary containing depth losses</span>
+<span class="sd">                - **depth_loss** (tensor): total depth loss</span>
+<span class="sd">                - **depth_loss/s** (tensor): depth loss at scale-s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># reprojection</span>
+        <span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reprojection</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">))</span>
+
+        <span class="c1"># image warping </span>
+        <span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warp_image</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">))</span>
+
+        <span class="c1"># apperance loss (multiview)</span>
+        <span class="n">losses</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_depth_loss</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_consistency</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">losses</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_depth_consistency_losses</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">losses</span></div>
+
+<div class="viewcode-block" id="DeepDepth.reprojection"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.reprojection">[docs]</a>    <span class="k">def</span> <span class="nf">reprojection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a depth map, camera intrinsics and extrinsics, </span>
+<span class="sd">        find the reprojection of the pixels</span>
+<span class="sd">        new keys: (&#39;reproj_xy&#39;, 1, frame_id, s): reprojection from frame-1 to frame_id at scale-s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+        <span class="n">inv_K</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s1">&#39;inv_K&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_scales</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[:</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">depth</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;depth&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">)]</span>
+                
+                <span class="c1"># reprojection</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;pose_T&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">)]</span> <span class="c1"># from frame-1 to frame_id</span>
+                <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;reproj_xy&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">s</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reproj</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">inv_K</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="DeepDepth.warp_image"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.warp_image">[docs]</a>    <span class="k">def</span> <span class="nf">warp_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate warped images on different depth-scale </span>
+<span class="sd">        i.e. depths with different scale but images are with scale-0</span>
+<span class="sd">        new keys: (&#39;warp_img&#39;, 1, frame_id, s): image warped from frame_id to frame-1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_scales</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[:</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="c1"># image warping</span>
+                <span class="n">img_ref</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+                <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;warp_img&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">s</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nnFunc</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+                                    <span class="n">img_ref</span><span class="p">,</span> <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;reproj_xy&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">s</span><span class="p">)],</span> 
+                                    <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">,</span> <span class="n">padding_mode</span><span class="o">=</span><span class="s1">&#39;border&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">outputs</span></div>
+
+<div class="viewcode-block" id="DeepDepth.compute_depth_loss"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.compute_depth_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_depth_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;compute depth loss (photometric + SSIM + disparity smoothness)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">source_scale</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">scale</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_scales</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">reprojection_losses</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="sd">&quot;&quot;&quot; reprojection loss &quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[:</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;warp_img&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span>
+                <span class="n">reprojection_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_reprojection_loss</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+
+            <span class="n">reprojection_losses</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">reprojection_losses</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">identity_reprojection_losses</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[:</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)]</span>
+                <span class="n">identity_reprojection_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">compute_reprojection_loss</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+
+            <span class="n">identity_reprojection_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">identity_reprojection_losses</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">reprojection_loss</span> <span class="o">=</span> <span class="n">reprojection_losses</span>
+
+            <span class="c1"># add random numbers to break ties</span>
+            <span class="n">identity_reprojection_loss</span> <span class="o">+=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span>
+                <span class="n">identity_reprojection_loss</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.00001</span>
+
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">identity_reprojection_loss</span><span class="p">,</span> <span class="n">reprojection_loss</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">to_optimise</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">+=</span> <span class="n">to_optimise</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">apperance_loss</span>
+
+            <span class="sd">&quot;&quot;&quot; disparity smoothness loss &quot;&quot;&quot;</span>
+            <span class="n">disp</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s1">&#39;disp&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span>
+            <span class="n">mean_disp</span> <span class="o">=</span> <span class="n">disp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">norm_disp</span> <span class="o">=</span> <span class="n">disp</span> <span class="o">/</span> <span class="p">(</span><span class="n">mean_disp</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+            <span class="n">smooth_loss</span> <span class="o">=</span> <span class="n">get_smooth_loss</span><span class="p">(</span><span class="n">norm_disp</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disparity_smoothness</span> <span class="o">*</span> <span class="n">smooth_loss</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">scale</span><span class="p">)</span>
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;reproj_sm_loss/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scale</span><span class="p">)]</span> <span class="o">=</span> <span class="n">loss</span>
+
+        <span class="n">total_loss</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_depth_scale</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;reproj_sm_loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_loss</span>
+        <span class="k">return</span> <span class="n">losses</span></div>
+
+<div class="viewcode-block" id="DeepDepth.compute_reprojection_loss"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.compute_reprojection_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_reprojection_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes reprojection loss between a batch of predicted and target images</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">abs_diff</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">pred</span><span class="p">)</span>
+        <span class="n">l1_loss</span> <span class="o">=</span> <span class="n">abs_diff</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">ssim_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssim</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">reprojection_loss</span> <span class="o">=</span> <span class="mf">0.85</span> <span class="o">*</span> <span class="n">ssim_loss</span> <span class="o">+</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="n">l1_loss</span>
+
+        <span class="k">return</span> <span class="n">reprojection_loss</span></div>
+
+<div class="viewcode-block" id="DeepDepth.compute_depth_consistency_losses"><a class="viewcode-back" href="../../../../DF-VO/libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth.compute_depth_consistency_losses">[docs]</a>    <span class="k">def</span> <span class="nf">compute_depth_consistency_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute temporal depth consistency loss</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_loss</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">source_scale</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">scale</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_scales</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">depth_losses</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Get depth and 3D points of frame_0</span>
+            <span class="n">ref_depth</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">scale</span><span class="p">)]</span>
+            <span class="n">cam_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backproject_depth</span><span class="p">(</span>
+                    <span class="n">ref_depth</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[(</span><span class="s2">&quot;inv_K&quot;</span><span class="p">,</span> <span class="n">source_scale</span><span class="p">)])</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span><span class="p">[:</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">frame_id</span> <span class="o">!=</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                    <span class="c1"># Get relative pose</span>
+                    <span class="n">T</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;pose_T&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">)]</span>
+
+                    <span class="c1"># Warp depth</span>
+                    <span class="n">warp_disp</span> <span class="o">=</span> <span class="n">nnFunc</span><span class="o">.</span><span class="n">grid_sample</span><span class="p">(</span>
+                        <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;disp&quot;</span><span class="p">,</span>  <span class="n">frame_id</span><span class="p">,</span> <span class="n">scale</span><span class="p">)],</span>
+                        <span class="n">outputs</span><span class="p">[(</span><span class="s2">&quot;reproj_xy&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">,</span> <span class="n">scale</span><span class="p">)],</span>
+                        <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;border&quot;</span><span class="p">)</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">warp_depth</span> <span class="o">=</span> <span class="n">disp_to_depth</span><span class="p">(</span><span class="n">warp_disp</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+                    
+                    <span class="c1"># Reproject ref_depth</span>
+                    <span class="n">transformed_cam_points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cam_points</span><span class="p">)</span>
+                    <span class="n">transformed_cam_points</span> <span class="o">=</span> <span class="n">transformed_cam_points</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+                    <span class="n">proj_depth</span> <span class="o">=</span> <span class="n">transformed_cam_points</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+                    <span class="c1"># Compute depth difference</span>
+                    <span class="n">depth_diff</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">proj_depth</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">warp_depth</span><span class="o">+</span><span class="mf">1e-6</span><span class="p">))</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+                    <span class="n">depth_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">depth_diff</span><span class="p">)</span>
+
+            <span class="c1"># Compute depth loss (min)</span>
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">depth_losses</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">combined</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">to_optimise</span> <span class="o">=</span> <span class="n">combined</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_optimise</span><span class="p">,</span> <span class="n">idxs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            
+            <span class="n">loss</span> <span class="o">+=</span> <span class="n">to_optimise</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">loss</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_consistency</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;depth_consistency_loss/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scale</span><span class="p">)]</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;depth_consistency_loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_loss</span>
+        <span class="k">return</span> <span class="n">losses</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

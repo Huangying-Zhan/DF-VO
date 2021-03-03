@@ -1,0 +1,151 @@
+# This configuration corresponds to 
+
+# ----------------------------------------------------------------------------
+# Basic setup
+# ----------------------------------------------------------------------------
+debug: False
+use_multiprocessing: False
+seq: "04"
+dataset: kitti_odom # [kitti_odom, kitti_raw]
+seed: 4869
+result_dir: result/dfvo2/6/0
+# result_dir: result/tmp/2
+image:
+  height: 370
+  width: 1226
+  ext: jpg
+
+# ----------------------------------------------------------------------------
+# tracking options
+# ----------------------------------------------------------------------------
+tracking_method: 3 
+  # 3: hybrid
+
+compute_2d2d_pose:
+  ransac:
+    reproj_thre: 0.2
+    repeat: 5
+  validity:
+    method: GRIC # [flow+chei, homo_ratio, GRIC]
+    thre: 0.25
+  kp_src: kp_best # [kp_best, kp_list]
+
+PnP:
+  ransac:
+    iter: 1000
+    reproj_thre: 1
+    repeat: 5
+  kp_src: kp_best # [kp_best, kp_list]
+
+# translation scale
+translation_scale:
+  method: single # [single; iterative]
+    # - dfvo: selcted kps 
+  ransac:
+    method: depth_ratio # [abs_diff, depth_ratio]
+    min_samples: 3
+    max_trials: 100
+    stop_prob: 0.99
+    thre: 0.1
+  kp_src: kp_best # [kp_best, kp_list]
+
+# ----------------------------------------------------------------------------
+# Deep Optical Flow
+# ----------------------------------------------------------------------------
+deep_flow:
+  forward_backward: True
+  num_kp: 2000
+  network: liteflow  
+    # liteflow: LiteFlowNet
+  flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
+  batch_size: 1
+  precomputed_flow: #tmp/result/flow/kitti_odom/liteflow_default/{}/npy
+
+crop:
+  depth_crop: [[0.3, 1], [0, 1]]
+  flow_crop: [[0, 1], [0, 1]]
+
+# ----------------------------------------------------------------------------
+# Deep single-view depth
+# ----------------------------------------------------------------------------
+depth:
+  depth_src: # (blank: deep model inference; 0: GT depth)
+  max_depth: 50 # [50/200]
+  min_depth: 0
+  pretrained_model: model_zoo/depth/kitti_odom/stereo/
+  # pretrained_model: model_zoo/depth/kitti_odom/mono_sc/
+
+# ----------------------------------------------------------------------------
+# Deep two-view pose
+# ----------------------------------------------------------------------------
+pose_net:
+  enable: True
+  pretrained_model: model_zoo/pose/kitti_odom/stereo/
+  # pretrained_model: model_zoo/pose/kitti_odom/mono_sc/
+
+# ----------------------------------------------------------------------------
+# Keypoint selection
+# ----------------------------------------------------------------------------
+kp_selection: 
+  uniform_filtered_bestN:
+    enable: True
+    num_row: 10
+    num_col: 10
+    num_bestN: 2000
+    score_method: flow # [flow, flow_depth]
+  bestN:
+    enable: False
+    num_bestN: 2000
+  sampled_kp:
+    enable: True
+  rigid_flow_kp: 
+    enable: False
+    num_row: 10
+    num_col: 10
+    num_bestN: 2000
+    score_method: flow # [flow, flow_depth]
+    thre: 3
+
+    
+  depth_consistency:
+    enable: False
+    thre: 0.05
+  flow_consistency:
+    enable: True
+    thre: 0.1
+
+# ----------------------------------------------------------------------------
+# Visualization
+# ----------------------------------------------------------------------------
+visualization:
+  save_img: False
+  kp_src: kp_best
+  flow: 
+    vis_full_flow: False
+    vis_back_flow: False
+    vis_flow_diff: False
+  match:
+    kp_num: 100  # -1 for using all
+    vis_temp: 
+      enable: False
+    vis_side: 
+      enable: False
+      inlier_plot: False
+
+  depth:
+    vis_full_disp: False
+  mask:
+    vis_masks: False
+  trajectory:
+    vis_traj: True
+    draw_scale: 0.8
+    mono_scale: 1 #5.4; 0.2
+    vis_gt_traj: True
+
+directory:
+  img_seq_dir: dataset/kitti_odom/odom_data_jpg/
+  gt_pose_dir: dataset/kitti_odom/gt_poses/
+  depth_dir: ../robust-vo/dataset/kitti_odom/depth/
+  # img_seq_dir: dataset/kitti_raw
+  # gt_pose_dir: dataset/kitti_raw_pose
+  # depth_dir: /home/hyzhan/harddisk_local/DOM/result/kitti_raw_gt_depth

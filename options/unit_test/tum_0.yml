@@ -1,0 +1,156 @@
+# This configuration corresponds to Reference Model
+
+# ----------------------------------------------------------------------------
+# Basic setup
+# ----------------------------------------------------------------------------
+debug: False
+use_multiprocessing: False
+seq: "rgbd_dataset_freiburg3_long_office_household"
+dataset: tum-1 # [kitti_odom, kitti_raw, tum-1/2/3]
+seed: 4869
+result_dir: result/tmp/0
+frame_step: 1
+image:
+  height: 480
+  width: 640
+  # height: 370
+  # width: 1226
+  ext: png
+
+# ----------------------------------------------------------------------------
+# tracking options
+# ----------------------------------------------------------------------------
+tracking_method: 3
+  # 3: hybrid
+  # 1: PnP
+
+compute_2d2d_pose:
+  ransac:
+    reproj_thre: 0.2
+    repeat: 5
+  validity:
+    method: GRIC # [flow, homo_ratio, GRIC]
+    thre: 
+  kp_src: kp_best # [kp_best, kp_list, kp_rigid]
+
+PnP:
+  ransac:
+    iter: 1000
+    reproj_thre: 1
+    repeat: 5
+  kp_src: kp_best # [kp_best, kp_list, kp_rigid]
+
+# translation scale
+translation_scale:
+  method: single # [single; iterative]
+    # - dfvo: selcted kps 
+  ransac:
+    method: depth_ratio # [abs_diff, depth_ratio]
+    min_samples: 3
+    max_trials: 100
+    stop_prob: 0.99
+    thre: 0.1
+  kp_src: kp_best # [kp_best, kp_list, kp_rigid]
+
+# ----------------------------------------------------------------------------
+# Deep Optical Flow
+# ----------------------------------------------------------------------------
+deep_flow:
+  forward_backward: True
+  num_kp: 2000
+  network: liteflow  
+    # liteflow: LiteFlowNet
+  flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch
+  # flow_net_weight: model_zoo/optical_flow/UnLiteFlowNet/kitti_odom/mono_640x192/flow.pth
+  # flow_net_weight: /home/hyzhan/harddisk_local/DF-VO/robust-vo/deep_depth/monodepth2/checkpoint/kitti/flow/exp_2/0/09/M_640x192/models/weights_0/flow.pth
+  batch_size: 1
+  precomputed_flow: #tmp/result/flow/kitti_odom/liteflow_default/{}/npy
+
+crop:
+  depth_crop: [[0.3, 1], [0, 1]]
+  flow_crop: [[0, 1], [0, 1]]
+
+# ----------------------------------------------------------------------------
+# Deep single-view depth
+# ----------------------------------------------------------------------------
+depth:
+  depth_src: # (blank: deep model inference; 0: GT depth)
+  max_depth: 50 # [10/50/200]
+  min_depth: 0
+  # pretrained_model: model_zoo/depth/kitti_odom/stereo/
+  # pretrained_model: model_zoo/depth/nyuv2/supervised/
+  pretrained_model: model_zoo/depth/nyuv2/self_supervised/
+
+# ----------------------------------------------------------------------------
+# Deep two-view pose
+# ----------------------------------------------------------------------------
+pose_net:
+  enable: False
+  pretrained_model: model_zoo/pose/kitti_odom/stereo/
+  # pretrained_model: model_zoo/pose/kitti_odom/mono_sc/
+  # pretrained_model: model_zoo/pose/kitti_odom/mono/
+
+# ----------------------------------------------------------------------------
+# Keypoint selection
+# ----------------------------------------------------------------------------
+kp_selection: 
+  uniform_filtered_bestN:
+    enable: True
+    num_row: 10
+    num_col: 10
+    num_bestN: 2000
+    score_method: flow # [flow, flow_depth]
+  bestN:
+    enable: False
+    num_bestN: 2000
+  sampled_kp:
+    enable: False
+  rigid_flow_kp: 
+    enable: False
+    num_row: 10
+    num_col: 10
+    num_bestN: 2000
+    score_method: flow # [flow, flow_depth]
+    thre: 3
+
+    
+  depth_consistency:
+    enable: False
+    thre: 0.05
+  flow_consistency:
+    enable: True
+    thre: 0.1
+
+# ----------------------------------------------------------------------------
+# Visualization
+# ----------------------------------------------------------------------------
+visualization:
+  save_img: True
+  kp_src: kp_best
+  flow: 
+    vis_full_flow: True
+    vis_back_flow: True
+    vis_flow_diff: True
+  match:
+    kp_num: 100  # -1 for using all
+    vis_temp: 
+      enable: True
+    vis_side: 
+      enable: True
+      inlier_plot: False
+
+  depth:
+    vis_full_disp: True
+    use_tracking_depth: False
+  mask:
+    vis_masks: True
+  trajectory:
+    vis_traj: True
+    draw_scale: 100
+    mono_scale: 1.8 #5.4; 0.2
+    vis_gt_traj: True
+
+directory:
+  img_seq_dir: dataset/tum/rgbd_slam
+  gt_pose_dir: dataset/tum/rgbd_slam
+  depth_dir: dataset/tum/rgbd_slam

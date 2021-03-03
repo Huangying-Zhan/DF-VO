@@ -1,0 +1,13 @@
+# This configuration corresponds to Ablation study
+
+online_finetune:                                          # online fine-tuning configuration
+    enable: True                                         # enable/disable flow finetuning
+    save_model: False
+    lr: 0.00001                                           # learning rate
+    num_frames: 200                                           # number of frames to be fine-tuned, [None, int]
+    flow:                                                 # flow fine-tuning configuration
+        enable: True                                     # enable/disable flow finetuning
+        scales: [1, 2, 3, 4, 5]                           # scales to be used for training
+        loss:                                             # flow loss configuration
+            flow_consistency: 0.005                       # forward-backward flow consistency loss weight
+            flow_smoothness: 0.1                          # flow smoothness loss weight

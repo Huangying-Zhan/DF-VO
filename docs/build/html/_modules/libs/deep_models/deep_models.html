@@ -1,0 +1,545 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.deep_models.deep_models &mdash; DF-VO 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/apis.html">apis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/libs.html">libs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../DF-VO/tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>libs.deep_models.deep_models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for libs.deep_models.deep_models</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">@Author: Huangying Zhan (huangying.zhan.work@gmail.com)</span>
+<span class="sd">@Date: 2020-05-19</span>
+<span class="sd">@Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.</span>
+<span class="sd">@LastEditTime: 2020-07-09</span>
+<span class="sd">@LastEditors: Huangying Zhan</span>
+<span class="sd">@Description: DeepModel initializes different deep networks and provide forward interfaces.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">PIL.Image</span> <span class="k">as</span> <span class="nn">pil</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="k">import</span> <span class="n">transforms</span>
+
+<span class="kn">from</span> <span class="nn">.depth.monodepth2.monodepth2</span> <span class="k">import</span> <span class="n">Monodepth2DepthNet</span>
+<span class="kn">from</span> <span class="nn">.flow.lite_flow_net.lite_flow</span> <span class="k">import</span> <span class="n">LiteFlow</span>
+<span class="kn">from</span> <span class="nn">.flow.hd3.hd3_flow</span> <span class="k">import</span> <span class="n">HD3Flow</span>
+<span class="kn">from</span> <span class="nn">.pose.monodepth2.monodepth2</span> <span class="k">import</span> <span class="n">Monodepth2PoseNet</span>
+<span class="kn">from</span> <span class="nn">libs.deep_models.depth.monodepth2.layers</span> <span class="k">import</span> <span class="n">FlowToPix</span><span class="p">,</span> <span class="n">PixToFlow</span><span class="p">,</span> <span class="n">SSIM</span><span class="p">,</span> <span class="n">get_smooth_loss</span>
+<span class="kn">from</span> <span class="nn">libs.general.utils</span> <span class="k">import</span> <span class="n">mkdir_if_not_exists</span>
+
+<div class="viewcode-block" id="DeepModel"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel">[docs]</a><span class="k">class</span> <span class="nc">DeepModel</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;DeepModel initializes different deep networks and provide forward interfaces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="DeepModel.__init__"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            cfg (edict): configuration dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">online_finetune</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeepModel.initialize_models"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.initialize_models">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;intialize multiple deep models</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="sd">&#39;&#39;&#39; optical flow &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_deep_flow_model</span><span class="p">()</span>
+
+        <span class="sd">&#39;&#39;&#39; single-view depth &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">depth_src</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">deep_depth</span><span class="o">.</span><span class="n">pretrained_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_deep_depth_model</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;No precomputed depths nor pretrained depth model&quot;</span>
+        
+        <span class="sd">&#39;&#39;&#39; two-view pose &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_pose</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_pose</span><span class="o">.</span><span class="n">pretrained_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_deep_pose_model</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;No pretrained pose model&quot;</span></div>
+
+<div class="viewcode-block" id="DeepModel.initialize_deep_flow_model"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.initialize_deep_flow_model">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_deep_flow_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize optical flow network</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            flow_net (nn.Module): optical flow network</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;liteflow&#39;</span><span class="p">:</span>
+            <span class="n">flow_net</span> <span class="o">=</span> <span class="n">LiteFlow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+            <span class="n">enable_finetune</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">enable</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">enable</span>
+            <span class="n">flow_net</span><span class="o">.</span><span class="n">initialize_network_model</span><span class="p">(</span>
+                    <span class="n">weight_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">flow_net_weight</span><span class="p">,</span>
+                    <span class="n">finetune</span><span class="o">=</span><span class="n">enable_finetune</span><span class="p">,</span>
+                    <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;hd3&#39;</span><span class="p">:</span>
+            <span class="n">flow_net</span> <span class="o">=</span> <span class="n">HD3Flow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+            <span class="n">enable_finetune</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">enable</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">enable</span>
+            <span class="n">flow_net</span><span class="o">.</span><span class="n">initialize_network_model</span><span class="p">(</span>
+                    <span class="n">weight_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">flow_net_weight</span><span class="p">,</span>
+                    <span class="n">finetune</span><span class="o">=</span><span class="n">enable_finetune</span><span class="p">,</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Invalid flow network [</span><span class="si">{}</span><span class="s2">] is provided.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">network</span>
+                                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">flow_net</span></div>
+
+<div class="viewcode-block" id="DeepModel.initialize_deep_depth_model"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.initialize_deep_depth_model">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_deep_depth_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize single-view depth model</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            depth_net (nn.Module): single-view depth network</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">deep_depth</span><span class="o">.</span><span class="n">network</span> <span class="o">==</span> <span class="s1">&#39;monodepth2&#39;</span><span class="p">:</span>
+            <span class="n">depth_net</span> <span class="o">=</span> <span class="n">Monodepth2DepthNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+            <span class="n">enable_finetune</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">enable</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">enable</span>
+            <span class="n">depth_net</span><span class="o">.</span><span class="n">initialize_network_model</span><span class="p">(</span>
+                    <span class="n">weight_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">deep_depth</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">,</span>
+                    <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                    <span class="n">finetune</span><span class="o">=</span><span class="n">enable_finetune</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Invalid depth network [</span><span class="si">{}</span><span class="s2">] is provided.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">deep_depth</span><span class="o">.</span><span class="n">network</span>
+                                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">depth_net</span></div>
+    
+<div class="viewcode-block" id="DeepModel.initialize_deep_pose_model"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.initialize_deep_pose_model">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_deep_pose_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize two-view pose model</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pose_net (nn.Module): two-view pose network</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pose_net</span> <span class="o">=</span> <span class="n">Monodepth2PoseNet</span><span class="p">()</span>
+        <span class="n">enable_finetune</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">enable</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">enable</span>
+        <span class="n">pose_net</span><span class="o">.</span><span class="n">initialize_network_model</span><span class="p">(</span>
+            <span class="n">weight_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_pose</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">,</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+            <span class="n">finetune</span><span class="o">=</span><span class="n">enable_finetune</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pose_net</span></div>
+
+<div class="viewcode-block" id="DeepModel.setup_train"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.setup_train">[docs]</a>    <span class="k">def</span> <span class="nf">setup_train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup training configurations for online finetuning</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Basic configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">img_cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Optimization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters_to_train</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># flow train setup</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">setup_train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">flow</span><span class="p">)</span>
+        
+        <span class="c1"># depth train setup</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">setup_train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="p">)</span>
+        
+        <span class="c1"># pose train setup</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">setup_train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">pose</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters_to_train</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeepModel.forward_flow"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.forward_flow">[docs]</a>    <span class="k">def</span> <span class="nf">forward_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_cur_data</span><span class="p">,</span> <span class="n">in_ref_data</span><span class="p">,</span> <span class="n">forward_backward</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Optical flow network forward interface, a forward inference.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            in_cur_data (dict): current data</span>
+<span class="sd">            in_ref_data (dict): reference data</span>
+<span class="sd">            forward_backward (bool): use forward-backward consistency if True</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            flows (dict): predicted flow data. flows[(id1, id2)] is flows from id1 to id2.</span>
+
+<span class="sd">                - **flows(id1, id2)** (array, 2xHxW): flows from id1 to id2</span>
+<span class="sd">                - **flows(id2, id1)** (array, 2xHxW): flows from id2 to id1</span>
+<span class="sd">                - **flows(id1, id2, &#39;diff)** (array, 1xHxW): flow difference of id1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Preprocess image</span>
+        <span class="n">cur_imgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="n">in_cur_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ref_imgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="n">in_ref_data</span><span class="p">[</span><span class="s1">&#39;img&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">cur_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">cur_imgs</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">ref_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">ref_imgs</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="c1"># Forward pass</span>
+        <span class="n">flows</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Flow inference</span>
+        <span class="n">batch_flows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">inference_flow</span><span class="p">(</span>
+                                <span class="n">img1</span><span class="o">=</span><span class="n">ref_imgs</span><span class="p">,</span>
+                                <span class="n">img2</span><span class="o">=</span><span class="n">cur_imgs</span><span class="p">,</span>
+                                <span class="n">forward_backward</span><span class="o">=</span><span class="n">forward_backward</span><span class="p">,</span>
+                                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+        
+        <span class="c1"># Save flows at current view</span>
+        <span class="n">src_id</span> <span class="o">=</span> <span class="n">in_ref_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">tgt_id</span> <span class="o">=</span> <span class="n">in_cur_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">flows</span><span class="p">[(</span><span class="n">src_id</span><span class="p">,</span> <span class="n">tgt_id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">batch_flows</span><span class="p">[</span><span class="s1">&#39;forward&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">forward_backward</span><span class="p">:</span>
+            <span class="n">flows</span><span class="p">[(</span><span class="n">tgt_id</span><span class="p">,</span> <span class="n">src_id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">batch_flows</span><span class="p">[</span><span class="s1">&#39;backward&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">flows</span><span class="p">[(</span><span class="n">src_id</span><span class="p">,</span> <span class="n">tgt_id</span><span class="p">,</span> <span class="s2">&quot;diff&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">batch_flows</span><span class="p">[</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">flows</span></div>
+
+<div class="viewcode-block" id="DeepModel.forward_depth"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.forward_depth">[docs]</a>    <span class="k">def</span> <span class="nf">forward_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imgs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Depth network forward interface, a forward inference.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            imgs (list): list of images, each element is a [HxWx3] array</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            depth (array, [HxW]): depth map of imgs[0]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Preprocess</span>
+        <span class="n">img_tensor</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">imgs</span><span class="p">:</span>
+            <span class="n">input_image</span> <span class="o">=</span> <span class="n">pil</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">input_image</span> <span class="o">=</span> <span class="n">input_image</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">feed_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">feed_height</span><span class="p">),</span> <span class="n">pil</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+            <span class="n">input_image</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">input_image</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">img_tensor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_image</span><span class="p">)</span>
+        <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">img_tensor</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        
+        <span class="c1"># Inference</span>
+        <span class="n">pred_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">inference_depth</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">pred_depth</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> 
+        <span class="k">return</span> <span class="n">depth</span></div>
+
+<div class="viewcode-block" id="DeepModel.forward_pose"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.forward_pose">[docs]</a>    <span class="k">def</span> <span class="nf">forward_pose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imgs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Depth network forward interface, a forward inference.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            imgs (list): list of images, each element is a [HxWx3] array</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pose (array, [4x4]): relative pose from img2 to img1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Preprocess</span>
+        <span class="n">img_tensor</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">imgs</span><span class="p">:</span>
+            <span class="n">input_image</span> <span class="o">=</span> <span class="n">pil</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">input_image</span> <span class="o">=</span> <span class="n">input_image</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">feed_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">feed_height</span><span class="p">),</span> <span class="n">pil</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+            <span class="n">input_image</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">input_image</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">img_tensor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_image</span><span class="p">)</span>
+        <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">img_tensor</span> <span class="o">=</span> <span class="n">img_tensor</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="c1"># Prediction</span>
+        <span class="n">pred_poses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">inference_pose</span><span class="p">(</span><span class="n">img_tensor</span><span class="p">)</span>
+        <span class="n">pose</span> <span class="o">=</span> <span class="n">pred_poses</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pose</span></div>
+
+<div class="viewcode-block" id="DeepModel.finetune"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.finetune">[docs]</a>    <span class="k">def</span> <span class="nf">finetune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">,</span> <span class="n">pose</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">inv_K</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finetuning deep models</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img1 (array, [HxWx3]): image 1 (reference)</span>
+<span class="sd">            img2 (array, [HxWx3]): image 2 (current)</span>
+<span class="sd">            pose (array, [4x4]): relative pose from view-2 to view-1 (from DF-VO)</span>
+<span class="sd">            K (array, [3x3]): camera intrinsics</span>
+<span class="sd">            inv_K (array, [3x3]): inverse camera intrinsics</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># preprocess data</span>
+        <span class="c1"># images</span>
+        <span class="n">img1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="n">img1</span><span class="p">)</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">img2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="n">img2</span><span class="p">)</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">img1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">img1</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">img2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="c1"># camera intrinsics</span>
+        <span class="n">K44</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">K44</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">K44</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">K44</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">inv_K</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">inv_K</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">K44</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="c1"># pose</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">pose_src</span> <span class="o">==</span> <span class="s1">&#39;DF-VO&#39;</span><span class="p">:</span>
+            <span class="n">pose</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">pose</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">pose</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">/=</span> <span class="mf">5.4</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">pose_src</span> <span class="o">==</span> <span class="s1">&#39;deep_pose&#39;</span><span class="p">:</span>
+            <span class="n">pose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">pred_pose</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">pose_src</span> <span class="o">==</span> <span class="s1">&#39;DF-VO2&#39;</span><span class="p">:</span>
+            <span class="n">deep_pose_scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">pred_pose</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">())</span>
+            <span class="n">pose</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">pose</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">pose</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">/=</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">pose</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="n">pose</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">*=</span> <span class="n">deep_pose_scale</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">num_frames</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_cnt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">num_frames</span><span class="p">:</span>
+            <span class="sd">&#39;&#39;&#39; data preparation &#39;&#39;&#39;</span>
+            <span class="n">losses</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">img1</span><span class="p">,</span>
+                <span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">img2</span><span class="p">,</span>
+                <span class="p">(</span><span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">K</span><span class="p">,</span>
+                <span class="p">(</span><span class="s1">&#39;inv_K&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">inv_K</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="sd">&#39;&#39;&#39; loss computation &#39;&#39;&#39;</span>
+            <span class="c1"># flow</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">deep_flow</span><span class="o">.</span><span class="n">forward_backward</span><span class="p">,</span> <span class="s2">&quot;forward-backward option has to be True for finetuning&quot;</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">flow_scales</span><span class="p">:</span>
+                    <span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="p">(</span><span class="s1">&#39;flow&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>  <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">forward_flow</span><span class="p">[</span><span class="n">s</span><span class="p">],</span>
+                            <span class="p">(</span><span class="s1">&#39;flow&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>  <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">backward_flow</span><span class="p">[</span><span class="n">s</span><span class="p">],</span>
+                            <span class="p">(</span><span class="s1">&#39;flow_diff&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>  <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">flow_diff</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+
+                <span class="n">losses</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">))</span>
+                <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;flow_loss&quot;</span><span class="p">]</span>
+            
+            <span class="c1"># depth and pose</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="c1"># add predicted depths</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">depth_scales</span><span class="p">:</span>
+                    <span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="p">(</span><span class="s1">&#39;depth&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">pred_depths</span><span class="p">[</span><span class="n">s</span><span class="p">][:</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="p">(</span><span class="s1">&#39;disp&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">pred_disps</span><span class="p">[</span><span class="n">s</span><span class="p">][:</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="p">(</span><span class="s1">&#39;depth&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">pred_depths</span><span class="p">[</span><span class="n">s</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span>
+                            <span class="p">(</span><span class="s1">&#39;disp&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">pred_disps</span><span class="p">[</span><span class="n">s</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># add predicted poses</span>
+                <span class="n">outputs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="p">(</span><span class="s1">&#39;pose_T&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">pose</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                
+                <span class="n">losses</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">))</span>
+                <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;reproj_sm_loss&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">depth_consistency</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;depth_consistency_loss&quot;</span><span class="p">]</span>
+            
+            <span class="sd">&#39;&#39;&#39; backward &#39;&#39;&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">losses</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># reset flow model to eval mode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+            
+            <span class="c1"># reset depth model to eval mode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+            
+            <span class="c1"># reset pose model to eval mode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finetune_cfg</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DeepModel.save_model"><a class="viewcode-back" href="../../../DF-VO/libs.deep_models.deep_models.html#libs.deep_models.deep_models.DeepModel.save_model">[docs]</a>    <span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save deep models</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">directory</span><span class="o">.</span><span class="n">result_dir</span><span class="p">,</span> <span class="s2">&quot;deep_models&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="n">mkdir_if_not_exists</span><span class="p">(</span><span class="n">save_folder</span><span class="p">)</span>
+
+        <span class="c1"># Save Flow model</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;flow&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_folder</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.pth&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">ckpt_path</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

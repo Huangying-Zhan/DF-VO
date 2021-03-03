@@ -1,0 +1,29 @@
+# This configuration corresponds to Ablation study
+
+#-------------------------------------
+#- Correspondence (keypoint) selection
+#-------------------------------------
+kp_selection:                                             # correspondence selection configuration
+    local_bestN:                                          # local best-N configuration
+        enable: False                                      # enable/disable local best-N selection
+    sampled_kp:                                           # random/uniform keypoint sampling
+        enable: True                                     # enable/disable random/uniform keypoint sampling
+        num_kp: 2000                                      # number of keypoints to be extracted
+
+#-------------------------------------
+#- Tracking
+#-------------------------------------
+e_tracker:                                                # E-tracker configuration
+    kp_src: kp_list                                       # type of correspondences to be used [kp_list, kp_best]
+
+scale_recovery:                                           # scale recovery configuration
+    kp_src: kp_list                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
+
+pnp_tracker:                                              # PnP-tracker configuration
+    kp_src: kp_list                                       # type of correspondences to be used [kp_list, kp_best, kp_depth]
+
+#-------------------------------------
+#- Visualization
+#-------------------------------------
+visualization:                                            # visualization configuration
+    kp_src: kp_list                                       # type of correspondences to be drawn

@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>libs.deep_models.depth.monodepth2.monodepth2 &mdash; DF-VO latest documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="libs.deep_models.depth.monodepth2.resnet_encoder" href="libs.deep_models.depth.monodepth2.resnet_encoder.html" />
+    <link rel="prev" title="libs.deep_models.depth.monodepth2.layers" href="libs.deep_models.depth.monodepth2.layers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DF-VO
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rsts/examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="apis.html">apis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="libs.html">libs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="libs.datasets.html">libs.datasets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="libs.deep_models.html">libs.deep_models</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="libs.deep_models.depth.html">libs.deep_models.depth</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="libs.deep_models.depth.monodepth2.html">libs.deep_models.depth.monodepth2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="libs.deep_models.depth.deep_depth.html">libs.deep_models.depth.deep_depth</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.flow.html">libs.deep_models.flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.pose.html">libs.deep_models.pose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="libs.deep_models.deep_models.html">libs.deep_models.deep_models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="libs.flowlib.html">libs.flowlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.general.html">libs.general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.geometry.html">libs.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.matching.html">libs.matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.tracker.html">libs.tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libs.dfvo.html">libs.dfvo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DF-VO</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="libs.html">libs</a> &raquo;</li>
+        
+          <li><a href="libs.deep_models.html">libs.deep_models</a> &raquo;</li>
+        
+          <li><a href="libs.deep_models.depth.html">libs.deep_models.depth</a> &raquo;</li>
+        
+          <li><a href="libs.deep_models.depth.monodepth2.html">libs.deep_models.depth.monodepth2</a> &raquo;</li>
+        
+      <li>libs.deep_models.depth.monodepth2.monodepth2</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/DF-VO/libs.deep_models.depth.monodepth2.monodepth2.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-libs.deep_models.depth.monodepth2.monodepth2">
+<span id="libs-deep-models-depth-monodepth2-monodepth2"></span><h1>libs.deep_models.depth.monodepth2.monodepth2<a class="headerlink" href="#module-libs.deep_models.depth.monodepth2.monodepth2" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Monodepth2DepthNet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/monodepth2.html#Monodepth2DepthNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="libs.deep_models.depth.deep_depth.html#libs.deep_models.depth.deep_depth.DeepDepth" title="libs.deep_models.depth.deep_depth.DeepDepth"><code class="xref py py-class docutils literal notranslate"><span class="pre">libs.deep_models.depth.deep_depth.DeepDepth</span></code></a></p>
+<p>This is the interface for Monodepth2 depth network</p>
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet.inference">
+<code class="sig-name descname"><span class="pre">inference</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/monodepth2.html#Monodepth2DepthNet.inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet.inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Depth prediction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>tensor</em><em>, </em><em>[</em><em>Nx3HxW</em><em>]</em>) – image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>a dictionary containing depths and disparities at different scales, resized back to input scale</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>depth</strong> (dict): depth predictions, each element is <strong>scale-N</strong> (tensor, [Nx1xHxW]): depth predictions at scale-N</p></li>
+<li><p><strong>disp</strong> (dict): disparity predictions, each element is <strong>scale-N</strong> (tensor, [Nx1xHxW]): disparity predictions at scale-N</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet.inference_depth">
+<code class="sig-name descname"><span class="pre">inference_depth</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/monodepth2.html#Monodepth2DepthNet.inference_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet.inference_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Depth prediction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>tensor</em><em>, </em><em>[</em><em>Nx3HxW</em><em>]</em>) – image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>depth (tensor, [Nx1xHxW])</em> – depth prediction at highest resolution</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet.initialize_network_model">
+<code class="sig-name descname"><span class="pre">initialize_network_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weight_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finetune</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/libs/deep_models/depth/monodepth2/monodepth2.html#Monodepth2DepthNet.initialize_network_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#libs.deep_models.depth.monodepth2.monodepth2.Monodepth2DepthNet.initialize_network_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>initialize network and load pretrained model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a directory stores the pretrained models.
+- <strong>encoder.pth</strong>: encoder model
+- <strong>depth.pth</strong>: depth decoder model</p></li>
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – dataset setup for min/max depth [kitti, tum]</p></li>
+<li><p><strong>finetune</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – finetune model on the run if True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="libs.deep_models.depth.monodepth2.resnet_encoder.html" class="btn btn-neutral float-right" title="libs.deep_models.depth.monodepth2.resnet_encoder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="libs.deep_models.depth.monodepth2.layers.html" class="btn btn-neutral float-left" title="libs.deep_models.depth.monodepth2.layers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Huangying Zhan
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

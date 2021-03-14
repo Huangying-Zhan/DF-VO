@@ -1,0 +1,6 @@
+numpy
+matplotlib
+colour_demosaicing
+pillow
+opencv-python
+open3d-python

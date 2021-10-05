@@ -9,8 +9,8 @@ seed: 4869                                                # random seed
 image:
     height: 192                                           # image height
     width: 640                                            # image width
-    ext: jpg                                              # image file extension for data loading
-seq: "10"                                                 # sequence to run
+    ext: png # image file extension for data loading
+seq: "01"                                                 # sequence to run
 frame_step: 1                                             # frame step
 cam_mode: mono                                            # camera mode: [mono, stereo]
 
@@ -19,7 +19,7 @@ cam_mode: mono                                            # camera mode: [mono, 
 #-------------------------------------
 directory:
     result_dir: result/tmp/0/                             # directory to save result
-    img_seq_dir: dataset/kitti_odom/odom_data_jpg/        # image data directory
+    img_seq_dir: dataset/kitti_odom/odom_data/        # image data directory
     gt_pose_dir: dataset/kitti_odom/gt_poses/             # (optional) ground-truth pose data directory
     depth_dir:                                            # (optional) external depth data, e.g. ground-truth depths
 

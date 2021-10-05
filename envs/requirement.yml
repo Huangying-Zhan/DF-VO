@@ -1,19 +1,17 @@
 name: dfvo
 channels:
   - pytorch
-  - conda-forge
-  - anaconda
-  - defaults
+  - nvidia
 dependencies:
   - python=3.9.7
-  - pytorch-gpu=1.9.1
+  - pytorch=1.9.1
   - torchvision 
   - cudatoolkit=11.1
   - matplotlib=3.4.2
   - tqdm=4.62.2
   - pip:
-    - opencv-python==3.4.15.55
-    - colour-demosaicin==0.1.6
+    - opencv-python==4.5.1.48
+    - colour-demosaicing==0.1.6
     - cupy==9.5.0
     - pyyaml==5.4.1
     - easydict==1.9

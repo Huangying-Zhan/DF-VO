@@ -12,7 +12,10 @@ import argparse
 import numpy as np
 import os
 import random
+import sys
 import torch
+
+sys.path.insert(0, os.getcwd())
 
 from libs.dfvo import DFVO
 from libs.general.utils import mkdir_if_not_exists

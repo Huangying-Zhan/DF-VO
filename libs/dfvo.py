@@ -131,6 +131,7 @@ class DFVO():
                 self.cur_data['pose'] = SE3(self.dataset.gt_poses[self.cur_data['id']])
             else:
                 self.cur_data['pose'] = SE3()
+            self.ref_data['motion'] = SE3()
             return
 
         # Second to last frames

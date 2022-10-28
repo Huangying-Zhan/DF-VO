@@ -20,11 +20,11 @@ from tools.evaluation.tum_tool.associate import associate
 from .dataset import Dataset
 from libs.general.utils import *
 
-class EUROC(Dataset):
+class TartanAIR(Dataset):
     ''' Dataset loader for EuRoC sequence
     '''
     def __init__(self, *args, **kwargs):
-        super(EUROC, self).__init__(*args, **kwargs)
+        super(TartanAIR, self).__init__(*args, **kwargs)
         self.gt_timestamps = []
         # update gt poses for sync pairs
         if self.cfg.directory.gt_pose_dir is not None:
@@ -47,7 +47,7 @@ class EUROC(Dataset):
                 self.tmp_gt_poses[i] = np.eye(4)
             i += 1
         self.gt_poses = copy.deepcopy(self.tmp_gt_poses)
-        
+
     def synchronize_timestamps(self):
         """Synchronize RGB, Depth, and Pose timestamps to form pairs
         
@@ -116,14 +116,11 @@ class EUROC(Dataset):
             intrinsics_param (list): [cx, cy, fx, fy]
         """
 
-        # Read EUROC's YAML file
-        with open(os.path.join(self.cfg.directory.img_seq_dir, "sensor.yaml"), 'r') as stream:
-            sensor = yaml.safe_load(stream)
-
-        fx = sensor['intrinsics'][0]
-        fy = sensor['intrinsics'][1]
-        cx = sensor['intrinsics'][2]
-        cy = sensor['intrinsics'][3]
+        # from docs in https://github.com/castacks/tartanair_tools/blob/master/data_type.md
+        fx = 320.0  # focal length x
+        fy = 320.0  # focal length y
+        cx = 320.0  # optical center x
+        cy = 240.0  # optical center y
 
         intrinsics_param = [cx, cy, fx, fy]
         return intrinsics_param

@@ -20,11 +20,11 @@ from tools.evaluation.tum_tool.associate import associate
 from .dataset import Dataset
 from libs.general.utils import *
 
-class EUROC(Dataset):
+class MIMIR(Dataset):
     ''' Dataset loader for EuRoC sequence
     '''
     def __init__(self, *args, **kwargs):
-        super(EUROC, self).__init__(*args, **kwargs)
+        super(MIMIR, self).__init__(*args, **kwargs)
         self.gt_timestamps = []
         # update gt poses for sync pairs
         if self.cfg.directory.gt_pose_dir is not None:
@@ -116,14 +116,14 @@ class EUROC(Dataset):
             intrinsics_param (list): [cx, cy, fx, fy]
         """
 
-        # Read EUROC's YAML file
+        # Read MIMIR's YAML file
         with open(os.path.join(self.cfg.directory.img_seq_dir, "sensor.yaml"), 'r') as stream:
             sensor = yaml.safe_load(stream)
-
-        fx = sensor['intrinsics'][0]
-        fy = sensor['intrinsics'][1]
-        cx = sensor['intrinsics'][2]
-        cy = sensor['intrinsics'][3]
+        intrinsics = sensor['intrinsics']
+        fx = intrinsics[0][0]
+        fy = intrinsics[1][1]
+        cx = intrinsics[0][2]
+        cy = intrinsics[1][2]
 
         intrinsics_param = [cx, cy, fx, fy]
         return intrinsics_param
@@ -142,7 +142,7 @@ class EUROC(Dataset):
         # get image data directory
         img_seq_dir = self.cfg.directory.img_seq_dir
  
-        data_dir['img'] = os.path.join(img_seq_dir, "data")
+        data_dir['img'] = img_seq_dir
  
         return data_dir
 

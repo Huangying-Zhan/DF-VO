@@ -256,7 +256,7 @@ def load_poses_from_txt_euroc(file_name):
     with open(file_name, 'r') as csvfile:
         datareader = csv.reader(csvfile)
         for line in datareader:
-            if line[0] == "#timestamp":
+            if line[0] == "#timestamp" or line[0] == "timestamp":
                 continue
             P = np.eye(4)
             timestamp, tx, ty, tz, qw, qx, qy, qz = list(map(float, line[0:8])) 

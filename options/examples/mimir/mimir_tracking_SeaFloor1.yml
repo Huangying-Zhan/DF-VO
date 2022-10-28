@@ -1,0 +1,72 @@
+# This configuration corresponds to Ablation study
+
+#-------------------------------------
+#- Basic setup
+#-------------------------------------
+dataset: mimir                                            # dataset [euroc]
+image:
+    height: 540                                           # image height
+    width: 720                                            # image width
+    ext: png                                              # image file extension for data loading
+seq: "SeaFloor1"                                         # sequence to run
+
+#-------------------------------------
+#- Directories
+#-------------------------------------
+directory:
+    result_dir: result/euroc/SeaFloor/track1                             # directory to save result
+    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor/track1/auv0/rgb/cam0   # image data directory
+    gt_pose_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor/track1/auv0/pose_groundtruth       # (optional) ground-truth pose data directory
+
+#-------------------------------------
+#- Depth
+#-------------------------------------
+depth:                                                    # Depth configuration
+    deep_depth:
+        pretrained_model: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/DF-VO/models/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
+#-------------------------------------
+#- Deep flow
+#-------------------------------------
+deep_flow:                                                # Deep optical flow configuration
+    flow_net_weight: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/DF-VO/models/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
+
+
+#-------------------------------------
+#- Deep Stereo (Experiment Ver. only)
+#-------------------------------------
+stereo:
+    deep_stereo:
+        pretrained_model: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/DF-VO/models/stereo/hd3/hd3s_things_kitti-1243813e.pth
+
+#-------------------------------------
+#- Tracking
+#-------------------------------------
+scale_recovery:                                           # scale recovery configuration
+    method: simple                                        # scale recovery method [simple, iterative]
+
+#-------------------------------------
+#- Visualization
+#-------------------------------------
+visualization:                                            # visualization configuration
+    enable: True                                          # enable/disable frame drawer
+    save_img: True                                        # enable/disable save frames
+    window_h: 600                                         # frame window height
+    window_w: 1000                                        # frame window width
+    kp_src: kp_best                                       # type of correspondences to be drawn
+    flow:                                                 # optical flow visualization configuration
+        vis_forward_flow: True                            # enable/disable forward flow visualization
+        vis_backward_flow: True                           # enable/disable backward flow visualization
+        vis_flow_diff: True                               # enable/disable forward-backward flow consistency visualization
+        vis_rigid_diff: True                              # enable/disable optical-rigid flow consistency visualization
+    kp_match:                                             # keypoint matching visualization
+        kp_num: 100                                       # number of selected keypoints to be visualized
+        vis_temp:                                         # keypoint matching in temporal 
+            enable: False                                  # enable/disable visualization
+        vis_side:                                         # keypoint matching side-by-side
+            enable: False                                  # enable/disable visualization
+            inlier_plot: False                            # enable/disable inlier plot
+    trajectory:                                           # trajectory visualization configuration
+        vis_traj: True                                    # enable/disable predicted trajectory visualization
+        vis_gt_traj: True                                 # enable/disable ground truth trajectory visualization
+        mono_scale: 5                                     # monocular prediction scaling factor
+        vis_scale: 1

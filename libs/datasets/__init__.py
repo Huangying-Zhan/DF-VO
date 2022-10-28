@@ -3,6 +3,7 @@ from .tum import TUM
 from .adelaide import Adelaide
 from .kinect import Kinect
 from .oxford_robotcar import OxfordRobotCar
+from .euroc import EUROC
 
 datasets = {
             "kitti_odom": KittiOdom,
@@ -13,5 +14,6 @@ datasets = {
             "adelaide1": Adelaide,
             "adelaide2": Adelaide,
             "kinect": Kinect,
-            'robotcar': OxfordRobotCar
+            'robotcar': OxfordRobotCar,
+            "euroc": EUROC,
         }

@@ -3,8 +3,8 @@
 @Author: Huangying Zhan (huangying.zhan.work@gmail.com)
 @Date: 2019-09-01
 @Copyright: Copyright (C) Huangying Zhan 2020. All rights reserved. Please refer to the license file.
-@LastEditTime: 2020-06-25
-@LastEditors: Huangying Zhan
+@LastEditTime: 2022-10-25
+@LastEditors: Olaya Alvarez Tunon
 @Description: utils.py contains varies methods for general purpose
 '''
 
@@ -13,6 +13,7 @@ from glob import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import csv
 
 from tools.evaluation.tum_tool.pose_evaluation_utils import quat2mat, rot2quat
 
@@ -217,6 +218,7 @@ def load_poses_from_txt_tum(file_name):
         line_split = line.split(" ")
 
         # Comments
+        print(line_split[0])
         if line_split[0] == "#":
             continue
         
@@ -230,6 +232,38 @@ def load_poses_from_txt_tum(file_name):
         P[:3, 3] = np.asarray([tx, ty, tz])
         
         poses[timestamp] = P
+    
+    pose_0 = poses[list(poses.keys())[0]]
+    for timestamp in poses:
+        poses[timestamp] = np.linalg.inv(pose_0) @ poses[timestamp]
+    return poses
+
+def load_poses_from_txt_euroc(file_name):
+    """ Load absolute camera poses from csv file (euroc format)
+    Each line in the file should follow the following structure
+        timestamp tx ty tz qw qx qy qz 
+
+    Args:
+        file_name (str): txt file path
+    
+    Returns:
+        poses (dict): dictionary of poses, each pose is a [4x4] array
+    """
+    
+
+    poses = {}
+
+    with open(file_name, 'r') as csvfile:
+        datareader = csv.reader(csvfile)
+        for line in datareader:
+            if line[0] == "#timestamp":
+                continue
+            P = np.eye(4)
+            timestamp, tx, ty, tz, qw, qx, qy, qz = list(map(float, line[0:8])) 
+            # quat -> Rotation matrix
+            P[:3, :3] = quat2mat([qw, qx, qy, qz])
+            P[:3, 3] = np.asarray([tx, ty, tz])            
+            poses[timestamp] = P
     
     pose_0 = poses[list(poses.keys())[0]]
     for timestamp in poses:

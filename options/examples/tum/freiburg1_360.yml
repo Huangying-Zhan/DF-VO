@@ -6,7 +6,7 @@
 dataset: tum-1                                            # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]
 image:
     height: 480                                           # image height
-    width: 640                                            # image width
+    width: 720                                            # image width
     ext: png                                              # image file extension for data loading
 seq: "rgbd_dataset_freiburg1_360"       # sequence to run
 frame_step: 5
@@ -15,7 +15,8 @@ frame_step: 5
 #- Directories
 #-------------------------------------
 directory:
-    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/tum_rgbd                    # image data directory
+    result_dir: result/tum/handheld/rgbd_dataset_freiburg1_360/                             # directory to save result
+    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/tum_rgbd/Handheld              # image data directory
     gt_pose_dir:                                          # (optional) ground-truth pose data directory
 
 #-------------------------------------

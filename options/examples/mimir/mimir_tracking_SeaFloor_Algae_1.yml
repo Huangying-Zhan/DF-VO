@@ -8,15 +8,15 @@ image:
     height: 480                                           # image height
     width: 720                                            # image width
     ext: png                                              # image file extension for data loading
-seq: "SeaFloor1"                                         # sequence to run
+seq: "SeaFloor_Algae1"                                         # sequence to run
 
 #-------------------------------------
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/mimir/SeaFloor/track1                             # directory to save result
-    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor/track1/auv0/rgb/cam0   # image data directory
-    gt_pose_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor/track1/auv0/pose_groundtruth       # (optional) ground-truth pose data directory
+    result_dir: result/mimir/SeaFloor_Algae/track1                             # directory to save result
+    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor_Algae/track1/auv0/rgb/cam0   # image data directory
+    gt_pose_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor_Algae/track1/auv0/pose_groundtruth       # (optional) ground-truth pose data directory
 
 #-------------------------------------
 #- Depth

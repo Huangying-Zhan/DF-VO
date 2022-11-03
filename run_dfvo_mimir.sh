@@ -1,5 +1,6 @@
-# EUROC_tracks='MH_01_easy MH_02_easy MH_03_medium MH_04_difficult MH_05_difficult V1_01_easy V1_02_medium V1_03_difficult V2_01_easy V2_02_medium V2_03_difficult'
-MIMIR_tracks='SeaFloor1'
+# MIMIR_tracks='SeaFloor0 SeaFloor1 SeaFloor_Algae_0 SeaFloor_Algae_1 OceanFloor0light OceanFloor0dark OceanFloor0light'
+MIMIR_tracks='SeaFloor1 SeaFloor_Algae_0 SeaFloor_Algae_1 OceanFloor0light OceanFloor0dark OceanFloor0light'
+
 for track in $MIMIR_tracks
 do
 

@@ -3,20 +3,20 @@
 #-------------------------------------
 #- Basic setup
 #-------------------------------------
-dataset: kitti_odom                                       # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]
+dataset: mimir                                            # dataset [mimir]
 image:
-    height: 370                                           # image height
-    width: 1226                                           # image width
+    height: 480                                           # image height
+    width: 720                                            # image width
     ext: png                                              # image file extension for data loading
-seq: "01"                                                 # sequence to run
+seq: "SeaFloor_Algae0"                                         # sequence to run
 
 #-------------------------------------
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/kitti/01/                             # directory to save result
-    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/KITTI/data_odometry_color/dataset/sequences   # image data directory
-    gt_pose_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/KITTI/data_odometry_poses/dataset/poses       # (optional) ground-truth pose data directory
+    result_dir: result/mimir/SeaFloor_Algae/track0                             # directory to save result
+    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor_Algae/track0/auv0/rgb/cam0   # image data directory
+    gt_pose_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/MIMIR/SeaFloor_Algae/track0/auv0/pose_groundtruth       # (optional) ground-truth pose data directory
 
 #-------------------------------------
 #- Depth

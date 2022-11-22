@@ -22,7 +22,7 @@ directory:
 #- Deep flow
 #-------------------------------------
 deep_flow:                                                # Deep optical flow configuration
-    flow_net_weight: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/learning-based/DF-VO/models/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
+    flow_net_weight: /home/olaya/dev/slam-survey/DF-VO/model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
 
 
 
@@ -33,7 +33,7 @@ depth:                                                    # Depth configuration
     depth_src:                                            # depth source [None, gt]
     deep_depth:
         network: monodepth2
-        pretrained_model: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/learning-based/DF-VO/models/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
+        pretrained_model: /home/olaya/dev/slam-survey/DF-VO/model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
     max_depth: 50                                        # maximum depth 
     min_depth: 0                                          # minimum depth 
 

@@ -218,7 +218,6 @@ def load_poses_from_txt_tum(file_name):
         line_split = line.split(" ")
 
         # Comments
-        print(line_split[0])
         if line_split[0] == "#":
             continue
         
@@ -270,7 +269,38 @@ def load_poses_from_txt_euroc(file_name):
         poses[timestamp] = np.linalg.inv(pose_0) @ poses[timestamp]
     return poses
 
+def load_poses_from_txt_euroc(file_name):
+    """ Load absolute camera poses from csv file (euroc format)
+    Each line in the file should follow the following structure
+        timestamp tx ty tz qw qx qy qz 
 
+    Args:
+        file_name (str): txt file path
+    
+    Returns:
+        poses (dict): dictionary of poses, each pose is a [4x4] array
+    """
+    
+
+    poses = {}
+
+    with open(file_name, 'r') as csvfile:
+        datareader = csv.reader(csvfile)
+        for line in datareader:
+            if line[0] == "#timestamp" or line[0] == "timestamp":
+                continue
+            P = np.eye(4)
+            timestamp, tx, ty, tz, qw, qx, qy, qz = list(map(float, line[0:8])) 
+            # quat -> Rotation matrix
+            P[:3, :3] = quat2mat([qw, qx, qy, qz])
+            P[:3, 3] = np.asarray([tx, ty, tz])            
+            poses[timestamp] = P
+    
+    pose_0 = poses[list(poses.keys())[0]]
+    for timestamp in poses:
+        poses[timestamp] = np.linalg.inv(pose_0) @ poses[timestamp]
+    return poses
+    
 def load_kitti_odom_intrinsics(file_name, new_h, new_w):
     """Load kitti odometry data intrinscis
 

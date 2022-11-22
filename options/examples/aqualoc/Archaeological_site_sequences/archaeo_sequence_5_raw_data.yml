@@ -3,20 +3,21 @@
 #-------------------------------------
 #- Basic setup
 #-------------------------------------
-dataset: kitti_odom                                       # dataset [kitti_odom, kitti_raw, tum-1/2/3, adelaide1/2]
+dataset: aqualoc                                            # dataset [euroc]
 image:
-    height: 370                                           # image height
-    width: 1226                                           # image width
+    height: 480                                           # image height
+    width: 752                                            # image width
     ext: png                                              # image file extension for data loading
-seq: "01"                                                 # sequence to run
+seq: "archaeo_sequence_5_raw_data"                                         # sequence to run
 
 #-------------------------------------
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/kitti/01/                             # directory to save result
-    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/KITTI/data_odometry_color/dataset/sequences   # image data directory
-    gt_pose_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/KITTI/data_odometry_poses/dataset/poses       # (optional) ground-truth pose data directory
+    result_dir: result/Aqualoc/Archaeological_site_sequences/archaeo_sequence_5_raw_data  # directory to save result
+    img_seq_dir: /home/olaya/Datasets/Aqualoc/Archaeological_site_sequences/archaeo_sequence_5_raw_data/raw_data/images_sequence_5   # image data directory
+    gt_pose_dir: /home/olaya/Datasets/Aqualoc/Archaeological_site_sequences       # (optional) ground-truth pose data directory
+    sequence_number: 1
 
 #-------------------------------------
 #- Depth
@@ -43,3 +44,9 @@ stereo:
 #-------------------------------------
 scale_recovery:                                           # scale recovery configuration
     method: simple                                        # scale recovery method [simple, iterative]
+#-------------------------------------
+#- Visualization
+#-------------------------------------
+visualization:                                            # visualization configuration
+    enable: False                                          # enable/disable frame drawer
+    save_img: False                                       # enable/disable save frames

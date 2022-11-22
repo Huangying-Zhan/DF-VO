@@ -1,4 +1,4 @@
-TUM_tracks='freiburg1_360 freiburg1_rpy freiburg3_nostructure_notexture_far freiburg3_nostructure_texture_near_withloop'
+TUM_tracks='freiburg3_nostructure_notexture_far'
 
 for track in $TUM_tracks
 do

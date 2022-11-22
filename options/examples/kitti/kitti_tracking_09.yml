@@ -23,12 +23,12 @@ directory:
 #-------------------------------------
 depth:                                                    # Depth configuration
     deep_depth:
-        pretrained_model: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/learning-based/DF-VO/models/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
+        pretrained_model: /home/olaya/dev/slam-survey/DF-VO/model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
 #-------------------------------------
 #- Deep flow
 #-------------------------------------
 deep_flow:                                                # Deep optical flow configuration
-    flow_net_weight: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/learning-based/DF-VO/models/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
+    flow_net_weight: /home/olaya/dev/slam-survey/DF-VO/model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
 
 
 #-------------------------------------
@@ -36,7 +36,7 @@ deep_flow:                                                # Deep optical flow co
 #-------------------------------------
 stereo:
     deep_stereo:
-        pretrained_model: /media/airlabsimulation/Acer/Olaya_data/SLAM_SOA/learning-based/DF-VO/models/stereo/hd3/hd3s_things_kitti-1243813e.pth
+        pretrained_model: /home/olaya/dev/slam-survey/DF-VO/model_zoo/stereo/hd3/hd3s_things_kitti-1243813e.pth
 
 #-------------------------------------
 #- Tracking

@@ -15,15 +15,15 @@ frame_step: 5
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/tum/handheld/rgbd_dataset_freiburg1_360/                             # directory to save result
-    img_seq_dir: /media/airlabsimulation/Acer/Olaya_data/Datasets/SLAM/tum_rgbd/Handheld              # image data directory
+    result_dir: dir/to/tum/rgbd_dataset_freiburg1_360/                             # directory to save result
+    img_seq_dir: /dir/to/tum              # image data directory
     gt_pose_dir:                                          # (optional) ground-truth pose data directory
 
 #-------------------------------------
 #- Deep flow
 #-------------------------------------
 deep_flow:                                                # Deep optical flow configuration
-    flow_net_weight: /home/olaya/dev/slam-survey/DF-VO/model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
+    flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
 
 
 
@@ -34,7 +34,7 @@ depth:                                                    # Depth configuration
     depth_src:                                            # depth source [None, gt]
     deep_depth:
         network: monodepth2
-        pretrained_model: /home/olaya/dev/slam-survey/DF-VO/model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
+        pretrained_model: model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
     max_depth: 50                                        # maximum depth 
     min_depth: 0                                          # minimum depth 
 

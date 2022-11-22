@@ -14,9 +14,9 @@ seq: "archaeo_sequence_1_raw_data"                                         # seq
 #- Directories
 #-------------------------------------
 directory:
-    result_dir: result/Aqualoc/Archaeological_site_sequences/archaeo_sequence_1_raw_data  # directory to save result
-    img_seq_dir: /home/olaya/Datasets/Aqualoc/Archaeological_site_sequences/archaeo_sequence_1_raw_data/raw_data/images_sequence_1   # image data directory
-    gt_pose_dir: /home/olaya/Datasets/Aqualoc/Archaeological_site_sequences       # (optional) ground-truth pose data directory
+    result_dir: /dir/to/result  # directory to save result
+    img_seq_dir: /dir/to/Aqualoc/Archaeological_site_sequences/archaeo_sequence_1_raw_data/raw_data/images_sequence_1   # image data directory
+    gt_pose_dir: /dir/to/Aqualoc/Archaeological_site_sequences       # (optional) ground-truth pose data directory
     sequence_number: 1
 
 #-------------------------------------
@@ -24,12 +24,12 @@ directory:
 #-------------------------------------
 depth:                                                    # Depth configuration
     deep_depth:
-        pretrained_model: /home/olaya/dev/slam-survey/DF-VO/model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
+        pretrained_model: model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
 #-------------------------------------
 #- Deep flow
 #-------------------------------------
 deep_flow:                                                # Deep optical flow configuration
-    flow_net_weight: /home/olaya/dev/slam-survey/DF-VO/model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
+    flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
 
 
 #-------------------------------------
@@ -37,7 +37,7 @@ deep_flow:                                                # Deep optical flow co
 #-------------------------------------
 stereo:
     deep_stereo:
-        pretrained_model: /home/olaya/dev/slam-survey/DF-VO/model_zoo/stereo/hd3/hd3s_things_kitti-1243813e.pth
+        pretrained_model: model_zoo/stereo/hd3/hd3s_things_kitti-1243813e.pth
 
 #-------------------------------------
 #- Tracking

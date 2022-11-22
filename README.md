@@ -85,6 +85,24 @@ python apis/run.py \
 -c options/examples/kitti_stereo_train_icra.yml \
 --no_confirm
 
+# Example 3: Run on EuRoC
+python apis/run.py \
+-d options/examples/default_configuration.yml \
+-c options/examples/euroc/MH_01_easy.yml \
+--no_confirm
+
+# Example 4: Run on Aqualoc
+python apis/run.py \
+-d options/examples/default_configuration.yml \
+-c options/examples/aqualoc/Archaeological_site_sequences/archaeo_sequence_1_raw_data.yml \
+--no_confirm
+
+# Example 5: Run on TUM
+python apis/run.py \
+-d options/examples/default_configuration.yml \
+-c options/examples/tum/freiburg1_360.yml \
+--no_confirm
+
 # More examples and our experiments can be found in scripts/experiment.sh
 ```
 

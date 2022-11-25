@@ -5,6 +5,7 @@ from .kinect import Kinect
 from .oxford_robotcar import OxfordRobotCar
 from .euroc import EUROC
 from.tartanair import TartanAIR
+from .mimir import MIMIR
 from .aqualoc import AQUALOC
 
 datasets = {
@@ -19,5 +20,6 @@ datasets = {
             'robotcar': OxfordRobotCar,
             "euroc": EUROC,
             "tartanair": TartanAIR,
+            "mimir": MIMIR,
             "aqualoc": AQUALOC,
         }

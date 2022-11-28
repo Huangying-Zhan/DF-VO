@@ -30,7 +30,7 @@ depth:                                                    # Depth configuration
     depth_src:                                            # depth source [None, gt]
     deep_depth:
         network: monodepth2
-        pretrained_model: model_zoo/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
+        pretrained_model: ${model_zoo_dir}/depth/kitti_odom/stereo/  # directory stores depth.pth and encoder.pth 
     max_depth: 50                                        # maximum depth 
     min_depth: 0                                          # minimum depth 
 
@@ -39,7 +39,7 @@ depth:                                                    # Depth configuration
 #-------------------------------------
 deep_flow:                                                # Deep optical flow configuration
     network: liteflow                                     # optical flow network, [liteflow]
-    flow_net_weight: model_zoo/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
+    flow_net_weight: ${model_zoo_dir}/optical_flow/LiteFlowNet/network-default.pytorch                          # optical flow model path
     forward_backward: True                                # predict both forward/backward flows and compute forward-backward flow consistency
 
 #-------------------------------------
@@ -57,8 +57,8 @@ stereo:
     disp_thre: 0.1
     deep_stereo:
         network: hd3                                     # stereo matching network, [hd3]
-        pretrained_model: model_zoo/stereo/hd3/hd3s_things_kitti-1243813e.pth
-        # pretrained_model: model_zoo/stereo/hd3/hd3s_things-8b4dcd6d.pth
+        pretrained_model: ${model_zoo_dir}/stereo/hd3/hd3s_things_kitti-1243813e.pth
+        # pretrained_model: ${model_zoo_dir}/stereo/hd3/hd3s_things-8b4dcd6d.pth
         forward_backward: True                                # predict both forward/backward flows and compute forward-backward consistency
 
 # ------------------------------------
@@ -172,7 +172,7 @@ pnp_tracker:                                              # PnP-tracker configur
 #-------------------------------------
 visualization:                                            # visualization configuration
     enable: True                                          # enable/disable frame drawer
-    save_img: True                                        # enable/disable save frames
+    save_img: False                                        # enable/disable save frames
     window_h: 600                                         # frame window height
     window_w: 1000                                        # frame window width
     kp_src: kp_best                                       # type of correspondences to be drawn

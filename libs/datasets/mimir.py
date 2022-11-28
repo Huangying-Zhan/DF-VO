@@ -142,7 +142,7 @@ class MIMIR(Dataset):
         # get image data directory
         img_seq_dir = self.cfg.directory.img_seq_dir
  
-        data_dir['img'] = img_seq_dir
+        data_dir['img'] = img_seq_dir+'/data'
  
         return data_dir
 

@@ -19,8 +19,8 @@ cam_mode: mono                                            # camera mode: [mono, 
 #-------------------------------------
 directory:
     result_dir: ${result_directory}                       # directory to save result
-    img_seq_dir: ${dataset_directory}/${sequence_name}/auv0/rgb/cam0        # image data directory
-    gt_pose_dir: ${dataset_directory}/${sequence_name}/auv0/pose_groundtruth  # (optional) ground-truth pose data directory
+    img_seq_dir: ${dataset_directory}/${sequence_name}/${track}/auv0/rgb/cam0        # image data directory
+    gt_pose_dir: ${dataset_directory}/${sequence_name}/${track}/auv0/pose_groundtruth  # (optional) ground-truth pose data directory
     depth_dir:                                            # (optional) external depth data, e.g. ground-truth depths
 
 #-------------------------------------

@@ -13,7 +13,7 @@ dependencies:
   - anaconda-client=1.7.2=py36_0
   - anaconda-project=0.8.2=py36_0
   - asn1crypto=0.24.0=py36_0
-  - astor=0.7.1=py_0
+  - astor
   - astroid=2.2.5=py36_0
   - astropy=3.1.2=py36h7b6447c_0
   - atomicwrites=1.3.0=py36_1
@@ -33,8 +33,8 @@ dependencies:
   - boto=2.49.0=py36_0
   - bottleneck=1.2.1=py36h035aef0_1
   - bzip2=1.0.6=h14c3975_5
-  - c-ares=1.15.0=h14c3975_1001
-  - ca-certificates=2019.9.11=hecc5488_0
+  - c-ares
+  - ca-certificates
   - cairo=1.14.12=h8948797_3
   - certifi=2019.9.11=py36_0
   - cffi=1.12.2=py36h2e261b9_1
@@ -59,7 +59,7 @@ dependencies:
   - defusedxml=0.5.0=py36_1
   - distributed=1.26.0=py36_1
   - docutils=0.14=py36hb0f60f5_0
-  - easydict=1.9=py_0
+  - easydict
   - entrypoints=0.3=py36_0
   - et_xmlfile=1.0.1=py36hd6bccc3_0
   - expat=2.2.6=he6710b0_0
@@ -69,7 +69,7 @@ dependencies:
   - fontconfig=2.13.0=h9420a91_0
   - freetype=2.9.1=h8a8886c_1
   - fribidi=1.0.5=h7b6447c_0
-  - gast=0.2.2=py_0
+  - gast
   - get_terminal_size=1.0.0=haa9412d_0
   - gevent=1.4.0=py36h7b6447c_0
   - glib=2.56.2=hd408876_0
@@ -110,7 +110,7 @@ dependencies:
   - jupyter_core=4.4.0=py36_0
   - jupyterlab=0.35.4=py36hf63ae98_0
   - jupyterlab_server=0.2.0=py36_0
-  - keras-applications=1.0.7=py_1
+  - keras-applications
   - keras-preprocessing=1.0.9=py_1
   - keyring=18.0.0=py36_0
   - kiwisolver=1.0.1=py36hf484d3e_0
@@ -122,7 +122,7 @@ dependencies:
   - libgcc-ng=8.2.0=hdf63c60_1
   - libgfortran-ng=7.3.0=hdf63c60_0
   - libpng=1.6.36=hbc83047_0
-  - libprotobuf=3.8.0=h8b12597_0
+  - libprotobuf
   - libsodium=1.0.16=h1bed415_0
   - libssh2=1.8.0=h1ba5d50_4
   - libstdcxx-ng=8.2.0=hdf63c60_1
@@ -136,7 +136,7 @@ dependencies:
   - locket=0.2.0=py36h787c0ad_1
   - lxml=4.3.2=py36hefd8a0e_0
   - lzo=2.10=h49e0be7_2
-  - markdown=3.1.1=py_0
+  - markdown
   - markupsafe=1.1.1=py36h7b6447c_0
   - matplotlib=3.0.3=py36h5429711_0
   - mccabe=0.6.1=py36_1
@@ -168,7 +168,7 @@ dependencies:
   - numpydoc=0.8.0=py36_0
   - olefile=0.46=py36_0
   - openpyxl=2.6.1=py36_1
-  - openssl=1.1.1c=h516909a_0
+  - openssl
   - packaging=19.0=py36_0
   - pandas=0.24.2=py36he6710b0_0
   - pandoc=2.2.3.2=0
@@ -216,7 +216,6 @@ dependencies:
   - pytest-remotedata=0.3.1=py36_0
   - python=3.6.8=h0371630_0
   - python-dateutil=2.8.0=py36_0
-  - pytorch=1.1.0=py3.6_cuda9.0.176_cudnn7.5.1_0
   - pytz=2018.9=py36_0
   - pywavelets=1.0.2=py36hdd07704_0
   - pyyaml=5.1=py36h7b6447c_0
@@ -254,17 +253,16 @@ dependencies:
   - statsmodels=0.9.0=py36h035aef0_0
   - sympy=1.3=py36_0
   - tblib=1.3.2=py36h34cf8b6_0
-  - tensorboard=1.13.1=py36_0
-  - tensorflow=1.13.1=py36_0
-  - tensorflow-estimator=1.13.0=py_0
-  - termcolor=1.1.0=py_2
+  - tensorboard
+  - tensorflow
+  - tensorflow-estimator
+  - termcolor
   - terminado=0.8.1=py36_1
   - testpath=0.4.2=py36_0
   - tk=8.6.8=hbc83047_0
   - toolz=0.9.0=py36_0
-  - torchvision=0.3.0=py36_cu9.0.176_1
   - tornado=6.0.2=py36h7b6447c_0
-  - tqdm=4.32.2=py_0
+  - tqdm
   - traitlets=4.3.2=py36h674d592_0
   - typed-ast=1.3.1=py36h7b6447c_0
   - unicodecsv=0.14.1=py36ha668878_0
@@ -306,4 +304,6 @@ dependencies:
     - sphinxcontrib-qthelp==1.0.3
     - sphinxcontrib-serializinghtml==1.1.4
     - tensorboardx==1.7
-
+    - torch
+    - torchvision
+    - torchaudio
